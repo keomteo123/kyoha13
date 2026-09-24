@@ -135,13 +135,52 @@ textarea{min-height:120px;resize:vertical}
 .profile-box{display:flex;align-items:center;gap:15px;padding:15px;background:#f7f9fb;border-radius:7px;margin-bottom:15px;position:relative}
 .avatar{width:46px;height:46px;border-radius:50%;background:var(--main);color:white;display:flex;justify-content:center;align-items:center;font-weight:800;font-size:16px;flex-shrink:0}
 
-.profile-box.border-neon{border:2px solid #00e5ff;box-shadow:0 0 14px rgba(0,229,255,.5)}
-.profile-box.border-gold{border:2px solid #f6c94c;box-shadow:0 0 14px rgba(246,201,76,.5)}
-.profile-box.border-gradient{border:2px solid transparent;background-image:linear-gradient(#f7f9fb,#f7f9fb),linear-gradient(135deg,#ff6ec4,#7873f5,#4ade80);background-origin:border-box;background-clip:padding-box,border-box}
+.profile-box.border-neon{--frame:#00d8ff;--soft:rgba(0,216,255,.22);--bg:linear-gradient(135deg,#061924,#0d1f2d 35%,#ebfdff);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(0,216,255,.2),0 0 18px rgba(0,216,255,.45);background:var(--bg);border-radius:18px;}
+.profile-box.border-gold{--frame:#d9a529;--soft:rgba(217,165,41,.18);--bg:linear-gradient(135deg,#fffef1,#fff5d0 35%,#f5d57a);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(217,165,41,.16),0 0 16px rgba(217,165,41,.32);background:var(--bg);border-radius:16px;}
+.profile-box.border-gradient{--frame:#8b5cf6;--soft:rgba(139,92,246,.18);--bg:linear-gradient(135deg,#f8ecff,#eef4ff 35%,#f8f2ff);border:3px solid transparent;background-image:linear-gradient(#f8f8ff,#f8f8ff),linear-gradient(135deg,#ff8ec7,#7c7bff,#7ef7bf);background-origin:border-box;background-clip:padding-box,border-box;border-radius:18px;box-shadow:0 0 0 2px rgba(123,96,255,.12);}
+.profile-box.border-vine,.profile-box.border-branch,.profile-box.border-thorn,.profile-box.border-spark,.profile-box.border-crystal,.profile-box.border-comet,.profile-box.border-ribbon,.profile-box.border-lotus,.profile-box.border-crown,.profile-box.border-wing,.profile-box.border-nova,.profile-box.border-spire{position:relative;overflow:hidden;border-radius:18px;}
+.profile-box.border-vine{--frame:#2ea95e;--soft:rgba(46,169,94,.22);--bg:linear-gradient(135deg,#effff5,#f9fffb 38%,#edfef1);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(46,169,94,.12),0 0 14px rgba(46,169,94,.22);background:var(--bg);}
+.profile-box.border-vine::before{content:"";position:absolute;inset:7px 10px 7px 10px;border-radius:16px;background:linear-gradient(135deg,rgba(46,169,94,.16),rgba(46,169,94,.02));clip-path:polygon(0 15%, 18% 0, 32% 12%, 48% 0, 65% 15%, 82% 0, 100% 16%, 100% 100%, 0 100%);}
+.profile-box.border-branch{--frame:#7a4b1e;--soft:rgba(122,75,30,.18);--bg:linear-gradient(135deg,#faf0e6,#f9f8f3 44%,#f4e9dc);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(122,75,30,.1),0 0 16px rgba(122,75,30,.2);background:var(--bg);}
+.profile-box.border-branch::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0 18%,rgba(122,75,30,.16) 18% 22%,transparent 22% 48%,rgba(122,75,30,.16) 48% 52%,transparent 52% 100%);clip-path:polygon(0 8%, 12% 0, 28% 12%, 40% 0, 54% 18%, 70% 0, 82% 14%, 100% 0, 100% 100%, 0 100%);}
+.profile-box.border-thorn{--frame:#b95fc6;--soft:rgba(185,95,198,.18);--bg:linear-gradient(135deg,#fff1ff,#fefcff 50%,#fff8ff);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(185,95,198,.12),0 0 18px rgba(185,95,198,.22);background:var(--bg);border-radius:22px 18px 20px 18px;transform:skewX(-1deg);}
+.profile-box.border-thorn::before{content:"";position:absolute;inset:6px;border:2px solid rgba(185,95,198,.7);border-radius:18px 16px 18px 16px;clip-path:polygon(0 12%, 100% 0, 100% 100%, 0 88%, 15% 50%);}
+.profile-box.border-spark{--frame:#ffb703;--soft:rgba(255,183,3,.18);--bg:linear-gradient(135deg,#fff7d6,#fffdf8 45%,#fff0b8);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(255,183,3,.12),0 0 18px rgba(255,183,3,.22);background:var(--bg);}
+.profile-box.border-spark::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 12%, rgba(255,183,3,.9) 0 3px, transparent 4px),radial-gradient(circle at 75% 22%, rgba(255,183,3,.8) 0 3px, transparent 4px),radial-gradient(circle at 80% 80%, rgba(255,183,3,.8) 0 3px, transparent 4px),radial-gradient(circle at 28% 74%, rgba(255,183,3,.7) 0 2px, transparent 3px);}
+.profile-box.border-crystal{--frame:#5da7ff;--soft:rgba(93,167,255,.18);--bg:linear-gradient(135deg,#edf9ff,#f9fbff 48%,#e7f5ff);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(93,167,255,.14),0 0 18px rgba(93,167,255,.22);background:var(--bg);clip-path:polygon(2% 20%, 18% 0, 82% 0, 98% 20%, 100% 80%, 82% 100%, 18% 100%, 0 80%);}
+.profile-box.border-comet{--frame:#ff5d5d;--soft:rgba(255,93,93,.16);--bg:linear-gradient(135deg,#fff2f2,#fffdfd 48%,#ffe6e6);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(255,93,93,.12),0 0 16px rgba(255,93,93,.2);background:var(--bg);}
+.profile-box.border-comet::before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 0 55%,rgba(255,93,93,.22) 68%,transparent 82%);transform:skewX(-12deg);}
+.profile-box.border-ribbon{--frame:#b35eff;--soft:rgba(179,94,255,.18);--bg:linear-gradient(135deg,#fef3ff,#fafaff 50%,#f5ebff);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(179,94,255,.12),0 0 16px rgba(179,94,255,.18);background:var(--bg);border-radius:24px 10px 24px 10px;}
+.profile-box.border-ribbon::before{content:"";position:absolute;inset:0;border-radius:24px 10px 24px 10px;background:repeating-linear-gradient(135deg,rgba(179,94,255,.16),rgba(179,94,255,.16) 8px,transparent 8px,transparent 18px);}
+.profile-box.border-lotus{--frame:#ff7ea6;--soft:rgba(255,126,166,.2);--bg:linear-gradient(135deg,#fff2f7,#fffdfd 52%,#ffe9f1);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(255,126,166,.12),0 0 18px rgba(255,126,166,.18);background:var(--bg);}
+.profile-box.border-lotus::before{content:"";position:absolute;inset:8px 12px;border-radius:20px;background:radial-gradient(circle at 50% 50%, rgba(255,126,166,.42) 0 22%, transparent 23%),radial-gradient(circle at 25% 25%, rgba(255,126,166,.3) 0 16%, transparent 17%),radial-gradient(circle at 75% 25%, rgba(255,126,166,.3) 0 16%, transparent 17%),radial-gradient(circle at 25% 75%, rgba(255,126,166,.3) 0 16%, transparent 17%),radial-gradient(circle at 75% 75%, rgba(255,126,166,.3) 0 16%, transparent 17%);}
+.profile-box.border-crown{--frame:#ffc93d;--soft:rgba(255,201,61,.18);--bg:linear-gradient(135deg,#fffbe6,#fffdfb 50%,#fff3c8);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(255,201,61,.12),0 0 18px rgba(255,201,61,.2);background:var(--bg);}
+.profile-box.border-crown::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 0 52%, rgba(255,201,61,.24) 52% 100%);clip-path:polygon(0 18%, 14% 18%, 24% 0, 36% 18%, 50% 0, 64% 18%, 76% 0, 86% 18%, 100% 18%, 100% 100%, 0 100%);}
+.profile-box.border-wing{--frame:#32c7c8;--soft:rgba(50,199,200,.18);--bg:linear-gradient(135deg,#ebffff,#f8fffe 50%,#e5ffff);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(50,199,200,.1),0 0 18px rgba(50,199,200,.18);background:var(--bg);}
+.profile-box.border-wing::before,.profile-box.border-wing::after{content:"";position:absolute;top:10px;bottom:10px;width:42%;background:linear-gradient(135deg,rgba(50,199,200,.18),rgba(50,199,200,.06));clip-path:polygon(0 50%, 100% 0, 100% 100%);}
+.profile-box.border-wing::before{left:0;transform:scaleX(-1);}
+.profile-box.border-wing::after{right:0;}
+.profile-box.border-nova{--frame:#7d63ff;--soft:rgba(125,99,255,.2);--bg:linear-gradient(135deg,#f1eeff,#fffdfd 50%,#ecf0ff);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(125,99,255,.12),0 0 18px rgba(125,99,255,.18);background:var(--bg);}
+.profile-box.border-nova::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at center, rgba(125,99,255,.2) 0 24%, transparent 25%),radial-gradient(circle at 20% 20%, rgba(255,255,255,.95) 0 2px, transparent 3px),radial-gradient(circle at 78% 30%, rgba(255,255,255,.95) 0 2px, transparent 3px),radial-gradient(circle at 35% 72%, rgba(255,255,255,.95) 0 2px, transparent 3px),radial-gradient(circle at 70% 70%, rgba(255,255,255,.95) 0 2px, transparent 3px);}
+.profile-box.border-spire{--frame:#ff7a18;--soft:rgba(255,122,24,.18);--bg:linear-gradient(135deg,#fff3e8,#fffdfb 50%,#ffe9d6);border:3px solid var(--frame);box-shadow:0 0 0 2px rgba(255,122,24,.12),0 0 18px rgba(255,122,24,.2);background:var(--bg);}
+.profile-box.border-spire::before{content:"";position:absolute;inset:0;clip-path:polygon(0 100%, 0 18%, 18% 18%, 18% 0, 32% 0, 32% 18%, 50% 18%, 50% 0, 64% 0, 64% 18%, 82% 18%, 82% 0, 100% 0, 100% 100%);background:linear-gradient(180deg,rgba(255,122,24,.18),rgba(255,122,24,.02));}
 
-.avatar.border-neon{border:2px solid #00e5ff;box-shadow:0 0 10px rgba(0,229,255,.6)}
-.avatar.border-gold{border:2px solid #f6c94c;box-shadow:0 0 10px rgba(246,201,76,.6)}
-.avatar.border-gradient{border:2px solid transparent;background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#ff6ec4,#7873f5,#4ade80);background-origin:border-box;background-clip:padding-box,border-box}
+.avatar.border-neon{border:3px solid #00d8ff;box-shadow:0 0 0 2px rgba(0,216,255,.2),0 0 12px rgba(0,216,255,.45);border-radius:18px;background:linear-gradient(135deg,#1a2e40,#0f3a48 40%,#d9f9ff);}
+.avatar.border-gold{border:3px solid #d9a529;box-shadow:0 0 0 2px rgba(217,165,41,.15),0 0 12px rgba(217,165,41,.28);border-radius:14px;background:linear-gradient(135deg,#fffdf5,#f6d678 50%,#d49d25);}
+.avatar.border-gradient{border:3px solid transparent;background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#ff8ec7,#7c7bff,#7ef7bf);background-origin:border-box;background-clip:padding-box,border-box;border-radius:18px;box-shadow:0 0 0 2px rgba(123,96,255,.12);}
+.avatar.border-vine,.avatar.border-branch,.avatar.border-thorn,.avatar.border-spark,.avatar.border-crystal,.avatar.border-comet,.avatar.border-ribbon,.avatar.border-lotus,.avatar.border-crown,.avatar.border-wing,.avatar.border-nova,.avatar.border-spire{border:3px solid transparent;box-shadow:0 0 0 2px rgba(98,92,255,.1),0 0 12px rgba(98,92,255,.18);}
+.avatar.border-vine{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#a8e6a8,#3bb273,#d1f4d4);background-origin:border-box;background-clip:padding-box,border-box;border-radius:16px 20px 18px 20px;}
+.avatar.border-branch{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#d6b38b,#8c5b34,#f2d5a3);background-origin:border-box;background-clip:padding-box,border-box;border-radius:20px 12px 18px 12px;}
+.avatar.border-thorn{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#f8d7ff,#b95fc6,#f5d0ff);background-origin:border-box;background-clip:padding-box,border-box;border-radius:18px 18px 24px 18px;transform:rotate(-3deg);}
+.avatar.border-spark{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#fff3b0,#ffb703,#ffd166);background-origin:border-box;background-clip:padding-box,border-box;border-radius:14px;}
+.avatar.border-crystal{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#dff7ff,#5da7ff,#a7d8ff);background-origin:border-box;background-clip:padding-box,border-box;clip-path:polygon(50% 0%, 100% 20%, 100% 80%, 50% 100%, 0 80%, 0 20%);}
+.avatar.border-comet{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#ffd6d6,#ff5d5d,#ffb5b5);background-origin:border-box;background-clip:padding-box,border-box;border-radius:18px 12px 22px 12px;}
+.avatar.border-ribbon{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#f3d4ff,#b35eff,#d7a8ff);background-origin:border-box;background-clip:padding-box,border-box;border-radius:16px 24px 16px 24px;}
+.avatar.border-lotus{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#ffdfe9,#ff7ea6,#b8f2ea);background-origin:border-box;background-clip:padding-box,border-box;border-radius:50% 50% 40% 40%;}
+.avatar.border-crown{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#fff7cc,#ffc93d,#ffd36b);background-origin:border-box;background-clip:padding-box,border-box;clip-path:polygon(0 100%, 0 30%, 22% 30%, 30% 0, 44% 30%, 56% 0, 70% 30%, 78% 30%, 100% 30%, 100% 100%);}
+.avatar.border-wing{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#d9fffb,#32c7c8,#9ce9ef);background-origin:border-box;background-clip:padding-box,border-box;clip-path:polygon(0 50%, 30% 18%, 50% 0, 70% 18%, 100% 50%, 70% 82%, 50% 100%, 30% 82%);}
+.avatar.border-nova{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#dad4ff,#7d63ff,#b8b3ff);background-origin:border-box;background-clip:padding-box,border-box;border-radius:50%;box-shadow:0 0 18px rgba(125,99,255,.24);} 
+.avatar.border-spire{background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#ffe8d1,#ff7a18,#ffd39a);background-origin:border-box;background-clip:padding-box,border-box;clip-path:polygon(50% 0%, 100% 100%, 80% 100%, 80% 58%, 20% 58%, 20% 100%, 0 100%);}
 .handle-link{cursor:pointer;text-decoration:underline;text-decoration-style:dotted}
 .handle-link:hover{color:var(--main)}
 
@@ -279,6 +318,7 @@ textarea{min-height:120px;resize:vertical}
       <button class="nav-btn" data-page="calendar">캘린더</button>
       <button class="nav-btn" data-page="votes">투표</button>
       <button class="nav-btn" data-page="feed">[NEW!] SNS</button>
+      <button class="nav-btn" data-page="meals">급식</button>
       <button class="nav-btn" data-page="lost">분실물</button>
       <button class="nav-btn" data-page="games">게임</button>
       <button class="nav-btn" data-page="account">계정</button>
@@ -427,10 +467,22 @@ const FONT_ITEMS=[
 ];
 
 const BORDER_ITEMS=[
-  {id:"border-none",     name:"기본 테두리",   icon:"⬜", price:0,  cssClass:"none"},
-  {id:"border-neon",     name:"네온 테두리",   icon:"💡", price:80, cssClass:"neon"},
-  {id:"border-gold",     name:"골드 테두리",   icon:"🏆", price:100,cssClass:"gold"},
-  {id:"border-gradient", name:"그라데이션 테두리",icon:"🌈", price:120,cssClass:"gradient"}
+  {id:"border-none",     name:"기본 프레임",    icon:"⬜", price:0,  cssClass:"none"},
+  {id:"border-neon",     name:"네온 라이트 프라임",    icon:"💡", price:80, cssClass:"neon"},
+  {id:"border-gold",     name:"골든 에지 프라임",      icon:"🏆", price:100,cssClass:"gold"},
+  {id:"border-gradient", name:"그라데이션 프라임", icon:"🌈", price:120,cssClass:"gradient"},
+  {id:"border-vine",     name:"톱니바귀 초록 에지 프라임", icon:"🌿", price:140, cssClass:"vine"},
+  {id:"border-branch",   name:"스트라이프 우드 프라임", icon:"🌱", price:145, cssClass:"branch"},
+  {id:"border-thorn",    name:"사선 퍼플 마름모 프라임", icon:"🌼", price:150, cssClass:"thorn"},
+  {id:"border-spark",    name:"골든 스태틱 프라임", icon:"✨", price:160, cssClass:"spark"},
+  {id:"border-crystal",  name:"컷팅 다이아 박스 프라임", icon:"💎", price:165, cssClass:"crystal"},
+  {id:"border-comet",    name:"레드 사선 레이저 프라임", icon:"☄️", price:170, cssClass:"comet"},
+  {id:"border-ribbon",   name:"다이아곤 빗살무늬 프라임",  icon:"🎀", price:175, cssClass:"ribbon"},
+  {id:"border-lotus",    name:"핑크 방사형 패턴 프라임",  icon:"🪷", price:180, cssClass:"lotus"},
+  {id:"border-crown",    name:"크라운 피크 프라임",  icon:"👑", price:185, cssClass:"crown"},
+  {id:"border-wing",     name:"아쿠아 사이드 윙 프라임",  icon:"🪽", price:190, cssClass:"wing"},
+  {id:"border-nova",     name:"코스모스 노바 프라임", icon:"🌌", price:195, cssClass:"nova"},
+  {id:"border-spire",    name:"오렌지 시타델 프라임",  icon:"🔺", price:200, cssClass:"spire"}
 ];
 
 const TITLE_ITEMS=[
@@ -441,6 +493,145 @@ const TITLE_ITEMS=[
 ];
 
 const COLOR_ITEM={id:"nickname-color", name:"닉네임 색상", icon:"🎨", price:70};
+
+const NEIS_SCHOOL_STORAGE_KEY="neis_school_config_v1";
+const NEIS_MEAL_CACHE_KEY="neis_meal_cache_v1";
+const NEIS_TIMETABLE_CACHE_KEY="neis_timetable_cache_v1";
+
+function getNeisSchoolConfig(){
+  try{
+    return JSON.parse(localStorage.getItem(NEIS_SCHOOL_STORAGE_KEY)||"{}") || {};
+  }catch(e){
+    return {};
+  }
+}
+
+function setNeisSchoolConfig(config){
+  try{
+    localStorage.setItem(NEIS_SCHOOL_STORAGE_KEY, JSON.stringify(config || {}));
+  }catch(e){
+    console.warn("NEIS 학교 설정 저장 실패", e);
+  }
+}
+
+function saveNeisSchoolConfig(){
+  const atptInput=document.getElementById("neisAtptCode");
+  const sdInput=document.getElementById("neisSdCode");
+
+  const atpt=atptInput?.value.trim() || "";
+  const sd=sdInput?.value.trim() || "";
+
+  if(!atpt || !sd){
+    msg("교육청 코드와 학교 코드를 모두 입력해주세요.");
+    return;
+  }
+
+  const config={atptOfcdcScCode:atpt, sdSchulCode:sd};
+  setNeisSchoolConfig(config);
+  localStorage.removeItem(NEIS_MEAL_CACHE_KEY);
+  localStorage.removeItem(NEIS_TIMETABLE_CACHE_KEY);
+
+  msg("급식/시간표 학교 설정이 저장되었습니다.");
+
+  const currentPage=document.querySelector('.nav-btn.active')?.dataset.page;
+  if(currentPage==="meals") renderMealPage();
+}
+
+function resetNeisSchoolConfig(){
+  setNeisSchoolConfig({});
+  localStorage.removeItem(NEIS_MEAL_CACHE_KEY);
+  localStorage.removeItem(NEIS_TIMETABLE_CACHE_KEY);
+
+  const atptInput=document.getElementById("neisAtptCode");
+  const sdInput=document.getElementById("neisSdCode");
+  if(atptInput) atptInput.value="";
+  if(sdInput) sdInput.value="";
+
+  msg("학교 설정이 초기화되었습니다. 다른 코드를 다시 입력해 주세요.");
+}
+
+function fallbackMealData(){
+  return {
+    date: today(),
+    items: [
+      "제공된 급식 데이터가 아직 없어요.",
+      "학교 코드/급식 API 키가 연결되면 자동으로 표시됩니다.",
+      "예시: 치킨마요 덮밥, 감자샐러드, 배추김치"
+    ],
+    source: "샘플 데이터"
+  };
+}
+
+function fallbackTimetableData(){
+  return {
+    date: today(),
+    rows: [
+      {period:"1교시", subject:"국어"},
+      {period:"2교시", subject:"수학"},
+      {period:"3교시", subject:"사회"},
+      {period:"4교시", subject:"과학"},
+      {period:"5교시", subject:"체육"},
+      {period:"6교시", subject:"영어"}
+    ],
+    source:"샘플 시간표"
+  };
+}
+
+async function fetchSchoolMealData(){
+  // 여기에 직접 입력해버리기
+  const config = {
+    atptOfcdcScCode: "J10",
+    sdSchulCode: "J100000676",
+    apiKey: "여기에_발급받은_인증키_입력"
+  };
+
+  try{
+    const ymd=today().replace(/-/g,"");
+    const url=`https://open.neis.go.kr/hub/mealServiceDietInfo?ATPT_OFCDC_SC_CODE=${encodeURIComponent(config.atptOfcdcScCode)}&SD_SCHUL_CODE=${encodeURIComponent(config.sdSchulCode)}&MLSV_YMD=${ymd}&Type=json`;
+    const response=await fetch(url,{cache:"no-store"});
+    if(!response.ok) throw new Error("NEIS 급식 호출 실패");
+    const json=await response.json();
+    const items=(json?.mealServiceDietInfo?.[1]?.row || json?.mealServiceDietInfo?.[0]?.row || []).map(row=>row?.DDISH_NM || "")
+      .filter(Boolean)
+      .flatMap(text=>text.split("<br/>").map(s=>s.trim()).filter(Boolean));
+
+    const result={date:today(), items:items.length?items:["급식 정보가 아직 없습니다."], source:"NEIS API"};
+    localStorage.setItem(NEIS_MEAL_CACHE_KEY, JSON.stringify(result));
+    return result;
+  }catch(e){
+    console.warn("NEIS 급식 불러오기 실패", e);
+    const cached=JSON.parse(localStorage.getItem(NEIS_MEAL_CACHE_KEY)||"null");
+    return cached || fallbackMealData();
+  }
+}
+
+async function fetchSchoolTimetableData(){
+  const config=getNeisSchoolConfig();
+  if(!config.atptOfcdcScCode || !config.sdSchulCode){
+    const cached=JSON.parse(localStorage.getItem(NEIS_TIMETABLE_CACHE_KEY)||"null");
+    return cached || fallbackTimetableData();
+  }
+
+  try{
+    const ymd=today().replace(/-/g,"");
+    const url=`https://open.neis.go.kr/hub/hisTimetable?ATPT_OFCDC_SC_CODE=${encodeURIComponent(config.atptOfcdcScCode)}&SD_SCHUL_CODE=${encodeURIComponent(config.sdSchulCode)}&ALL_TI_YMD=${ymd}&Type=json`;
+    const response=await fetch(url,{cache:"no-store"});
+    if(!response.ok) throw new Error("NEIS 시간표 호출 실패");
+    const json=await response.json();
+    const rows=(json?.hisTimetable?.[1]?.row || json?.hisTimetable?.[0]?.row || []).map(row=>({
+      period: row?.PERIO || row?.PERIO_NM || "-",
+      subject: row?.ITRT_CNTNT || row?.SUBJECT || "-"
+    })).filter(item=>item.subject !== "-");
+
+    const result={date:today(), rows:rows.length?rows:[{period:"-",subject:"시간표 정보가 아직 없습니다."}], source:"NEIS API"};
+    localStorage.setItem(NEIS_TIMETABLE_CACHE_KEY, JSON.stringify(result));
+    return result;
+  }catch(e){
+    console.warn("NEIS 시간표 불러오기 실패", e);
+    const cached=JSON.parse(localStorage.getItem(NEIS_TIMETABLE_CACHE_KEY)||"null");
+    return cached || fallbackTimetableData();
+  }
+}
 
 
 /* =========================================================
@@ -467,9 +658,24 @@ function isStaff(){ return Boolean(profile && (profile.role==="admin" || profile
 function canDelete(authorId){ return Boolean(isStaff() || currentUser?.id===authorId); }
 
 function borderClassFor(equipped){
-  return equipped==="neon" ? "border-neon" :
-         equipped==="gold" ? "border-gold" :
-         equipped==="gradient" ? "border-gradient" : "";
+  const map={
+    neon:"border-neon",
+    gold:"border-gold",
+    gradient:"border-gradient",
+    vine:"border-vine",
+    branch:"border-branch",
+    thorn:"border-thorn",
+    spark:"border-spark",
+    crystal:"border-crystal",
+    comet:"border-comet",
+    ribbon:"border-ribbon",
+    lotus:"border-lotus",
+    crown:"border-crown",
+    wing:"border-wing",
+    nova:"border-nova",
+    spire:"border-spire"
+  };
+  return map[equipped] || "";
 }
 
 function roleBadge(role){
@@ -580,6 +786,8 @@ async function login(){
 
   currentUser=data.user;
   await loadProfile();
+  await updateLastLoginStamp();
+  await loadProfile();
 
   if(!profile){
     msg("프로필을 불러오지 못했습니다. 관리자에게 문의해주세요.");
@@ -607,6 +815,16 @@ async function logout(){
   document.getElementById("loginPassword").value="";
 }
 
+async function updateLastLoginStamp(){
+  if(!currentUser) return;
+  const stamp=new Date().toISOString();
+
+  const {error}=await supabase.from("profiles").update({updated_at:stamp}).eq("id",currentUser.id);
+  if(error){
+    console.warn("마지막 접속일 갱신 실패:", error.message);
+  }
+}
+
 async function loadProfile(){
   if(!currentUser)return;
   const {data,error}=await supabase.from("profiles").select("*").eq("id",currentUser.id).single();
@@ -619,6 +837,8 @@ async function restoreLogin(){
   if(!data.session){ document.getElementById("loginPage").style.display="flex"; return; }
 
   currentUser=data.session.user;
+  await loadProfile();
+  await updateLastLoginStamp();
   await loadProfile();
 
   if(!profile){
@@ -796,7 +1016,7 @@ function go(page){
 const PAGE_RENDERERS={
   home:renderHome, notices:renderNotices, schedule:renderSchedule,
   assignments:renderAssignments, calendar:renderCalendar, votes:renderVotes,
-  feed:renderFeed, lost:renderLost, games:renderGames, account:renderAccount
+  feed:renderFeed, meals:renderMealPage, lost:renderLost, games:renderGames, account:renderAccount
 };
 
 function render(page){
@@ -949,6 +1169,7 @@ async function renderHome(){
         <button class="outline" onclick="go('votes')">🗳️ 투표</button>
         <button class="outline" onclick="go('lost')">🔎 분실물</button>
         <button class="outline" onclick="go('feed')">📱 SNS</button>
+        <button class="outline" onclick="go('meals')">🍽️ 급식</button>
         <button class="outline" onclick="go('games')">🎮 게임</button>
       </div>
     </div>
@@ -963,11 +1184,32 @@ async function renderHome(){
 
 async function renderNotices(){
   showLoading();
-  const {data,error}=await supabase.from("notices").select(`*, profiles(nickname,handle)`).order("created_at",{ascending:false});
+  const [noticesResult, timetableResult]=await Promise.all([
+    supabase.from("notices").select(`*, profiles(nickname,handle)`).order("created_at",{ascending:false}),
+    fetchSchoolTimetableData()
+  ]);
+
+  const {data,error}=noticesResult;
   if(error){ msg(error.message); return; }
+
+  const timetableRows=(timetableResult?.rows||[]).map(item=>`
+    <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eee">
+      <span class="badge">${escapeHTML(item.period)}</span>
+      <span style="flex:1;text-align:right;">${escapeHTML(item.subject)}</span>
+    </div>
+  `).join("");
 
   document.getElementById("app").innerHTML=`
     <div class="page-title"><h1>공지사항</h1><p>우리 반의 중요한 소식을 확인하세요.</p></div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3>📌 오늘의 시간표</h3>
+      <p class="meta">${escapeHTML(timetableResult?.date || today())} · ${escapeHTML(timetableResult?.source || "샘플 데이터")}</p>
+      <div style="margin-top:12px;">
+        ${timetableRows || "<p class='meta'>오늘의 시간표는 아직 준비되지 않았습니다.</p>"}
+      </div>
+    </div>
+
     <div class="toolbar">
       <span>총 ${data.length}건</span>
       ${isStaff() ? `<button class="primary" onclick="noticeForm()">공지 작성</button>` : ""}
@@ -1384,7 +1626,12 @@ async function renderLost(){
               <td>${escapeHTML(x.content)}</td>
               <td>${authorLabel(x.profiles,x.author_id)}</td>
               <td>${x.created_at.slice(0,10)}</td>
-              <td>${canDelete(x.author_id)?`<button class="danger" onclick="deletePost('lost_items',${x.id},'lost')">삭제</button>`:""}</td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                  <button class="outline" onclick="showLost(${x.id})">댓글 보기</button>
+                  ${canDelete(x.author_id)?`<button class="danger" onclick="deletePost('lost_items',${x.id},'lost')">삭제</button>`:""}
+                </div>
+              </td>
             </tr>
           `).join("") : `<tr><td colspan="6" class="empty">등록된 분실물이 없습니다.</td></tr>`}
         </tbody>
@@ -1397,7 +1644,7 @@ function lostForm(){
   openModal(`
     <h2>분실물 등록</h2>
     <div class="form-group"><label>물건 이름</label><input id="lTitle" placeholder="예: 검은색 필통"></div>
-    <div class="form-group"><label>설명</label><textarea id="lContent" placeholder="발견 장소나 특징을 적어주세요."></textarea></div>
+    <div class="form-group"><label>설명</label><textarea id="lContent" placeholder="발견 장소나 특징을 적어주세요.\n예: 2층 복도에서 발견, 검은색 필통, 네임스티커 있음"></textarea></div>
     <p class="meta">💡 사진은 직접 업로드 대신, SNS 피드에 이미지 링크로 올려서 공유해보세요.</p>
     <button class="primary" onclick="createLost()">등록</button>
   `);
@@ -1418,14 +1665,58 @@ async function createLost(){
 }
 
 async function showLost(id){
-  const {data,error}=await supabase.from("lost_items").select(`*, profiles(nickname,handle)`).eq("id",id).single();
-  if(error)return;
+  const [{data:lostItem,error:lostError},{data:comments,error:commentsError}]=await Promise.all([
+    supabase.from("lost_items").select(`*, profiles(nickname,handle)`).eq("id",id).single(),
+    supabase.from("lost_comments").select(`*, profiles(nickname,handle)`).eq("lost_id",id).order("created_at",{ascending:true})
+  ]);
+
+  if(lostError || !lostItem){ msg("분실물 정보를 불러오지 못했습니다."); return; }
+  if(commentsError){ console.warn(commentsError); }
+
   openModal(`
-    <h2>${escapeHTML(data.title)}</h2>
-    <p style="white-space:pre-wrap">${escapeHTML(data.content)}</p>
-    <p class="meta">등록자: <b>${authorLabel(data.profiles,data.author_id)}</b></p>
-    ${canDelete(data.author_id)?`<button class="danger" style="margin-top:15px" onclick="deletePost('lost_items',${data.id},'lost')">삭제</button>`:""}
+    <h2>${escapeHTML(lostItem.title)}</h2>
+    <p style="white-space:pre-wrap">${escapeHTML(lostItem.content)}</p>
+    <p class="meta">등록자: <b>${authorLabel(lostItem.profiles,lostItem.author_id)}</b> · ${lostItem.created_at.slice(0,10)}</p>
+
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid #eee;">
+      <h3 style="margin:0 0 10px;">💬 댓글</h3>
+      ${(comments||[]).length
+        ? `<div style="display:flex;flex-direction:column;gap:10px;max-height:220px;overflow:auto;padding-right:4px;">
+            ${(comments||[]).map(c=>`
+              <div style="padding:10px 12px;border:1px solid #eee;border-radius:8px;background:#f7f9fb;">
+                <div><b>${escapeHTML(c.profiles?.nickname||"?")}</b> <span class="meta">(${escapeHTML(c.profiles?.handle||"?")})</span></div>
+                <div style="margin-top:4px;white-space:pre-wrap;">${escapeHTML(c.content)}</div>
+                <div class="meta" style="margin-top:5px;">${c.created_at.slice(0,16).replace("T"," ")}</div>
+              </div>
+            `).join("")}
+          </div>`
+        : `<p class="meta">아직 댓글이 없습니다. 어디서 찾았는지 알려주세요.</p>`
+      }
+
+      <div style="margin-top:14px;display:flex;gap:8px;align-items:flex-start;">
+        <textarea id="lostCommentInput" rows="3" style="flex:1;resize:vertical;padding:8px;border:1px solid #ccd3da;border-radius:5px;" placeholder="어디서 찾았는지 적어주세요. 예: 2층 복도, 화장실 앞, 교실 책상 밑"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px;gap:8px;">
+        <button class="outline" onclick="addLostComment(${id})">댓글 등록</button>
+        ${canDelete(lostItem.author_id)?`<button class="danger" onclick="deletePost('lost_items',${lostItem.id},'lost')">삭제</button>`:""}
+      </div>
+    </div>
   `);
+}
+
+async function addLostComment(lostId){
+  const el=document.getElementById("lostCommentInput");
+  const raw=(el?.value||"").trim();
+  if(!raw){ msg("댓글 내용을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(raw);
+  if(!cleaned)return;
+  const [content]=cleaned;
+
+  const {error}=await supabase.from("lost_comments").insert({lost_id:lostId,author_id:currentUser.id,content});
+  if(error){ msg("댓글 등록 실패: "+error.message); return; }
+
+  showLost(lostId);
 }
 
 
@@ -1775,6 +2066,28 @@ function renderGames(){
   `;
 }
 
+async function renderMealPage(){
+  showLoading();
+  const mealData=await fetchSchoolMealData();
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>오늘의 급식</h1><p>학교 급식 정보를 확인하세요.</p></div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="toolbar">
+        <div>
+          <strong>오늘의 급식</strong>
+          <div class="meta">날짜: ${escapeHTML(mealData?.date || today())} · ${escapeHTML(mealData?.source || "샘플 데이터")}</div>
+        </div>
+        <button class="outline" onclick="renderMealPage()">새로고침</button>
+      </div>
+      <ul style="margin:0;padding-left:18px;line-height:1.9;">
+        ${(mealData?.items || []).map(item=>`<li>${escapeHTML(item)}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+}
+
 
 /* =========================================================
    DELETE (공통)
@@ -1811,10 +2124,7 @@ async function renderAccount(){
   const {canChange,daysLeft}=nicknameCooldown(profile);
   const nextChangeText=canChange ? "지금 바로 변경 가능합니다." : `최근 닉네임을 변경하셨습니다. (다음 변경까지 ${daysLeft}일 남음)`;
 
-  const borderClass=
-    profile.equipped_border==="neon" ? "border-neon" :
-    profile.equipped_border==="gold" ? "border-gold" :
-    profile.equipped_border==="gradient" ? "border-gradient" : "";
+  const borderClass=borderClassFor(profile?.equipped_border);
 
   const notifPermission=(typeof Notification!=="undefined") ? Notification.permission : "unsupported";
 
@@ -1841,7 +2151,7 @@ async function renderAccount(){
         수행평가/시험이 ${EXAM_NOTIFY_DAYS}일 이내로 다가오면 이 브라우저(기기)에서 알림을 받을 수 있어요.<br>
         ⚠️ 앱/탭을 완전히 꺼두면 알림이 오지 않고, 접속 중이거나 열어둔 상태에서만 동작합니다.
       </p>
-      <p class="meta" style="margin:10px 0;">현재 상태: ${
+      <p class="meta" style="margin:10px 0;">현재 상태 : ${
         notifPermission==="granted" ? "✅ 알림 허용됨" :
         notifPermission==="denied" ? "🚫 알림 차단됨 (브라우저 설정에서 직접 허용해야 합니다)" :
         notifPermission==="unsupported" ? "이 브라우저는 알림 기능을 지원하지 않습니다" :
@@ -1878,13 +2188,13 @@ async function renderAccount(){
       <p class="meta">출석체크(+${CHECKIN_POINTS}P/일)와 SNS 피드 글 채택(+${FEATURE_POINTS}P)으로 포인트를 모을 수 있어요.</p>
 
       <h4 style="margin:16px 0 4px">글꼴</h4>
-      <div class="shop-grid">${FONT_ITEMS.map(item=>renderShopItem(item,"font")).join("")}</div>
+      ${renderShopCategory("font", FONT_ITEMS)}
 
       <h4 style="margin:16px 0 4px">프로필 테두리</h4>
-      <div class="shop-grid">${BORDER_ITEMS.map(item=>renderShopItem(item,"border")).join("")}</div>
+      ${renderShopCategory("border", BORDER_ITEMS)}
 
       <h4 style="margin:16px 0 4px">칭호</h4>
-      <div class="shop-grid">${TITLE_ITEMS.map(item=>renderShopItem(item,"title")).join("")}</div>
+      ${renderShopCategory("title", TITLE_ITEMS)}
 
       <h4 style="margin:16px 0 4px">닉네임 색상</h4>
       <div class="shop-item" style="max-width:220px">
@@ -1899,6 +2209,35 @@ async function renderAccount(){
     ${adminSection}
 
   `;
+}
+
+const SHOP_PREVIEW_LIMIT=4;
+const SHOP_EXPANDED={font:false,border:false,title:false};
+
+function renderShopCategory(category,items){
+  const visibleItems=items.length>SHOP_PREVIEW_LIMIT && !SHOP_EXPANDED[category]
+    ? items.slice(0,SHOP_PREVIEW_LIMIT)
+    : items;
+
+  const extraItems=items.length>SHOP_PREVIEW_LIMIT ? `
+    <div style="grid-column:1/-1; margin-top:8px; text-align:center;">
+      <button class="outline" onclick="toggleShopCategory('${category}')">
+        ${SHOP_EXPANDED[category] ? "접기" : "더보기"}
+      </button>
+    </div>
+  ` : "";
+
+  return `
+    <div class="shop-grid">
+      ${visibleItems.map(item=>renderShopItem(item,category)).join("")}
+      ${extraItems}
+    </div>
+  `;
+}
+
+function toggleShopCategory(category){
+  SHOP_EXPANDED[category]=!SHOP_EXPANDED[category];
+  renderAccount();
 }
 
 function renderShopItem(item,category){
@@ -1990,7 +2329,32 @@ async function buyNicknameColor(){
 }
 
 async function renderAdminSection(){
+  const neisConfig=getNeisSchoolConfig();
   const counts=await getTableCounts(["notices","schedules","assignments","opinions","lost_items"]);
+  const {data:students,error}=await supabase.from("profiles").select("*").order("handle",{ascending:true});
+  const rows=(error || !students ? [] : students).map(p=>{
+    const lastSeen = p.last_login_at || p.updated_at || p.created_at || "기록 없음";
+    const dateObj = lastSeen === "기록 없음" ? null : new Date(lastSeen);
+    const formattedLastSeen = !dateObj || Number.isNaN(dateObj.getTime())
+      ? "기록 없음"
+      : dateObj.toLocaleString("ko-KR", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" }).replace(/\s/g, " ");
+    return `
+      <tr>
+        <td>${escapeHTML(p.nickname||"-")}</td>
+        <td>${escapeHTML(p.handle||"-")}</td>
+        <td>${roleBadge(p.role)}</td>
+        <td><b>${Number(p.points||0)}P</b></td>
+        <td>${escapeHTML(formattedLastSeen)}</td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="pointInput-${p.id}" value="+10" style="width:80px;padding:7px;border:1px solid #ccd3da;border-radius:5px;text-align:center">
+            <button class="outline" onclick="applyStudentPoints('${p.id}','pointInput-${p.id}')">적용</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
   return `
     <hr style="margin:30px 0;border:0;border-top:1px solid var(--border);">
     <h2>🔒 관리자 기능</h2>
@@ -2001,12 +2365,66 @@ async function renderAdminSection(){
       <div class="stat-card">SNS 글<b>${counts.opinions}</b></div>
       <div class="stat-card">분실물<b>${counts.lost_items}</b></div>
     </div>
+
+    <div class="admin-box">
+      <strong>🪙 학생 포인트 관리</strong>
+      <p>아래에서 각 학생의 포인트를 + 또는 - 값으로 한 번에 조정할 수 있습니다.</p>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead>
+            <tr><th>닉네임</th><th>학번</th><th>역할</th><th>포인트</th><th>마지막 접속</th><th>포인트 조정</th></tr>
+          </thead>
+          <tbody>
+            ${rows || `<tr><td colspan="6" class="empty">학생 목록을 불러오지 못했습니다.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-box">
+      <strong>🏫 급식/시간표 학교 설정</strong>
+      <p>NEIS 교육청 코드와 학교 코드를 입력하면 급식과 시간표가 실제 학교 정보로 연결됩니다.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px;">
+        <div>
+          <div class="meta" style="margin-bottom:6px">교육청 코드</div>
+          <input id="neisAtptCode" value="${escapeHTML(neisConfig.atptOfcdcScCode || "")}" placeholder="예: J10" style="width:100%;padding:10px;border:1px solid #dfe3ea;border-radius:8px;">
+        </div>
+        <div>
+          <div class="meta" style="margin-bottom:6px">학교 코드</div>
+          <input id="neisSdCode" value="${escapeHTML(neisConfig.sdSchulCode || "")}" placeholder="예: 7530043" style="width:100%;padding:10px;border:1px solid #dfe3ea;border-radius:8px;">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="outline" onclick="saveNeisSchoolConfig()">설정 저장</button>
+        <button class="outline" onclick="resetNeisSchoolConfig()">초기화</button>
+      </div>
+    </div>
+
     <div class="admin-box">
       <strong>🧹 오래된 게시글 관리</strong>
       <p>2개월 이상 지난 공지, 일정, 수행평가, 분실물, SNS 글을 검토하고 삭제할 수 있습니다.</p>
       <button class="outline" onclick="oldPosts()">검토하기</button>
     </div>
   `;
+}
+
+async function applyStudentPoints(studentId,inputId){
+  const input=document.getElementById(inputId);
+  if(!input){ msg("입력창을 찾지 못했습니다."); return; }
+
+  const raw=input.value.trim();
+  if(!/^[+-]?\d+$/.test(raw)){ msg("포인트 조정 값은 숫자 또는 +,- 기호가 포함된 값만 가능합니다.\n예: +10, -20"); return; }
+
+  const delta=Number(raw);
+  const {data:target,error:fetchErr}=await supabase.from("profiles").select("*").eq("id",studentId).single();
+  if(fetchErr || !target){ msg("학생 정보를 불러오지 못했습니다."); return; }
+
+  const nextPoint=(Number(target.points)||0)+delta;
+  const {error}=await supabase.from("profiles").update({points:Math.max(0,nextPoint)}).eq("id",studentId);
+  if(error){ msg("포인트 변경 실패: "+error.message); return; }
+
+  msg(`학생 포인트가 ${delta > 0 ? "+"+delta : delta}P 반영되었습니다.`);
+  renderAccount();
 }
 
 // ⚠️ supabase "profiles" 테이블에 status_message(text) 컬럼이 필요합니다.
@@ -2169,10 +2587,14 @@ Object.assign(window,{
   feedPostForm, createFeedPost, deleteFeedPost,
   toggleLike, addComment, deleteComment, toggleCommentLike, featurePost,
   deletePost,
-  updateNickname, updateStatusMessage, buyItem, equipItem, buyNicknameColor,
+  updateNickname, updateStatusMessage,
+  renderAccount, renderMealPage,
+  buyItem, equipItem, buyNicknameColor,
+  toggleShopCategory, applyStudentPoints, addLostComment,
   oldPosts, deleteOldPost,
   toggleSnsLock, onFeedSearch, playFeedVideo,
   showUserProfile, addProfileMessage,
+  saveNeisSchoolConfig, resetNeisSchoolConfig,
   initExamNotifications
 });
 
