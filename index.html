@@ -318,10 +318,10 @@ textarea{min-height:120px;resize:vertical}
       <button class="nav-btn" data-page="calendar">캘린더</button>
       <button class="nav-btn" data-page="votes">투표</button>
       <button class="nav-btn" data-page="feed">[NEW!] SNS</button>
-      <button class="nav-btn" data-page="meals">급식</button>
+      <button class="nav-btn" data-page="meals">[NEW!] 급식</button>
       <button class="nav-btn" data-page="lost">분실물</button>
       <button class="nav-btn" data-page="games">게임</button>
-      <button class="nav-btn" data-page="account">계정</button>
+      <button class="nav-btn" data-page="account">[NEW!] 계정</button>
     </div>
   </nav>
 </header>
@@ -460,45 +460,45 @@ function cleanBotCheck(...texts){
 
 // ===== 상점 아이템 정의 =====
 const FONT_ITEMS=[
-  {id:"font-default", name:"기본 폰트", icon:"🔤", price:0, cssClass:""},
-  {id:"font-cute",    name:"시각적 친근함과 정돈된 느낌을 주는 라운드 산스(Round Sans) 서체", icon:"🌸", price:100, cssClass:"font-cute"},
-  {id:"font-round",   name:"둥근 글꼴",   icon:"⭕", price:100, cssClass:"font-round"},
-  {id:"font-serif",   name:"명조 폰트",   icon:"✒️", price:100, cssClass:"font-serif"}
+  {id:"font-default", name:"기본 폰트", icon:"🔤", price:0,  cssClass:""},
+  {id:"font-cute",    name:"시각적 친근함과 정돈된 느낌을 주는 라운드 산스 서체", icon:"🌸", price:40,  cssClass:"font-cute"},
+  {id:"font-round",   name:"둥근 글꼴",   icon:"⭕", price:40,  cssClass:"font-round"},
+  {id:"font-serif",   name:"명조 폰트",   icon:"✒️", price:50,  cssClass:"font-serif"}
 ];
 
 const BORDER_ITEMS=[
-  {id:"border-none",     name:"기본 프레임",             icon:"⬜", price:0,    cssClass:"none"},
-  {id:"border-neon",     name:"네온 라이트 프라임",      icon:"💡", price:120,  cssClass:"neon"},
-  {id:"border-gold",     name:"골든 에지 프라임",        icon:"🏆", price:180,  cssClass:"gold"},
-  {id:"border-gradient", name:"그라데이션 프라임",       icon:"🌈", price:260,  cssClass:"gradient"},
-  {id:"border-vine",     name:"톱니바귀 초록 에지 프라임", icon:"⚙️", price:320,  cssClass:"vine"},
-  {id:"border-branch",   name:"스트라이프 우드 프라임",  icon:"🪵", price:360,  cssClass:"branch"},
-  {id:"border-thorn",    name:"사선 퍼플 마름모 프라임", icon:"🟣", price:420,  cssClass:"thorn"},
-  {id:"border-spark",    name:"골든 스태틱 프라임",      icon:"✨", price:480,  cssClass:"spark"},
-  {id:"border-crystal",  name:"컷팅 다이아 박스 프라임", icon:"💎", price:540,  cssClass:"crystal"},
-  {id:"border-comet",    name:"레드 사선 레이저 프라임", icon:"☄️", price:220,  cssClass:"comet"},
-  {id:"border-ribbon",   name:"다이아곤 빗살무늬 프라임",icon:"📐", price:700,  cssClass:"ribbon"},
-  {id:"border-lotus",    name:"핑크 방사형 패턴 프라임", icon:"🌸", price:780,  cssClass:"lotus"},
-  {id:"border-crown",    name:"크라운 피크 프라임",      icon:"👑", price:860,  cssClass:"crown"},
-  {id:"border-wing",     name:"아쿠아 사이드 윙 프라임", icon:"🪽", price:940,  cssClass:"wing"},
-  {id:"border-nova",     name:"코스모스 노바 프라임",    icon:"🌌", price:1040, cssClass:"nova"},
-  {id:"border-spire",    name:"오렌지 시타델 프라임",    icon:"🔺", price:1150, cssClass:"spire"}
+  {id:"border-none",     name:"기본 프레임",             icon:"⬜", price:0,   cssClass:"none"},
+  {id:"border-neon",     name:"네온 라이트 프라임",      icon:"💡", price:60,  cssClass:"neon"},
+  {id:"border-gold",     name:"골든 에지 프라임",        icon:"🏆", price:90,  cssClass:"gold"},
+  {id:"border-gradient", name:"그라데이션 프라임",       icon:"🌈", price:130, cssClass:"gradient"},
+  {id:"border-vine",     name:"톱니바귀 초록 에지 프라임", icon:"⚙️", price:160, cssClass:"vine"},
+  {id:"border-branch",   name:"스트라이프 우드 프라임",  icon:"🪵", price:180, cssClass:"branch"},
+  {id:"border-thorn",    name:"사선 퍼플 마름모 프라임", icon:"🟣", price:210, cssClass:"thorn"},
+  {id:"border-spark",    name:"골든 스태틱 프라임",      icon:"✨", price:240, cssClass:"spark"},
+  {id:"border-crystal",  name:"컷팅 다이아 박스 프라임", icon:"💎", price:280, cssClass:"crystal"},
+  {id:"border-comet",    name:"레드 사선 레이저 프라임", icon:"☄️", price:110, cssClass:"comet"},
+  {id:"border-ribbon",   name:"다이아곤 빗살무늬 프라임",icon:"📐", price:350, cssClass:"ribbon"},
+  {id:"border-lotus",    name:"핑크 방사형 패턴 프라임", icon:"🌸", price:400, cssClass:"lotus"},
+  {id:"border-crown",    name:"크라운 피크 프라임",      icon:"👑", price:450, cssClass:"crown"},
+  {id:"border-wing",     name:"아쿠아 사이드 윙 프라임", icon:"🪽", price:500, cssClass:"wing"},
+  {id:"border-nova",     name:"코스모스 노바 프라임",    icon:"🌌", price:550, cssClass:"nova"},
+  {id:"border-spire",    name:"오렌지 시타델 프라임",    icon:"🔺", price:600, cssClass:"spire"}
 ];
 
 const TITLE_ITEMS=[
   {id:"title-none",      name:"칭호 없음",     icon:"—",  price:0,   text:null},
-  {id:"title-hotcomment",name:"3반1짱",       icon:"👑", price:300, text:"3반1짱"},
-  {id:"title-sloth",     name:"나무늘보",    icon:"🦥", price:100, text:"🦥"},
-  {id:"title-chick",     name:"병아리",      icon:"🐥", price:50,  text:"🐥"},
-  {id:"title-tiger",     name:"호랑이",      icon:"🐯", price:300, text:"🐯"},
-  {id:"title-cat",       name:"고양이",      icon:"🐱", price:200, text:"🐱"},
-  {id:"title-hamster",   name:"햄스터",      icon:"🐹", price:150, text:"🐹"},
-  {id:"title-puppy",     name:"강아지",      icon:"🐶", price:250, text:"🐶"},
-  {id:"title-fox",       name:"사막여우",    icon:"🦊", price:200, text:"🦊"},
-  {id:"title-panda",     name:"판다",        icon:"🐼", price:180, text:"🐼"},
-  {id:"title-owl",       name:"부엉이",      icon:"🦉", price:620, text:"🦉"},
-  {id:"title-rabbit",    name:"토끼",        icon:"🐰", price:130, text:"🐰"},
-  {id:"title-penguin",   name:"펭귄",        icon:"🐧", price:170, text:"🐧"}
+  {id:"title-hotcomment",name:"3반1짱",       icon:"👑", price:150, text:"3반1짱"},
+  {id:"title-sloth",     name:"나무늘보",    icon:"🦥", price:50,  text:"🦥"},
+  {id:"title-chick",     name:"병아리",      icon:"🐥", price:20,  text:"🐥"},
+  {id:"title-tiger",     name:"호랑이",      icon:"🐯", price:150, text:"🐯"},
+  {id:"title-cat",       name:"고양이",      icon:"🐱", price:100, text:"🐱"},
+  {id:"title-hamster",   name:"햄스터",      icon:"🐹", price:70,  text:"🐹"},
+  {id:"title-puppy",     name:"강아지",      icon:"🐶", price:120, text:"🐶"},
+  {id:"title-fox",       name:"사막여우",    icon:"🦊", price:100, text:"🦊"},
+  {id:"title-panda",     name:"판다",        icon:"🐼", price:90,  text:"🐼"},
+  {id:"title-owl",       name:"부엉이",      icon:"🦉", price:110, text:"🦉"},
+  {id:"title-rabbit",    name:"토끼",        icon:"🐰", price:60,  text:"🐰"},
+  {id:"title-penguin",   name:"펭귄",        icon:"🐧", price:80,  text:"🐧"}
 ];
 
 const COLOR_ITEM={id:"nickname-color", name:"닉네임 색상", icon:"🎨", price:70};
@@ -575,12 +575,12 @@ function fallbackTimetableData(){
   return {
     date: today(),
     rows: [
-      {period:"1교시", subject:"국어"},
-      {period:"2교시", subject:"수학"},
-      {period:"3교시", subject:"사회"},
-      {period:"4교시", subject:"과학"},
-      {period:"5교시", subject:"체육"},
-      {period:"6교시", subject:"영어"}
+      {period:"1교시", subject:"덕도"},
+      {period:"2교시", subject:"도덕"},
+      {period:"3교시", subject:"덕담"},
+      {period:"4교시", subject:"도덕"},
+      {period:"5교시", subject:"도덕"},
+      {period:"6교시", subject:"도덕적이지않은"}
     ],
     source:"샘플 시간표"
   };
@@ -1720,11 +1720,29 @@ async function createLost(){
 async function showLost(id){
   const [{data:lostItem,error:lostError},{data:comments,error:commentsError}]=await Promise.all([
     supabase.from("lost_items").select(`*, profiles(nickname,handle)`).eq("id",id).single(),
-    supabase.from("lost_comments").select(`*, profiles(nickname,handle)`).eq("lost_id",id).order("created_at",{ascending:true})
+    supabase.from("lost_comments").select(`*`).eq("lost_id",id).order("created_at",{ascending:true})
   ]);
 
   if(lostError || !lostItem){ msg("분실물 정보를 불러오지 못했습니다."); return; }
   if(commentsError){ console.warn(commentsError); }
+
+  const authorIds=[...new Set((comments||[]).map(c=>c.author_id).filter(Boolean))];
+  let authorMap={};
+  if(authorIds.length){
+    const {data:profiles,error:profileError}=await supabase
+      .from("profiles")
+      .select("id,nickname,handle")
+      .in("id",authorIds);
+
+    if(!profileError){
+      authorMap = Object.fromEntries((profiles||[]).map(p=>[p.id,p]));
+    }
+  }
+
+  const normalizedComments=(comments||[]).map(c=>({
+    ...c,
+    profiles: authorMap[c.author_id] || null
+  }));
 
   openModal(`
     <h2>${escapeHTML(lostItem.title)}</h2>
@@ -1733,9 +1751,9 @@ async function showLost(id){
 
     <div style="margin-top:18px;padding-top:14px;border-top:1px solid #eee;">
       <h3 style="margin:0 0 10px;">💬 댓글</h3>
-      ${(comments||[]).length
+      ${(normalizedComments).length
         ? `<div style="display:flex;flex-direction:column;gap:10px;max-height:220px;overflow:auto;padding-right:4px;">
-            ${(comments||[]).map(c=>`
+            ${(normalizedComments).map(c=>`
               <div style="padding:10px 12px;border:1px solid #eee;border-radius:8px;background:#f7f9fb;">
                 <div><b>${escapeHTML(c.profiles?.nickname||"?")}</b> <span class="meta">(${escapeHTML(c.profiles?.handle||"?")})</span></div>
                 <div style="margin-top:4px;white-space:pre-wrap;">${escapeHTML(c.content)}</div>
@@ -1825,6 +1843,45 @@ function playFeedVideo(btn,videoId){
 
 let feedCache={posts:[],likes:[],comments:[]};
 let feedSearchQuery="";
+const seenViewPostIds=new Set();
+
+function formatViewCount(value){
+  const n=Number(value)||0;
+  if(n>=10000){
+    const scaled=n/10000;
+    return `${scaled >= 10 ? scaled.toFixed(0) : scaled.toFixed(1).replace(/\.0$/, "")}만`;
+  }
+  return n.toLocaleString("ko-KR");
+}
+
+async function incrementPostView(postId){
+  try{
+    const {data, error}=await supabase
+      .from("opinions")
+      .select("id,view_count,views")
+      .eq("id",postId)
+      .maybeSingle();
+
+    if(error || !data){ return; }
+
+    const current = Number(data.view_count ?? data.views ?? 0);
+
+    const {error:updateError}=await supabase
+      .from("opinions")
+      .update({view_count: current + 1})
+      .eq("id", postId);
+
+    if(updateError){
+      const {error:retryError}=await supabase
+        .from("opinions")
+        .update({views: current + 1})
+        .eq("id", postId);
+      if(retryError){ console.warn("조회수 반영 실패:", retryError.message); }
+    }
+  }catch(err){
+    console.warn("조회수 반영 실패:", err);
+  }
+}
 
 async function renderFeed(){
   showLoading();
@@ -1903,6 +1960,11 @@ function renderFeedPost(post,likes,postComments,locked){
   const flagged=containsBadWord(post.content);
   const avatarBorder=borderClassFor(post.profiles?.equipped_border);
 
+  if(!seenViewPostIds.has(post.id)){
+    seenViewPostIds.add(post.id);
+    incrementPostView(post.id);
+  }
+
   return `
     <div class="feed-post" id="feed-post-${post.id}">
 
@@ -1912,7 +1974,7 @@ function renderFeedPost(post,likes,postComments,locked){
         </div>
         <div>
           ${feedAuthorLabel(post.profiles,post.author_id)}
-          <div class="meta">${formatMetaTimestamp(post)}</div>
+          <div class="meta">${formatMetaTimestamp(post)} · 조회 ${formatViewCount(post.view_count ?? post.views ?? 0)}</div>
         </div>
         ${post.is_featured ? `<span class="badge" style="margin-left:auto;background:#e6f9ee;color:var(--success)">⭐ 채택됨</span>` : ""}
       </div>
@@ -2627,13 +2689,33 @@ async function showUserProfile(targetId){
 
   if(error || !p){ msg("프로필을 불러오지 못했습니다."); return; }
 
-  const {data:messages}=await supabase
+  const {data:messageRows,error:messageError}=await supabase
     .from("profile_messages")
-    .select(`*, profiles(nickname,handle)`)
+    .select("*")
     .eq("target_id",targetId)
     .order("created_at",{ascending:false});
 
-  openModal(renderProfileModal(targetId,p,messages||[]));
+  if(messageError){ msg("메시지를 불러오지 못했습니다."); return; }
+
+  const authorIds=[...new Set((messageRows||[]).map(m=>m.author_id).filter(Boolean))];
+  let authorMap={};
+  if(authorIds.length){
+    const {data:profiles,error:profilesError}=await supabase
+      .from("profiles")
+      .select("id,nickname,handle")
+      .in("id",authorIds);
+
+    if(!profilesError){
+      authorMap = Object.fromEntries((profiles||[]).map(profile=>[profile.id,profile]));
+    }
+  }
+
+  const messages=(messageRows||[]).map(m=>({
+    ...m,
+    profiles: authorMap[m.author_id] || null
+  }));
+
+  openModal(renderProfileModal(targetId,p,messages));
 }
 
 function renderProfileModal(targetId,p,messages){
