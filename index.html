@@ -411,7 +411,7 @@ function maskBadWords(text){
 function cleanBotCheck(...texts){
   const flagged=texts.some(t=>containsBadWord(t||""));
   if(flagged){
-    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.\n계속하시겠습니까?")){
+    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.")){
       return null;
     }
   }
