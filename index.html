@@ -215,6 +215,8 @@ textarea{min-height:120px;resize:vertical}
 .shop-item button{width:100%}
 .shop-item.owned{background:#f7f9fb}
 
+.notify-banner{background:#eaf4fc;color:var(--dark);padding:12px 14px;border-radius:6px;margin-bottom:16px;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+
 @media(max-width:850px){
   .stats{grid-template-columns:repeat(2,1fr)}
   .games-grid{grid-template-columns:repeat(2,1fr)}
@@ -257,7 +259,7 @@ textarea{min-height:120px;resize:vertical}
 <header>
   <div class="top">
     <div class="logo">
-      교하중학교 1학년 3반 홈페이지 (테스트 버전)
+      교하중학교 1학년 3반 홈페이지
       <small>이거 만드는데 일주일(+14일) 걸림</small>
     </div>
 
@@ -328,6 +330,8 @@ let appSettings={sns_locked:false};
 const NICKNAME_COOLDOWN_DAYS=30;
 const CHECKIN_POINTS=10;
 const FEATURE_POINTS=30;
+const EXAM_NOTIFY_DAYS=3; // 시험/수행평가 D-N 이내면 알림
+const EXAM_NOTIFY_STORAGE_KEY="examNotifiedDates_v1";
 
 const STUDENT_IDS=[
   "10300","10301","10302","10303","10304","10305","10306","10307","10308","10309",
@@ -383,18 +387,35 @@ const BAD_WORDS = [
   "정진우"
 ];
 
+// 방어코드: BAD_WORDS 선언이 배포 과정에서 누락/손상되어도 앱 전체가
+// 죽지 않도록 안전하게 처리합니다.
 function containsBadWord(text){
-  const normalized=text.toLowerCase().replace(/\s+/g,"");
+  if(typeof BAD_WORDS==="undefined" || !Array.isArray(BAD_WORDS) || !text) return false;
+  const normalized=String(text).toLowerCase().replace(/\s+/g,"");
   return BAD_WORDS.some(w=>normalized.includes(w));
 }
 
 function maskBadWords(text){
+  if(typeof BAD_WORDS==="undefined" || !Array.isArray(BAD_WORDS) || !text) return text;
   let result=text;
   BAD_WORDS.forEach(w=>{
-    const re=new RegExp(w,"gi");
+    const re=new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi");
     result=result.replace(re,"*".repeat(w.length));
   });
   return result;
+}
+
+// 클린봇을 어디서든 재사용하기 위한 공통 헬퍼:
+// 부적절한 표현이 있으면 확인창을 띄우고, 진행 시 마스킹된 텍스트를 반환.
+// 사용자가 취소하면 null을 반환.
+function cleanBotCheck(...texts){
+  const flagged=texts.some(t=>containsBadWord(t||""));
+  if(flagged){
+    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.\n계속하시겠습니까?")){
+      return null;
+    }
+  }
+  return texts.map(t=>maskBadWords(t||""));
 }
 
 // ===== 상점 아이템 정의 =====
@@ -574,6 +595,7 @@ async function login(){
   render("home");
 
   await tryDailyCheckin();
+  await initExamNotifications();
 }
 
 async function logout(){
@@ -613,6 +635,7 @@ async function restoreLogin(){
   render("home");
 
   await tryDailyCheckin();
+  await initExamNotifications();
 }
 
 
@@ -621,10 +644,18 @@ async function restoreLogin(){
    ⚠️ supabase에 "app_settings" 테이블(id int8, sns_locked bool)이
    필요하며, id=1 행이 하나 있어야 합니다. 관리자만 UPDATE 가능하도록
    RLS를 설정해주세요. 테이블이 없으면 잠금 기능은 항상 꺼짐 상태로 동작합니다.
+
+   토글이 반응하지 않을 때 체크할 것:
+   1) app_settings 테이블/컬럼(id int8, sns_locked bool)이 실제로 있는지
+   2) id=1 행이 미리 한 줄 들어있는지 (없으면 upsert가 실패할 수 있음)
+   3) profiles.role 값이 정확히 'admin' 문자열인지 (공백/오타 확인)
+   4) admin이 app_settings를 UPDATE/INSERT 할 수 있도록 RLS 정책이
+      설정되어 있는지 (SELECT만 허용되어 있으면 버튼을 눌러도 반영되지 않음)
 ========================================================= */
 
 async function loadSettings(){
   const {data,error}=await supabase.from("app_settings").select("*").eq("id",1).maybeSingle();
+  if(error){ console.warn("app_settings 로드 실패 (테이블/RLS 확인 필요):",error); }
   if(error || !data){ appSettings={sns_locked:false}; return; }
   appSettings=data;
 }
@@ -635,11 +666,23 @@ async function toggleSnsLock(){
   if(!confirm(next ? "SNS 기능을 잠그시겠습니까? 학생들이 글쓰기/댓글을 할 수 없게 됩니다." : "SNS 잠금을 해제하시겠습니까?"))return;
 
   const {error}=await supabase.from("app_settings").upsert({id:1,sns_locked:next});
-  if(error){ msg("설정 변경 실패: "+error.message); return; }
+  if(error){
+    console.error("SNS 잠금 변경 실패:",error);
+    msg("설정 변경 실패: "+error.message+"\n(app_settings 테이블/RLS 정책을 확인해주세요. 콘솔에 자세한 오류가 출력되었습니다.)");
+    return;
+  }
 
-  appSettings.sns_locked=next;
+  // 반영이 제대로 됐는지 서버에서 다시 확인 (RLS로 인해 조용히 실패하는 경우 방지)
+  await loadSettings();
+  if(appSettings.sns_locked!==next){
+    msg("설정이 저장되지 않은 것 같습니다. 관리자 권한/RLS 정책을 확인해주세요.");
+    return;
+  }
+
   renderUserInfo();
-  if(document.querySelector('.nav-btn[data-page="feed"]').classList.contains("active")) renderFeed();
+
+  const activeBtn=document.querySelector('.nav-btn.active');
+  if(activeBtn && activeBtn.dataset.page==="feed") renderFeed();
 }
 
 
@@ -664,6 +707,72 @@ async function tryDailyCheckin(){
   renderUserInfo();
 
   msg(`✅ 출석체크 완료! +${CHECKIN_POINTS}P 지급되었습니다.\n(현재 ${profile.points}P)`);
+}
+
+
+/* =========================================================
+   📅 시험/수행평가 임박 알림
+   - 브라우저 Notification API 사용 (탭/앱이 열려있을 때 동작)
+   - 완전한 백그라운드 푸시(앱을 꺼도 오는 알림)를 원한다면
+     Service Worker + Push API + 서버(Edge Function 등)의 예약 발송이
+     추가로 필요합니다. 이 함수는 로그인 시점에 다가오는 시험을
+     체크해서 로컬 알림을 띄워주는 "1차" 기능입니다.
+========================================================= */
+
+function getNotifiedDates(){
+  try{
+    return JSON.parse(localStorage.getItem(EXAM_NOTIFY_STORAGE_KEY)||"[]");
+  }catch(e){
+    return [];
+  }
+}
+
+function markNotified(keys){
+  try{
+    const existing=getNotifiedDates();
+    localStorage.setItem(EXAM_NOTIFY_STORAGE_KEY,JSON.stringify([...new Set([...existing,...keys])]));
+  }catch(e){ /* localStorage 사용 불가 시 무시 */ }
+}
+
+async function initExamNotifications(){
+  if(!("Notification" in window))return;
+
+  if(Notification.permission==="default"){
+    try{ await Notification.requestPermission(); }catch(e){ /* 무시 */ }
+  }
+  if(Notification.permission!=="granted")return;
+
+  const in3days=new Date();
+  in3days.setDate(in3days.getDate()+EXAM_NOTIFY_DAYS);
+  const untilStr=`${in3days.getFullYear()}-${String(in3days.getMonth()+1).padStart(2,"0")}-${String(in3days.getDate()).padStart(2,"0")}`;
+
+  const {data,error}=await supabase
+    .from("assignments")
+    .select("*")
+    .gte("event_date",today())
+    .lte("event_date",untilStr);
+
+  if(error || !data || !data.length)return;
+
+  const notifiedDates=getNotifiedDates();
+  const newlyNotified=[];
+
+  data.forEach(a=>{
+    const key=`${a.id}-${a.event_date}`;
+    if(notifiedDates.includes(key))return;
+
+    const diff=daysUntil(a.event_date);
+    try{
+      new Notification(`📝 수행평가/시험 임박: ${a.subject}`,{
+        body:`${a.title} · ${ddayLabel(diff)} (${a.event_date})`,
+        tag:key
+      });
+    }catch(e){ /* 알림 생성 실패 시 무시 */ }
+
+    newlyNotified.push(key);
+  });
+
+  if(newlyNotified.length) markNotified(newlyNotified);
 }
 
 
@@ -739,11 +848,20 @@ async function renderHome(){
   });
   const topCommenters=Object.values(commentCounts).sort((a,b)=>b.count-a.count).slice(0,3);
 
+  const notifyBanner=(typeof Notification!=="undefined" && Notification.permission!=="granted")
+    ? `<div class="notify-banner">
+         <span>🔔 시험/수행평가가 다가오면 알림을 받아보시겠어요?</span>
+         <button class="outline" onclick="initExamNotifications()">알림 켜기</button>
+       </div>`
+    : "";
+
   document.getElementById("app").innerHTML=`
+
+    ${notifyBanner}
 
     <div class="hero">
       <h2>안녕하세요, ${escapeHTML(profile?.nickname||"학생")} 👋</h2>
-      <p>교하중학교 1학년 3반 학급 홈페이지입니다. ver.2</p>
+      <p>교하중학교 1학년 3반 학급 홈페이지입니다. ver.3.7</p>
     </div>
 
     ${
@@ -885,9 +1003,14 @@ function noticeForm(){
 
 async function createNotice(){
   if(!isStaff())return;
-  const title=document.getElementById("nTitle").value.trim();
-  const content=document.getElementById("nContent").value.trim();
-  if(!title||!content){ msg("제목과 내용을 입력해주세요."); return; }
+  const titleRaw=document.getElementById("nTitle").value.trim();
+  const contentRaw=document.getElementById("nContent").value.trim();
+  if(!titleRaw||!contentRaw){ msg("제목과 내용을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(titleRaw,contentRaw);
+  if(!cleaned)return;
+  const [title,content]=cleaned;
+
   const {error}=await supabase.from("notices").insert({title,content,author_id:currentUser.id});
   if(error){ msg(error.message); return; }
   closeModal(); renderNotices();
@@ -949,10 +1072,15 @@ function scheduleForm(){
 
 async function createSchedule(){
   if(!isStaff())return;
-  const title=document.getElementById("sTitle").value.trim();
+  const titleRaw=document.getElementById("sTitle").value.trim();
   const event_date=document.getElementById("sDate").value;
-  const content=document.getElementById("sContent").value.trim();
-  if(!title||!event_date){ msg("제목과 날짜를 입력해주세요."); return; }
+  const contentRaw=document.getElementById("sContent").value.trim();
+  if(!titleRaw||!event_date){ msg("제목과 날짜를 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(titleRaw,contentRaw);
+  if(!cleaned)return;
+  const [title,content]=cleaned;
+
   const {error}=await supabase.from("schedules").insert({title,event_date,content,author_id:currentUser.id});
   if(error){ msg(error.message); return; }
   closeModal(); renderSchedule();
@@ -1005,14 +1133,22 @@ function assignmentForm(){
 
 async function createAssignment(){
   if(!isStaff())return;
-  const subject=document.getElementById("aSubject").value.trim();
-  const title=document.getElementById("aTitle").value.trim();
+  const subjectRaw=document.getElementById("aSubject").value.trim();
+  const titleRaw=document.getElementById("aTitle").value.trim();
   const event_date=document.getElementById("aDate").value;
-  const content=document.getElementById("aContent").value.trim();
-  if(!subject||!title||!event_date){ msg("과목, 제목, 날짜를 입력해주세요."); return; }
+  const contentRaw=document.getElementById("aContent").value.trim();
+  if(!subjectRaw||!titleRaw||!event_date){ msg("과목, 제목, 날짜를 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(subjectRaw,titleRaw,contentRaw);
+  if(!cleaned)return;
+  const [subject,title,content]=cleaned;
+
   const {error}=await supabase.from("assignments").insert({subject,title,event_date,content,author_id:currentUser.id});
   if(error){ msg(error.message); return; }
   closeModal(); renderAssignments();
+
+  // 새 수행평가가 임박한 경우를 대비해 알림 목록을 다시 확인
+  initExamNotifications();
 }
 
 
@@ -1177,11 +1313,16 @@ function voteForm(){
 
 async function createVote(){
   if(!isStaff())return;
-  const title=document.getElementById("vTitle").value.trim();
-  const description=document.getElementById("vDescription").value.trim();
-  const options=["v1","v2","v3","v4"].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+  const titleRaw=document.getElementById("vTitle").value.trim();
+  const descriptionRaw=document.getElementById("vDescription").value.trim();
+  const optionsRaw=["v1","v2","v3","v4"].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
   const expiresInput=document.getElementById("vExpires").value;
-  if(!title||options.length<2){ msg("질문과 선택지 2개 이상을 입력해주세요."); return; }
+  if(!titleRaw||optionsRaw.length<2){ msg("질문과 선택지 2개 이상을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(titleRaw,descriptionRaw,...optionsRaw);
+  if(!cleaned)return;
+  const [title,description,...options]=cleaned;
+
   const expires_at=expiresInput ? new Date(expiresInput).toISOString() : null;
 
   const {data:voteRow,error}=await supabase.from("votes").insert({title,description,author_id:currentUser.id,expires_at}).select().single();
@@ -1263,9 +1404,13 @@ function lostForm(){
 }
 
 async function createLost(){
-  const title=document.getElementById("lTitle").value.trim();
-  const content=document.getElementById("lContent").value.trim();
-  if(!title||!content){ msg("물건 이름과 설명을 입력해주세요."); return; }
+  const titleRaw=document.getElementById("lTitle").value.trim();
+  const contentRaw=document.getElementById("lContent").value.trim();
+  if(!titleRaw||!contentRaw){ msg("물건 이름과 설명을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(titleRaw,contentRaw);
+  if(!cleaned)return;
+  const [title,content]=cleaned;
 
   const {error}=await supabase.from("lost_items").insert({title,content,author_id:currentUser.id});
   if(error){ msg(error.message); return; }
@@ -1293,7 +1438,9 @@ async function showLost(id){
    - 관리자 "채택" 시 포인트 지급
 ========================================================= */
 
-const YOUTUBE_RE=/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{6,})/;
+// 보완된 유튜브 정규식: watch?v=, shorts/, embed/, live/, youtu.be/ 모두 지원.
+// 쿼리스트링 순서(예: ?si=xxx&v=ID)가 달라도 매칭되며, videoId는 항상 11자로 고정.
+const YOUTUBE_RE=/(?:youtube\.com\/(?:watch\?(?:[^\s]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
 const IMAGE_RE=/https?:\/\/\S+\.(?:png|jpe?g|gif|webp)(\?\S*)?/i;
 const URL_RE=/https?:\/\/[^\s]+/i;
 
@@ -1483,7 +1630,7 @@ function feedPostForm(){
     </p>
     <div class="form-group">
       <label>내용</label>
-      <textarea id="feedContent" placeholder="오늘 있었던 일, 의견, 짤방 링크 등 자유롭게 남겨주세요.<br>[상대방의 이름이 들어가지 않아도, 누구인지 알 수 있으면, 사이버 폭력입니다.]"></textarea>
+      <textarea id="feedContent" placeholder="오늘 있었던 일, 의견, 짤방 링크 등 자유롭게 남겨주세요.&#10;[상대방의 이름이 들어가지 않아도, 누구인지 알 수 있으면, 사이버 폭력입니다.]"></textarea>
     </div>
     <button class="primary" onclick="createFeedPost()">게시</button>
   `);
@@ -1494,13 +1641,9 @@ async function createFeedPost(){
   const contentRaw=document.getElementById("feedContent").value.trim();
   if(!contentRaw){ msg("내용을 입력해주세요."); return; }
 
-  if(containsBadWord(contentRaw)){
-    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 게시됩니다.\n계속하시겠습니까?")){
-      return;
-    }
-  }
-
-  const content=maskBadWords(contentRaw);
+  const cleaned=cleanBotCheck(contentRaw);
+  if(!cleaned)return;
+  const [content]=cleaned;
   const title=content.slice(0,30) || "제목 없음";
 
   const {error}=await supabase.from("opinions").insert({title,content,author_id:currentUser.id});
@@ -1537,7 +1680,9 @@ async function addComment(postId){
   const contentRaw=input.value.trim();
   if(!contentRaw)return;
 
-  const content=maskBadWords(contentRaw);
+  const cleaned=cleanBotCheck(contentRaw);
+  if(!cleaned)return;
+  const [content]=cleaned;
 
   const {error}=await supabase.from("feed_comments").insert({post_id:postId,author_id:currentUser.id,content});
   if(error){ msg("댓글 등록 실패: "+error.message); return; }
@@ -1671,6 +1816,8 @@ async function renderAccount(){
     profile.equipped_border==="gold" ? "border-gold" :
     profile.equipped_border==="gradient" ? "border-gradient" : "";
 
+  const notifPermission=(typeof Notification!=="undefined") ? Notification.permission : "unsupported";
+
   const adminSection=isStaff() ? await renderAdminSection() : "";
 
   document.getElementById("app").innerHTML=`
@@ -1686,6 +1833,21 @@ async function renderAccount(){
           고정 학번: <b>${escapeHTML(profile.handle)}</b> · ${roleBadge(profile.role)} · 🪙 ${profile.points||0}P
         </div>
       </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>🔔 시험/수행평가 알림</h3>
+      <p style="font-size:13px;color:var(--muted);">
+        수행평가/시험이 ${EXAM_NOTIFY_DAYS}일 이내로 다가오면 이 브라우저(기기)에서 알림을 받을 수 있어요.<br>
+        ⚠️ 앱/탭을 완전히 꺼두면 알림이 오지 않고, 접속 중이거나 열어둔 상태에서만 동작합니다.
+      </p>
+      <p class="meta" style="margin:10px 0;">현재 상태: ${
+        notifPermission==="granted" ? "✅ 알림 허용됨" :
+        notifPermission==="denied" ? "🚫 알림 차단됨 (브라우저 설정에서 직접 허용해야 합니다)" :
+        notifPermission==="unsupported" ? "이 브라우저는 알림 기능을 지원하지 않습니다" :
+        "아직 설정되지 않음"
+      }</p>
+      <button class="outline" onclick="initExamNotifications()">🔔 알림 켜기 / 지금 확인하기</button>
     </div>
 
     <div class="card" style="margin-top:20px;">
@@ -1849,7 +2011,12 @@ async function renderAdminSection(){
 
 // ⚠️ supabase "profiles" 테이블에 status_message(text) 컬럼이 필요합니다.
 async function updateStatusMessage(){
-  const value=document.getElementById("statusMessageInput").value.trim();
+  const valueRaw=document.getElementById("statusMessageInput").value.trim();
+
+  const cleaned=cleanBotCheck(valueRaw);
+  if(!cleaned)return;
+  const [value]=cleaned;
+
   const {error}=await supabase.from("profiles").update({status_message:value}).eq("id",currentUser.id);
   if(error){ msg("저장 실패: "+error.message); return; }
   await loadProfile();
@@ -1918,26 +2085,31 @@ function renderProfileModal(targetId,p,messages){
 
 async function addProfileMessage(targetId){
   const input=document.getElementById("profileMsgInput");
-  const content=input.value.trim();
-  if(!content)return;
+  const contentRaw=input.value.trim();
+  if(!contentRaw)return;
 
-  if(containsBadWord(content)){
-    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.\n계속하시겠습니까?")) return;
-  }
+  const cleaned=cleanBotCheck(contentRaw);
+  if(!cleaned)return;
+  const [content]=cleaned;
 
-  const {error}=await supabase.from("profile_messages").insert({target_id:targetId,author_id:currentUser.id,content:maskBadWords(content)});
+  const {error}=await supabase.from("profile_messages").insert({target_id:targetId,author_id:currentUser.id,content});
   if(error){ msg("메시지 등록 실패: "+error.message); return; }
 
   showUserProfile(targetId);
 }
 
 async function updateNickname(){
-  const newNickname=document.getElementById("newNickname").value.trim();
-  if(!newNickname){ msg("닉네임을 입력해주세요."); return; }
-  if(newNickname===profile.nickname){ msg("현재 닉네임과 동일합니다."); return; }
+  const newNicknameRaw=document.getElementById("newNickname").value.trim();
+  if(!newNicknameRaw){ msg("닉네임을 입력해주세요."); return; }
+  if(newNicknameRaw===profile.nickname){ msg("현재 닉네임과 동일합니다."); return; }
 
   const {canChange,daysLeft}=nicknameCooldown(profile);
   if(!canChange){ msg(`닉네임은 ${NICKNAME_COOLDOWN_DAYS}일에 한 번만 변경 가능합니다. (남은 기간: ${daysLeft}일)`); return; }
+
+  const cleaned=cleanBotCheck(newNicknameRaw);
+  if(!cleaned)return;
+  const [newNickname]=cleaned;
+
   if(!confirm(`닉네임을 '${newNickname}'(으)로 변경하시겠습니까?\n변경 후 ${NICKNAME_COOLDOWN_DAYS}일 동안 재변경이 불가능합니다.`))return;
 
   const {error}=await supabase.from("profiles").update({nickname:newNickname,nickname_updated_at:new Date().toISOString()}).eq("id",currentUser.id);
@@ -2000,7 +2172,8 @@ Object.assign(window,{
   updateNickname, updateStatusMessage, buyItem, equipItem, buyNicknameColor,
   oldPosts, deleteOldPost,
   toggleSnsLock, onFeedSearch, playFeedVideo,
-  showUserProfile, addProfileMessage
+  showUserProfile, addProfileMessage,
+  initExamNotifications
 });
 
 
