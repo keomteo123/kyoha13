@@ -657,6 +657,21 @@ function showLoading(){ document.getElementById("app").innerHTML=`<div class="sp
 function isStaff(){ return Boolean(profile && (profile.role==="admin" || profile.role==="teacher")); }
 function canDelete(authorId){ return Boolean(isStaff() || currentUser?.id===authorId); }
 
+function isEditedRecord(row){
+  if(!row) return false;
+  const created=row.created_at;
+  const updated=row.updated_at || row.edited_at;
+  if(!created || !updated) return false;
+  return new Date(updated).getTime() !== new Date(created).getTime();
+}
+
+function formatMetaTimestamp(row){
+  const dateValue=row?.created_at || "";
+  if(!dateValue) return "";
+  const stamp=dateValue.slice(0,16).replace("T"," ");
+  return isEditedRecord(row) ? `${stamp} (수정됨)` : stamp;
+}
+
 function borderClassFor(equipped){
   const map={
     neon:"border-neon",
@@ -954,13 +969,23 @@ function markNotified(keys){
   }catch(e){ /* localStorage 사용 불가 시 무시 */ }
 }
 
+function getNotificationPermissionState(){
+  if(typeof window==="undefined" || !("Notification" in window)) return "unsupported";
+  return Notification.permission;
+}
+
 async function initExamNotifications(){
   if(!("Notification" in window))return;
 
   if(Notification.permission==="default"){
     try{ await Notification.requestPermission(); }catch(e){ /* 무시 */ }
   }
-  if(Notification.permission!=="granted")return;
+
+  const permissionState=getNotificationPermissionState();
+  if(permissionState!=="granted"){
+    if(typeof renderAccount==="function") renderAccount();
+    return;
+  }
 
   const in3days=new Date();
   in3days.setDate(in3days.getDate()+EXAM_NOTIFY_DAYS);
@@ -1224,7 +1249,12 @@ async function renderNotices(){
               <td class="title-cell" onclick="showNotice(${n.id})">${escapeHTML(n.title)}</td>
               <td>${authorLabel(n.profiles,n.author_id)}</td>
               <td>${n.created_at.slice(0,10)}</td>
-              <td>${canDelete(n.author_id)?`<button class="danger" onclick="deletePost('notices',${n.id},'notices')">삭제</button>`:""}</td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                  ${canEdit(n.author_id)?`<button class="outline" onclick="editPost('notices',${n.id},'notices')">수정</button>`:""}
+                  ${canDelete(n.author_id)?`<button class="danger" onclick="deletePost('notices',${n.id},'notices')">삭제</button>`:""}
+                </div>
+              </td>
             </tr>
           `).join("") : `<tr><td colspan="5" class="empty">공지사항이 없습니다.</td></tr>`}
         </tbody>
@@ -1263,9 +1293,12 @@ async function showNotice(id){
   if(error){ msg(error.message); return; }
   openModal(`
     <h2>${escapeHTML(data.title)}</h2>
-    <p class="meta">작성자: <b>${authorLabel(data.profiles,data.author_id)}</b> · ${data.created_at.slice(0,10)}</p>
+    <p class="meta">작성자: <b>${authorLabel(data.profiles,data.author_id)}</b> · ${data.created_at.slice(0,10)}${isEditedRecord(data) ? " (수정됨)" : ""}</p>
     <hr><p style="white-space:pre-wrap">${escapeHTML(data.content)}</p>
-    ${canDelete(data.author_id)?`<button class="danger" onclick="deletePost('notices',${data.id},'notices')">삭제</button>`:""}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+      ${canEdit(data.author_id)?`<button class="outline" onclick="editPost('notices',${data.id},'notices')">수정</button>`:""}
+      ${canDelete(data.author_id)?`<button class="danger" onclick="deletePost('notices',${data.id},'notices')">삭제</button>`:""}
+    </div>
   `);
 }
 
@@ -1292,7 +1325,12 @@ async function renderSchedule(){
             <tr>
               <td>${escapeHTML(s.title)}</td><td>${s.event_date}</td><td>${escapeHTML(s.content||"")}</td>
               <td>${authorLabel(s.profiles,s.author_id)}</td>
-              <td>${canDelete(s.author_id)?`<button class="danger" onclick="deletePost('schedules',${s.id},'schedule')">삭제</button>`:""}</td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                  ${canEdit(s.author_id)?`<button class="outline" onclick="editPost('schedules',${s.id},'schedule')">수정</button>`:""}
+                  ${canDelete(s.author_id)?`<button class="danger" onclick="deletePost('schedules',${s.id},'schedule')">삭제</button>`:""}
+                </div>
+              </td>
             </tr>
           `).join("") : `<tr><td colspan="5" class="empty">일정이 없습니다.</td></tr>`}
         </tbody>
@@ -1352,7 +1390,12 @@ async function renderAssignments(){
               <td><span class="badge">${escapeHTML(a.subject)}</span></td>
               <td>${escapeHTML(a.title)}</td><td>${a.event_date}</td><td>${escapeHTML(a.content||"")}</td>
               <td>${authorLabel(a.profiles,a.author_id)}</td>
-              <td>${canDelete(a.author_id)?`<button class="danger" onclick="deletePost('assignments',${a.id},'assignments')">삭제</button>`:""}</td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                  ${canEdit(a.author_id)?`<button class="outline" onclick="editPost('assignments',${a.id},'assignments')">수정</button>`:""}
+                  ${canDelete(a.author_id)?`<button class="danger" onclick="deletePost('assignments',${a.id},'assignments')">삭제</button>`:""}
+                </div>
+              </td>
             </tr>
           `).join("") : `<tr><td colspan="6" class="empty">등록된 수행평가가 없습니다.</td></tr>`}
         </tbody>
@@ -1629,6 +1672,7 @@ async function renderLost(){
               <td>
                 <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
                   <button class="outline" onclick="showLost(${x.id})">댓글 보기</button>
+                  ${canEdit(x.author_id)?`<button class="outline" onclick="editPost('lost_items',${x.id},'lost')">수정</button>`:""}
                   ${canDelete(x.author_id)?`<button class="danger" onclick="deletePost('lost_items',${x.id},'lost')">삭제</button>`:""}
                 </div>
               </td>
@@ -1686,7 +1730,7 @@ async function showLost(id){
               <div style="padding:10px 12px;border:1px solid #eee;border-radius:8px;background:#f7f9fb;">
                 <div><b>${escapeHTML(c.profiles?.nickname||"?")}</b> <span class="meta">(${escapeHTML(c.profiles?.handle||"?")})</span></div>
                 <div style="margin-top:4px;white-space:pre-wrap;">${escapeHTML(c.content)}</div>
-                <div class="meta" style="margin-top:5px;">${c.created_at.slice(0,16).replace("T"," ")}</div>
+                <div class="meta" style="margin-top:5px;">${formatMetaTimestamp(c)}</div>
               </div>
             `).join("")}
           </div>`
@@ -1696,8 +1740,9 @@ async function showLost(id){
       <div style="margin-top:14px;display:flex;gap:8px;align-items:flex-start;">
         <textarea id="lostCommentInput" rows="3" style="flex:1;resize:vertical;padding:8px;border:1px solid #ccd3da;border-radius:5px;" placeholder="어디서 찾았는지 적어주세요. 예: 2층 복도, 화장실 앞, 교실 책상 밑"></textarea>
       </div>
-      <div style="display:flex;justify-content:flex-end;margin-top:10px;gap:8px;">
+      <div style="display:flex;justify-content:flex-end;margin-top:10px;gap:8px;flex-wrap:wrap;">
         <button class="outline" onclick="addLostComment(${id})">댓글 등록</button>
+        ${canEdit(lostItem.author_id)?`<button class="outline" onclick="editPost('lost_items',${lostItem.id},'lost')">수정</button>`:""}
         ${canDelete(lostItem.author_id)?`<button class="danger" onclick="deletePost('lost_items',${lostItem.id},'lost')">삭제</button>`:""}
       </div>
     </div>
@@ -1858,7 +1903,7 @@ function renderFeedPost(post,likes,postComments,locked){
         </div>
         <div>
           ${feedAuthorLabel(post.profiles,post.author_id)}
-          <div class="meta">${post.created_at.slice(0,16).replace("T"," ")}</div>
+          <div class="meta">${formatMetaTimestamp(post)}</div>
         </div>
         ${post.is_featured ? `<span class="badge" style="margin-left:auto;background:#e6f9ee;color:var(--success)">⭐ 채택됨</span>` : ""}
       </div>
@@ -1878,6 +1923,7 @@ function renderFeedPost(post,likes,postComments,locked){
           : ""
         }
 
+        ${canDelete(post.author_id) ? `<button class="feed-action-btn" onclick="editPost('opinions',${post.id},'feed')">✏️ 수정</button>` : ""}
         ${canDelete(post.author_id) ? `<button class="feed-action-btn" onclick="deleteFeedPost(${post.id})">🗑️ 삭제</button>` : ""}
       </div>
 
@@ -1900,7 +1946,7 @@ function renderFeedComment(c){
   return `
     <div class="feed-comment" id="feed-comment-${c.id}">
       ${feedAuthorLabel(c.profiles,c.author_id)}
-      <span class="meta">· ${c.created_at.slice(0,16).replace("T"," ")}</span>
+      <span class="meta">· ${formatMetaTimestamp(c)}</span>
       <div>${escapeHTML(c.content)}</div>
       <div class="feed-comment-actions">
         <button onclick="toggleCommentLike(${c.id},1)">👍</button>
@@ -2093,6 +2139,121 @@ async function renderMealPage(){
    DELETE (공통)
 ========================================================= */
 
+function canEdit(authorId){ return canDelete(authorId); }
+
+async function editPost(table,id,page){
+  const {data,error}=await supabase.from(table).select("*").eq("id",id).single();
+  if(error || !data){ msg("게시글 정보를 불러오지 못했습니다."); return; }
+  if(!canEdit(data.author_id)){ msg("수정 권한이 없습니다."); return; }
+
+  if(table==="notices"){
+    openModal(`
+      <h2>공지사항 수정</h2>
+      <div class="form-group"><label>제목</label><input id="editTitle" value="${escapeHTML(data.title||"")}"></div>
+      <div class="form-group"><label>내용</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+
+  if(table==="schedules"){
+    openModal(`
+      <h2>일정 수정</h2>
+      <div class="form-group"><label>제목</label><input id="editTitle" value="${escapeHTML(data.title||"")}"></div>
+      <div class="form-group"><label>날짜</label><input id="editDate" type="date" value="${escapeHTML(data.event_date||"")}"></div>
+      <div class="form-group"><label>내용</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+
+  if(table==="assignments"){
+    openModal(`
+      <h2>수행평가 수정</h2>
+      <div class="form-group"><label>과목</label><input id="editSubject" value="${escapeHTML(data.subject||"")}"></div>
+      <div class="form-group"><label>제목</label><input id="editTitle" value="${escapeHTML(data.title||"")}"></div>
+      <div class="form-group"><label>날짜</label><input id="editDate" type="date" value="${escapeHTML(data.event_date||"")}"></div>
+      <div class="form-group"><label>내용</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+
+  if(table==="lost_items"){
+    openModal(`
+      <h2>분실물 수정</h2>
+      <div class="form-group"><label>물건 이름</label><input id="editTitle" value="${escapeHTML(data.title||"")}"></div>
+      <div class="form-group"><label>설명</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+
+  if(table==="opinions"){
+    openModal(`
+      <h2>글 수정</h2>
+      <div class="form-group"><label>내용</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+}
+
+async function saveEditedPost(table,id,page){
+  let payload={};
+
+  if(table==="notices"){
+    const titleRaw=document.getElementById("editTitle").value.trim();
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!titleRaw||!contentRaw){ msg("제목과 내용을 모두 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(titleRaw,contentRaw); if(!cleaned)return; const [title,content]=cleaned;
+    payload={title,content,updated_at:new Date().toISOString()};
+  }
+  else if(table==="schedules"){
+    const titleRaw=document.getElementById("editTitle").value.trim();
+    const event_date=document.getElementById("editDate").value;
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!titleRaw||!event_date){ msg("제목과 날짜를 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(titleRaw,contentRaw); if(!cleaned)return; const [title,content]=cleaned;
+    payload={title,event_date,content,updated_at:new Date().toISOString()};
+  }
+  else if(table==="assignments"){
+    const subjectRaw=document.getElementById("editSubject").value.trim();
+    const titleRaw=document.getElementById("editTitle").value.trim();
+    const event_date=document.getElementById("editDate").value;
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!subjectRaw||!titleRaw||!event_date){ msg("과목, 제목, 날짜를 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(subjectRaw,titleRaw,contentRaw); if(!cleaned)return; const [subject,title,content]=cleaned;
+    payload={subject,title,event_date,content,updated_at:new Date().toISOString()};
+  }
+  else if(table==="lost_items"){
+    const titleRaw=document.getElementById("editTitle").value.trim();
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!titleRaw||!contentRaw){ msg("물건 이름과 설명을 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(titleRaw,contentRaw); if(!cleaned)return; const [title,content]=cleaned;
+    payload={title,content,updated_at:new Date().toISOString()};
+  }
+  else if(table==="opinions"){
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!contentRaw){ msg("내용을 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(contentRaw); if(!cleaned)return; const [content]=cleaned;
+    payload={content,updated_at:new Date().toISOString()};
+  }
+  else {
+    msg("지원하지 않는 게시판입니다."); return;
+  }
+
+  const {error}=await supabase.from(table).update(payload).eq("id",id);
+  if(error){
+    msg("수정 실패:\n" + error.message + "\n\nSupabase RLS에서 이 테이블의 UPDATE 권한이 허용됐는지 확인해주세요.");
+    return;
+  }
+
+  msg("수정되었습니다.");
+  closeModal();
+  render(page);
+}
+
 async function deletePost(table,id,page){
   if(!confirm("정말 삭제할까요?"))return;
   const {data,error}=await supabase.from(table).select("author_id").eq("id",id).single();
@@ -2126,7 +2287,7 @@ async function renderAccount(){
 
   const borderClass=borderClassFor(profile?.equipped_border);
 
-  const notifPermission=(typeof Notification!=="undefined") ? Notification.permission : "unsupported";
+  const notifPermission=getNotificationPermissionState();
 
   const adminSection=isStaff() ? await renderAdminSection() : "";
 
@@ -2492,7 +2653,7 @@ function renderProfileModal(targetId,p,messages){
         ${messages.length ? messages.map(m=>`
           <div class="feed-comment">
             <b>${escapeHTML(m.profiles?.nickname||"?")}</b>
-            <span class="meta">(${escapeHTML(m.profiles?.handle||"?")}) · ${m.created_at.slice(0,16).replace("T"," ")}</span>
+            <span class="meta">(${escapeHTML(m.profiles?.handle||"?")}) · ${formatMetaTimestamp(m)}</span>
             <div>${escapeHTML(m.content)}</div>
           </div>
         `).join("") : `<p class="meta">아직 남겨진 메시지가 없습니다.</p>`}
@@ -2586,7 +2747,7 @@ Object.assign(window,{
   lostForm, createLost, showLost,
   feedPostForm, createFeedPost, deleteFeedPost,
   toggleLike, addComment, deleteComment, toggleCommentLike, featurePost,
-  deletePost,
+  deletePost, editPost, saveEditedPost,
   updateNickname, updateStatusMessage,
   renderAccount, renderMealPage,
   buyItem, equipItem, buyNicknameColor,
