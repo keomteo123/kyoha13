@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>교하중학교 1학년 3반 (테스트)</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gaegu:wght@400;700&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+
+:root{
+  --main:#1769aa;
+  --dark:#0e4775;
+  --light:#eaf4fc;
+  --bg:#f4f6f8;
+  --border:#dfe4ea;
+  --danger:#d9534f;
+  --success:#218838;
+  --text:#222;
+  --muted:#737b83;
+  --shadow:0 4px 16px rgba(0,0,0,.05)
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:"Noto Sans KR","Malgun Gothic",Arial,sans-serif
+}
+
+body.font-cute{ font-family:"Gaegu","Noto Sans KR",cursive }
+body.font-round{ font-family:"Nanum Gothic","Noto Sans KR",sans-serif }
+body.font-serif{ font-family:"Nanum Myeongjo",serif }
+
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+
+header{background:white;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1000}
+.top{max-width:1200px;margin:auto;min-height:82px;padding:15px 20px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:24px;font-weight:800;color:var(--main)}
+.logo small{display:block;color:#777;font-size:12px;margin-top:4px}
+.user-area{display:flex;align-items:center;gap:9px}
+.user-badge{padding:7px 11px;background:#f2f6fa;border-radius:20px;font-size:13px}
+.points-badge{padding:7px 11px;background:#fff7e6;color:#9b6500;border-radius:20px;font-size:13px;font-weight:700}
+
+nav{border-top:1px solid #eee}
+.nav-inner{max-width:1200px;margin:auto;display:flex;overflow-x:auto}
+.nav-btn{border:0;background:white;padding:15px 18px;white-space:nowrap;border-bottom:3px solid transparent;font-weight:600;color:#444}
+.nav-btn.active,.nav-btn:hover{color:var(--main);border-bottom-color:var(--main)}
+
+main{max-width:1200px;margin:30px auto;padding:0 20px}
+.page-title{margin-bottom:20px}
+.page-title h1{margin:0 0 7px}
+.page-title p{color:var(--muted);margin:0}
+
+.hero,.card,.table-wrap,.poll,.stat-card,.game-card,.feed-post,.shop-item,.dday-card{
+  background:white;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow)
+}
+
+.hero{padding:28px;margin-bottom:20px;background:linear-gradient(135deg,#fff,#f0f7ff)}
+.hero h2{margin:0 0 8px}
+.home-grid{display:grid;grid-template-columns:2fr 1fr;gap:20px}
+.card{padding:22px}
+.card h3{margin-top:0}
+
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.primary{border:0;background:var(--main);color:white;padding:10px 16px;border-radius:5px;font-weight:600}
+.primary:hover{background:var(--dark)}
+.primary:disabled{opacity:.5;cursor:not-allowed}
+.outline{background:white;border:1px solid #ccd3da;padding:9px 14px;border-radius:5px}
+.outline:hover{background:#f7f9fb}
+.danger{background:var(--danger);color:white;border:0;padding:8px 13px;border-radius:5px}
+
+.table-wrap{padding:0;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th,td{padding:13px 12px;border-bottom:1px solid #e8ebee;text-align:center}
+th{background:#f7f8fa;color:#555}
+tr:last-child td{border-bottom:0}
+.title-cell{text-align:left;cursor:pointer;font-weight:600}
+.title-cell:hover{color:var(--main)}
+.empty{padding:50px!important;text-align:center;color:#888}
+
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:7px;font-weight:600}
+.form-group input,.form-group textarea,.form-group select,.login-box input{
+  width:100%;padding:11px;border:1px solid #ccd3da;border-radius:5px;outline:none
+}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus,.login-box input:focus{
+  border-color:var(--main);box-shadow:0 0 0 2px rgba(23,105,170,.1)
+}
+.form-group input:disabled{background:#f4f6f8;color:#999}
+textarea{min-height:120px;resize:vertical}
+
+.modal-bg{position:fixed;inset:0;display:none;justify-content:center;align-items:center;padding:20px;background:rgba(0,0,0,.5);z-index:10001}
+.modal{width:100%;max-width:650px;max-height:90vh;overflow:auto;background:white;border-radius:8px;padding:25px}
+.modal-close{float:right;border:0;background:none;font-size:24px}
+
+.login-page{position:fixed;inset:0;z-index:10000;display:flex;justify-content:center;align-items:center;background:linear-gradient(135deg,#eaf4fc,#f4f6f8)}
+.login-box{width:400px;max-width:calc(100% - 30px);padding:32px;background:white;border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 35px rgba(0,0,0,.1)}
+.login-box h1{text-align:center;color:var(--main);line-height:1.35}
+.login-box button{width:100%}
+.login-help{text-align:center;color:#888;font-size:12px;margin-top:18px}
+
+.admin-box{padding:20px;background:#fff7e6;border:1px solid #f0d59b;border-radius:7px;margin-bottom:20px}
+.event{margin-top:5px;padding:5px;background:#e8f2ff;color:var(--main);border-radius:4px;font-size:11px}
+
+.calendar{background:white;border:1px solid var(--border);border-radius:8px;overflow-x:auto;box-shadow:var(--shadow)}
+.calendar-head{padding:18px;display:flex;justify-content:space-between;align-items:center}
+.calendar-grid{min-width:700px;display:grid;grid-template-columns:repeat(7,1fr)}
+.day-head{padding:10px;text-align:center;background:#f7f8fa;border:1px solid var(--border);font-weight:700}
+.day{min-height:110px;padding:8px;border:1px solid var(--border)}
+.today{background:#f0f7ff}
+
+.notice-preview,.schedule-preview{padding:12px 0;border-bottom:1px solid #eee}
+.notice-preview:last-child,.schedule-preview:last-child{border-bottom:0}
+.meta{color:#888;font-size:12px}
+
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+.stat-card{padding:18px;text-align:center}
+.stat-card b{display:block;font-size:25px;color:var(--main);margin-top:5px}
+
+.poll{padding:22px;margin-bottom:15px}
+.poll-option{width:100%;margin-top:8px;padding:13px;text-align:left;background:#f7f8fa;border:1px solid #ddd;border-radius:5px}
+.poll-option:hover{border-color:var(--main);background:#f0f7ff}
+.vote-result{margin-top:15px;padding-top:15px;border-top:1px solid #eee}
+.vote-bar{height:8px;background:#e8ebee;border-radius:10px;overflow:hidden;margin-top:5px}
+.vote-bar-inner{height:100%;background:var(--main);transition:width .3s}
+
+.profile-box{display:flex;align-items:center;gap:15px;padding:15px;background:#f7f9fb;border-radius:7px;margin-bottom:15px;position:relative}
+.avatar{width:46px;height:46px;border-radius:50%;background:var(--main);color:white;display:flex;justify-content:center;align-items:center;font-weight:800;font-size:16px;flex-shrink:0}
+
+.profile-box.border-neon{border:2px solid #00e5ff;box-shadow:0 0 14px rgba(0,229,255,.5)}
+.profile-box.border-gold{border:2px solid #f6c94c;box-shadow:0 0 14px rgba(246,201,76,.5)}
+.profile-box.border-gradient{border:2px solid transparent;background-image:linear-gradient(#f7f9fb,#f7f9fb),linear-gradient(135deg,#ff6ec4,#7873f5,#4ade80);background-origin:border-box;background-clip:padding-box,border-box}
+
+.avatar.border-neon{border:2px solid #00e5ff;box-shadow:0 0 10px rgba(0,229,255,.6)}
+.avatar.border-gold{border:2px solid #f6c94c;box-shadow:0 0 10px rgba(246,201,76,.6)}
+.avatar.border-gradient{border:2px solid transparent;background-image:linear-gradient(var(--main),var(--main)),linear-gradient(135deg,#ff6ec4,#7873f5,#4ade80);background-origin:border-box;background-clip:padding-box,border-box}
+.handle-link{cursor:pointer;text-decoration:underline;text-decoration-style:dotted}
+.handle-link:hover{color:var(--main)}
+
+.badge{display:inline-block;padding:4px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#eef2f5;color:#555}
+.badge-admin{background:#fff0f0;color:#c33}
+.badge-teacher{background:#fff7e6;color:#9b6500}
+.badge-student{background:#eaf4fc;color:var(--main)}
+.badge-title{background:#f3e8ff;color:#7c3aed}
+
+.image-preview{width:100%;max-height:400px;object-fit:contain;margin-top:15px;border-radius:5px;border:1px solid var(--border)}
+
+.games-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.game-card{padding:22px;transition:.15s}
+.game-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(0,0,0,.08)}
+.game-icon{width:58px;height:58px;display:flex;justify-content:center;align-items:center;background:var(--light);border-radius:14px;font-size:30px;margin-bottom:14px}
+.game-card h3{margin:0 0 7px}
+.game-card p{color:var(--muted);font-size:13px;min-height:40px}
+.game-link{display:block;text-decoration:none;text-align:center;background:var(--main);color:white;padding:10px;border-radius:5px;font-weight:600;margin-top:15px}
+.game-link:hover{background:var(--dark)}
+.game-note{padding:13px;background:#f7f9fb;border-radius:6px;font-size:12px;color:#777;margin-bottom:20px}
+
+.spinner-row{padding:40px;text-align:center;color:#888}
+
+.dday-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.dday-card{padding:16px;text-align:center;cursor:pointer;transition:.15s}
+.dday-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.dday-num{font-size:22px;font-weight:800;color:var(--main)}
+.dday-num.urgent{color:var(--danger)}
+.dday-label{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dday-type{font-size:10px;color:#999}
+
+.leaderboard-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #eee}
+.leaderboard-row:last-child{border-bottom:0}
+.rank-badge{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;background:#eef2f5;color:#555;flex-shrink:0}
+.rank-badge.rank-1{background:#fff3cd;color:#8a6d00}
+.rank-badge.rank-2{background:#e9ecef;color:#495057}
+.rank-badge.rank-3{background:#f3d9c4;color:#8a4b00}
+
+.feed-post{padding:20px;margin-bottom:16px}
+.feed-post-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.feed-post-body{white-space:pre-wrap;line-height:1.6;margin:10px 0}
+.feed-post-embed img{max-width:100%;border-radius:6px;margin-top:8px}
+.feed-post-embed iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:6px;margin-top:8px}
+.feed-post-embed{max-width:420px}
+.video-placeholder{max-width:420px;aspect-ratio:16/9;margin-top:8px;border-radius:6px;background:#111 url('') center/cover;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.video-placeholder img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55}
+.video-placeholder button{position:relative;z-index:1;background:rgba(0,0,0,.6);color:#fff;border:1px solid #fff;padding:9px 18px;border-radius:20px;font-weight:700}
+.link-card{display:block;margin-top:8px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#f7f9fb;text-decoration:none;color:var(--text);font-size:13px;word-break:break-all}
+.link-card b{display:block;color:var(--main);font-size:12px;margin-bottom:2px}
+.feed-search{padding:9px 12px;border:1px solid #ccd3da;border-radius:5px;min-width:200px}
+.feed-lock-banner{background:#fff0f0;color:#c33;padding:12px 14px;border-radius:6px;margin-bottom:16px;font-weight:600}
+.feed-actions{display:flex;gap:8px;margin-top:12px;align-items:center;flex-wrap:wrap}
+.feed-action-btn{border:1px solid #ddd;background:#f7f8fa;padding:6px 12px;border-radius:20px;font-size:13px}
+.feed-action-btn.active-like{background:#e8f2ff;border-color:var(--main);color:var(--main)}
+.feed-action-btn.active-dislike{background:#fdeeee;border-color:var(--danger);color:var(--danger)}
+.feed-warning{background:#fff0f0;color:#c33;padding:8px 12px;border-radius:6px;font-size:12px;margin-top:8px}
+.feed-comments{margin-top:14px;padding-top:14px;border-top:1px solid #eee}
+.feed-comment{padding:8px 0;border-bottom:1px solid #f2f2f2;font-size:14px}
+.feed-comment:last-child{border-bottom:0}
+.feed-comment-actions{display:flex;gap:6px;margin-top:4px}
+.feed-comment-actions button{border:0;background:none;color:#888;font-size:11px;padding:2px 4px}
+.feed-comment-actions button.active{color:var(--main);font-weight:700}
+.nickname-color-input{width:60px;height:38px;padding:2px;border:1px solid #ccd3da;border-radius:5px}
+
+.shop-section{margin-top:20px}
+.shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:12px}
+.shop-item{padding:16px;text-align:center}
+.shop-item .icon{font-size:28px;margin-bottom:6px}
+.shop-item .name{font-weight:700;font-size:14px;margin-bottom:4px}
+.shop-item .price{color:#9b6500;font-size:13px;margin-bottom:10px}
+.shop-item button{width:100%}
+.shop-item.owned{background:#f7f9fb}
+
+@media(max-width:850px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .games-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .top{flex-direction:column;align-items:flex-start;gap:10px}
+  .home-grid{grid-template-columns:1fr}
+  main{padding:0 12px;margin-top:20px}
+  .user-area{width:100%;justify-content:space-between}
+  .games-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginPage" class="login-page">
+  <div class="login-box">
+    <h1>교하중학교<br>1학년 3반</h1>
+    <p style="text-align:center;color:#777">우리 반 학급 홈페이지</p>
+
+    <div class="form-group">
+      <label>학번</label>
+      <input id="loginId" type="text" inputmode="numeric" maxlength="5" placeholder="예: 10301">
+    </div>
+
+    <div class="form-group">
+      <label>비밀번호</label>
+      <input id="loginPassword" type="password" placeholder="비밀번호">
+    </div>
+
+    <button class="primary" onclick="login()">로그인</button>
+    <p id="loginMessage" class="login-help"></p>
+  </div>
+</div>
+
+
+<!-- HEADER -->
+<header>
+  <div class="top">
+    <div class="logo">
+      교하중학교 1학년 3반 홈페이지 (테스트 버전)
+      <small>이거 만드는데 일주일 걸림</small>
+    </div>
+
+    <div class="user-area">
+      <div id="userInfo"></div>
+      <button id="snsLockBtn" class="outline" style="display:none" onclick="toggleSnsLock()">🔒 막기</button>
+      <button class="outline" onclick="logout()">로그아웃</button>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-inner">
+      <button class="nav-btn active" data-page="home">홈</button>
+      <button class="nav-btn" data-page="notices">공지사항</button>
+      <button class="nav-btn" data-page="schedule">일정</button>
+      <button class="nav-btn" data-page="assignments">수행평가/시험</button>
+      <button class="nav-btn" data-page="calendar">캘린더</button>
+      <button class="nav-btn" data-page="votes">투표</button>
+      <button class="nav-btn" data-page="feed">[NEW!] SNS</button>
+      <button class="nav-btn" data-page="lost">분실물</button>
+      <button class="nav-btn" data-page="games">게임</button>
+      <button class="nav-btn" data-page="account">계정</button>
+    </div>
+  </nav>
+</header>
+
+
+<main id="app"></main>
+
+
+<!-- MODAL -->
+<div id="modalBg" class="modal-bg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+
+<script>
+(function(){
+
+if(window.__classroomAppInitialized){
+  console.warn("classroom app already initialized");
+  return;
+}
+window.__classroomAppInitialized=true;
+
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SUPABASE_URL="https://jllqnaoprtrcjfnzywdd.supabase.co";
+const SUPABASE_KEY="sb_publishable_JkZ3SaNaxC-SdHyNJiRx7g_ARp-FmJJ";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+
+/* =========================================================
+   STATE / 상수
+========================================================= */
+
+let currentUser=null;
+let profile=null;
+let calendarDate=new Date();
+let appSettings={sns_locked:false};
+
+const NICKNAME_COOLDOWN_DAYS=30;
+const CHECKIN_POINTS=10;
+const FEATURE_POINTS=30;
+
+const STUDENT_IDS=[
+  "10300","10301","10302","10303","10304","10305","10306","10307","10308","10309",
+  "10310","10311","10312","10313","10314","10315","10316","10317","10318","10319",
+  "10320","10321","10322","10323","10324","10325","10326","10327","10328","10329",
+  "10330","103"
+];
+
+function idToEmail(studentId){ return `${studentId}@classroom.local`; }
+
+
+// ===== 클린봇: 매우 단순한 1차 필터 (완벽하지 않음, 보조 수단) =====
+const BAD_WORDS=["시발","씨발","병신","좆","개새끼","존나","니미","fuck","shit",
+  "느금마", "좆갈", "ㅈㄴ", "ㅈㄹ", "ㅄ", "ㅂㅅ", "ㅅㅂ", "ㅅㅂㄹ", "ㅗ"
+];
+
+function containsBadWord(text){
+  const normalized=text.toLowerCase().replace(/\s+/g,"");
+  return BAD_WORDS.some(w=>normalized.includes(w));
+}
+
+function maskBadWords(text){
+  let result=text;
+  BAD_WORDS.forEach(w=>{
+    const re=new RegExp(w,"gi");
+    result=result.replace(re,"*".repeat(w.length));
+  });
+  return result;
+}
+
+// ===== 상점 아이템 정의 =====
+const FONT_ITEMS=[
+  {id:"font-default", name:"기본 폰트", icon:"🔤", price:0, cssClass:""},
+  {id:"font-cute",    name:"귀여운 폰트", icon:"🌸", price:50, cssClass:"font-cute"},
+  {id:"font-round",   name:"둥근 폰트",   icon:"⭕", price:50, cssClass:"font-round"},
+  {id:"font-serif",   name:"명조 폰트",   icon:"✒️", price:50, cssClass:"font-serif"}
+];
+
+const BORDER_ITEMS=[
+  {id:"border-none",     name:"기본 테두리",   icon:"⬜", price:0,  cssClass:"none"},
+  {id:"border-neon",     name:"네온 테두리",   icon:"💡", price:80, cssClass:"neon"},
+  {id:"border-gold",     name:"골드 테두리",   icon:"🏆", price:100,cssClass:"gold"},
+  {id:"border-gradient", name:"그라데이션 테두리",icon:"🌈", price:120,cssClass:"gradient"}
+];
+
+const TITLE_ITEMS=[
+  {id:"title-none",     name:"칭호 없음",     icon:"—",  price:0,  text:null},
+  {id:"title-hotcomment",name:"열혈 댓글러",  icon:"💬", price:60, text:"열혈 댓글러"},
+  {id:"title-idea",     name:"아이디어왕",    icon:"💡", price:60, text:"아이디어왕"},
+  {id:"title-mvp",      name:"학급 MVP",      icon:"👑", price:150,text:"학급 MVP"}
+];
+
+const COLOR_ITEM={id:"nickname-color", name:"닉네임 색상", icon:"🎨", price:70};
+
+
+/* =========================================================
+   공통 HELPERS
+========================================================= */
+
+function escapeHTML(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+
+function today(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function msg(text){ alert(text); }
+function openModal(html){ document.getElementById("modalContent").innerHTML=html; document.getElementById("modalBg").style.display="flex"; }
+function closeModal(){ document.getElementById("modalBg").style.display="none"; }
+function showLoading(){ document.getElementById("app").innerHTML=`<div class="spinner-row">불러오는 중...</div>`; }
+
+function isStaff(){ return Boolean(profile && (profile.role==="admin" || profile.role==="teacher")); }
+function canDelete(authorId){ return Boolean(isStaff() || currentUser?.id===authorId); }
+
+function borderClassFor(equipped){
+  return equipped==="neon" ? "border-neon" :
+         equipped==="gold" ? "border-gold" :
+         equipped==="gradient" ? "border-gradient" : "";
+}
+
+function roleBadge(role){
+  if(role==="admin") return `<span class="badge badge-admin">관리자</span>`;
+  if(role==="teacher") return `<span class="badge badge-teacher">선생님</span>`;
+  return `<span class="badge badge-student">학생</span>`;
+}
+
+function authorLabel(joinedProfile,authorId){
+  if(!joinedProfile) return escapeHTML(authorId||"알 수 없음");
+  const nickname=joinedProfile.nickname||"";
+  const handle=joinedProfile.handle||authorId||"";
+  return `${escapeHTML(nickname)} (${escapeHTML(handle)})`;
+}
+
+function feedAuthorLabel(joinedProfile,authorId){
+  if(!joinedProfile) return "알 수 없음";
+
+  const nameColor=joinedProfile.equipped_color
+    ? `style="color:${escapeHTML(joinedProfile.equipped_color)};font-weight:700"`
+    : `style="font-weight:700"`;
+
+  const titleBadge=joinedProfile.equipped_title
+    ? `<span class="badge badge-title">${escapeHTML(joinedProfile.equipped_title)}</span>`
+    : "";
+
+  const handleHtml=authorId
+    ? `<span class="meta handle-link" onclick="showUserProfile('${authorId}')" title="프로필 보기">(${escapeHTML(joinedProfile.handle)})</span>`
+    : `<span class="meta">(${escapeHTML(joinedProfile.handle)})</span>`;
+
+  return `
+    <span ${nameColor}>${escapeHTML(joinedProfile.nickname)}</span>
+    ${handleHtml}
+    ${titleBadge}
+  `;
+}
+
+function getStudentNumber(handle){
+  if(!handle) return "??";
+  const s=String(handle);
+  return s.length>=2 ? s.slice(-2) : s;
+}
+
+function renderUserInfo(){
+  const el=document.getElementById("userInfo");
+  if(!el || !profile)return;
+
+  el.innerHTML=`
+    <span class="points-badge">🪙 ${profile.points ?? 0}P</span>
+    <span class="user-badge">${escapeHTML(profile.nickname)} (${escapeHTML(profile.handle)})</span>
+    ${roleBadge(profile.role)}
+  `;
+
+  const lockBtn=document.getElementById("snsLockBtn");
+  if(lockBtn){
+    if(profile.role==="admin"){
+      lockBtn.style.display="";
+      lockBtn.textContent=appSettings.sns_locked ? "🔓 SNS 풀기" : "🔒 SNS 막기";
+      lockBtn.className=appSettings.sns_locked ? "outline" : "outline";
+    }else{
+      lockBtn.style.display="none";
+    }
+  }
+}
+
+async function getTableCounts(tables){
+  const counts={};
+  await Promise.all(tables.map(async table=>{
+    const {count}=await supabase.from(table).select("*",{count:"exact",head:true});
+    counts[table]=count||0;
+  }));
+  return counts;
+}
+
+function applyEquippedStyles(){
+  document.body.className=document.body.className.split(" ").filter(c=>!c.startsWith("font-")).join(" ");
+  const fontItem=FONT_ITEMS.find(f=>f.id===profile?.equipped_font);
+  if(fontItem?.cssClass) document.body.classList.add(fontItem.cssClass);
+}
+
+function daysUntil(dateStr){
+  const target=new Date(dateStr+"T00:00:00");
+  const now=new Date();
+  now.setHours(0,0,0,0);
+  return Math.ceil((target-now)/(1000*60*60*24));
+}
+
+function ddayLabel(diff){
+  if(diff===0) return "D-DAY";
+  if(diff>0) return `D-${diff}`;
+  return `D+${Math.abs(diff)}`;
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+async function login(){
+  const studentId=document.getElementById("loginId").value.trim();
+  const password=document.getElementById("loginPassword").value;
+
+  if(!STUDENT_IDS.includes(studentId)){ msg("존재하지 않는 학번입니다."); return; }
+  if(!password){ msg("비밀번호를 입력해주세요."); return; }
+
+  const {data,error}=await supabase.auth.signInWithPassword({email:idToEmail(studentId),password});
+  if(error){ msg("학번 또는 비밀번호가 올바르지 않습니다."); return; }
+
+  currentUser=data.user;
+  await loadProfile();
+
+  if(!profile){
+    msg("프로필을 불러오지 못했습니다. 관리자에게 문의해주세요.");
+    await supabase.auth.signOut();
+    currentUser=null;
+    return;
+  }
+
+  document.getElementById("loginPage").style.display="none";
+  applyEquippedStyles();
+  await loadSettings();
+  renderUserInfo();
+  render("home");
+
+  await tryDailyCheckin();
+}
+
+async function logout(){
+  await supabase.auth.signOut();
+  currentUser=null;
+  profile=null;
+  document.getElementById("loginPage").style.display="flex";
+  document.getElementById("loginId").value="";
+  document.getElementById("loginPassword").value="";
+}
+
+async function loadProfile(){
+  if(!currentUser)return;
+  const {data,error}=await supabase.from("profiles").select("*").eq("id",currentUser.id).single();
+  if(error){ console.error(error); profile=null; return; }
+  profile=data;
+}
+
+async function restoreLogin(){
+  const {data}=await supabase.auth.getSession();
+  if(!data.session){ document.getElementById("loginPage").style.display="flex"; return; }
+
+  currentUser=data.session.user;
+  await loadProfile();
+
+  if(!profile){
+    await supabase.auth.signOut();
+    currentUser=null;
+    document.getElementById("loginPage").style.display="flex";
+    return;
+  }
+
+  document.getElementById("loginPage").style.display="none";
+  applyEquippedStyles();
+  await loadSettings();
+  renderUserInfo();
+  render("home");
+
+  await tryDailyCheckin();
+}
+
+
+/* =========================================================
+   앱 전역 설정 (SNS 잠금 등)
+   ⚠️ supabase에 "app_settings" 테이블(id int8, sns_locked bool)이
+   필요하며, id=1 행이 하나 있어야 합니다. 관리자만 UPDATE 가능하도록
+   RLS를 설정해주세요. 테이블이 없으면 잠금 기능은 항상 꺼짐 상태로 동작합니다.
+========================================================= */
+
+async function loadSettings(){
+  const {data,error}=await supabase.from("app_settings").select("*").eq("id",1).maybeSingle();
+  if(error || !data){ appSettings={sns_locked:false}; return; }
+  appSettings=data;
+}
+
+async function toggleSnsLock(){
+  if(!profile || profile.role!=="admin")return;
+  const next=!appSettings.sns_locked;
+  if(!confirm(next ? "SNS 기능을 잠그시겠습니까? 학생들이 글쓰기/댓글을 할 수 없게 됩니다." : "SNS 잠금을 해제하시겠습니까?"))return;
+
+  const {error}=await supabase.from("app_settings").upsert({id:1,sns_locked:next});
+  if(error){ msg("설정 변경 실패: "+error.message); return; }
+
+  appSettings.sns_locked=next;
+  renderUserInfo();
+  if(document.querySelector('.nav-btn[data-page="feed"]').classList.contains("active")) renderFeed();
+}
+
+
+/* =========================================================
+   출석체크 (일일 포인트)
+========================================================= */
+
+async function tryDailyCheckin(){
+  if(!profile)return;
+  if(profile.last_checkin_date===today())return;
+
+  const newPoints=(profile.points||0)+CHECKIN_POINTS;
+
+  const {error}=await supabase
+    .from("profiles")
+    .update({points:newPoints,last_checkin_date:today()})
+    .eq("id",currentUser.id);
+
+  if(error){ console.error(error); return; }
+
+  await loadProfile();
+  renderUserInfo();
+
+  msg(`✅ 출석체크 완료! +${CHECKIN_POINTS}P 지급되었습니다.\n(현재 ${profile.points}P)`);
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+    render(btn.dataset.page);
+  });
+});
+
+function go(page){
+  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+  render(page);
+}
+
+const PAGE_RENDERERS={
+  home:renderHome, notices:renderNotices, schedule:renderSchedule,
+  assignments:renderAssignments, calendar:renderCalendar, votes:renderVotes,
+  feed:renderFeed, lost:renderLost, games:renderGames, account:renderAccount
+};
+
+function render(page){
+  const renderer=PAGE_RENDERERS[page];
+  if(renderer) renderer();
+}
+
+
+/* =========================================================
+   HOME (D-Day 위젯 + 리더보드 + 요약)
+========================================================= */
+
+async function renderHome(){
+  showLoading();
+
+  const in7days=new Date();
+  in7days.setDate(in7days.getDate()+7);
+  const in7daysStr=`${in7days.getFullYear()}-${String(in7days.getMonth()+1).padStart(2,"0")}-${String(in7days.getDate()).padStart(2,"0")}`;
+
+  const [
+    noticesResult, schedulesResult, assignmentsResult,
+    upcomingSchedules, upcomingAssignments,
+    topPointsResult, topCommentersRaw
+  ]=await Promise.all([
+    supabase.from("notices").select("*").order("created_at",{ascending:false}).limit(5),
+    supabase.from("schedules").select("*").gte("event_date",today()).order("event_date").limit(5),
+    supabase.from("assignments").select("*").gte("event_date",today()).order("event_date").limit(5),
+    supabase.from("schedules").select("*").gte("event_date",today()).lte("event_date",in7daysStr).order("event_date"),
+    supabase.from("assignments").select("*").gte("event_date",today()).lte("event_date",in7daysStr).order("event_date"),
+    supabase.from("profiles").select("nickname,handle,points").order("points",{ascending:false}).limit(3),
+    supabase.from("feed_comments").select("author_id, profiles(nickname,handle)")
+  ]);
+
+  const notices=noticesResult.data||[];
+  const schedules=schedulesResult.data||[];
+  const assignments=assignmentsResult.data||[];
+  const ddayItems=[
+    ...(upcomingSchedules.data||[]).map(s=>({...s,type:"일정",icon:"📅"})),
+    ...(upcomingAssignments.data||[]).map(a=>({...a,type:"수행평가",icon:"📝",title:`[${a.subject}] ${a.title}`}))
+  ].sort((a,b)=>a.event_date.localeCompare(b.event_date));
+
+  const topPoints=topPointsResult.data||[];
+
+  const commentCounts={};
+  (topCommentersRaw.data||[]).forEach(c=>{
+    const key=c.author_id;
+    if(!commentCounts[key]) commentCounts[key]={count:0,profile:c.profiles};
+    commentCounts[key].count++;
+  });
+  const topCommenters=Object.values(commentCounts).sort((a,b)=>b.count-a.count).slice(0,3);
+
+  document.getElementById("app").innerHTML=`
+
+    <div class="hero">
+      <h2>안녕하세요, ${escapeHTML(profile?.nickname||"학생")} 👋</h2>
+      <p>교하중학교 1학년 3반 학급 홈페이지입니다. ver.2</p>
+    </div>
+
+    ${
+      ddayItems.length
+      ? `
+        <h3 style="margin:0 0 10px">⏳ 7일 이내 다가오는 일정</h3>
+        <div class="dday-row">
+          ${ddayItems.map(item=>{
+            const diff=daysUntil(item.event_date);
+            const safeTitle=item.title.replace(/'/g,"\\'");
+            const safeContent=(item.content||"상세 내용 없음").replace(/'/g,"\\'");
+            return `
+              <div class="dday-card" onclick="alert('${safeTitle}\\n날짜: ${item.event_date}\\n${safeContent}')">
+                <div class="dday-num ${diff<=1?"urgent":""}">${ddayLabel(diff)}</div>
+                <div class="dday-label">${item.icon} ${escapeHTML(item.title)}</div>
+                <div class="dday-type">${item.type}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `
+      : ""
+    }
+
+    <div class="home-grid">
+
+      <div class="card">
+        <h3>📢 최근 공지사항</h3>
+        ${notices.length ? notices.map(n=>`
+          <div class="notice-preview" onclick="showNotice(${n.id})" style="cursor:pointer">
+            <b>${escapeHTML(n.title)}</b>
+            <div class="meta">${n.created_at.slice(0,10)}</div>
+          </div>
+        `).join("") : "<p>공지사항이 없습니다.</p>"}
+      </div>
+
+      <div class="card">
+        <h3>🔥 랭킹</h3>
+        <div class="meta" style="margin-bottom:6px">포인트 TOP 3</div>
+        ${
+          topPoints.length
+          ? topPoints.map((p,i)=>`
+              <div class="leaderboard-row">
+                <div class="rank-badge rank-${i+1}">${i+1}</div>
+                <div style="flex:1">${escapeHTML(p.nickname)} (${escapeHTML(p.handle)})</div>
+                <b style="color:var(--main)">${p.points}P</b>
+              </div>
+            `).join("")
+          : "<p class='meta'>아직 데이터가 없습니다.</p>"
+        }
+
+        <div class="meta" style="margin:14px 0 6px">댓글 열정왕 TOP 3</div>
+        ${
+          topCommenters.length
+          ? topCommenters.map((c,i)=>`
+              <div class="leaderboard-row">
+                <div class="rank-badge rank-${i+1}">${i+1}</div>
+                <div style="flex:1">${escapeHTML(c.profile?.nickname||"?")} (${escapeHTML(c.profile?.handle||"?")})</div>
+                <b>${c.count}개</b>
+              </div>
+            `).join("")
+          : "<p class='meta'>아직 댓글이 없습니다.</p>"
+        }
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3>📝 다가오는 수행평가</h3>
+      ${assignments.length ? assignments.map(a=>`
+        <div class="schedule-preview">
+          <b>[${escapeHTML(a.subject)}] ${escapeHTML(a.title)}</b>
+          <div class="meta">${a.event_date}</div>
+        </div>
+      `).join("") : "<p>예정된 수행평가가 없습니다.</p>"}
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3>📌 바로가기</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+        <button class="outline" onclick="go('notices')">📢 공지사항</button>
+        <button class="outline" onclick="go('schedule')">📅 일정</button>
+        <button class="outline" onclick="go('assignments')">📝 수행평가</button>
+        <button class="outline" onclick="go('calendar')">🗓️ 캘린더</button>
+        <button class="outline" onclick="go('votes')">🗳️ 투표</button>
+        <button class="outline" onclick="go('lost')">🔎 분실물</button>
+        <button class="outline" onclick="go('feed')">📱 SNS</button>
+        <button class="outline" onclick="go('games')">🎮 게임</button>
+      </div>
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   NOTICES
+========================================================= */
+
+async function renderNotices(){
+  showLoading();
+  const {data,error}=await supabase.from("notices").select(`*, profiles(nickname,handle)`).order("created_at",{ascending:false});
+  if(error){ msg(error.message); return; }
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>공지사항</h1><p>우리 반의 중요한 소식을 확인하세요.</p></div>
+    <div class="toolbar">
+      <span>총 ${data.length}건</span>
+      ${isStaff() ? `<button class="primary" onclick="noticeForm()">공지 작성</button>` : ""}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>번호</th><th>제목</th><th>작성자</th><th>등록일</th><th>관리</th></tr></thead>
+        <tbody>
+          ${data.length ? data.map(n=>`
+            <tr>
+              <td>${n.id}</td>
+              <td class="title-cell" onclick="showNotice(${n.id})">${escapeHTML(n.title)}</td>
+              <td>${authorLabel(n.profiles,n.author_id)}</td>
+              <td>${n.created_at.slice(0,10)}</td>
+              <td>${canDelete(n.author_id)?`<button class="danger" onclick="deletePost('notices',${n.id},'notices')">삭제</button>`:""}</td>
+            </tr>
+          `).join("") : `<tr><td colspan="5" class="empty">공지사항이 없습니다.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function noticeForm(){
+  if(!isStaff()){ msg("관리자 또는 선생님만 공지를 작성할 수 있습니다."); return; }
+  openModal(`
+    <h2>공지사항 작성</h2>
+    <div class="form-group"><label>제목</label><input id="nTitle"></div>
+    <div class="form-group"><label>내용</label><textarea id="nContent"></textarea></div>
+    <button class="primary" onclick="createNotice()">등록</button>
+  `);
+}
+
+async function createNotice(){
+  if(!isStaff())return;
+  const title=document.getElementById("nTitle").value.trim();
+  const content=document.getElementById("nContent").value.trim();
+  if(!title||!content){ msg("제목과 내용을 입력해주세요."); return; }
+  const {error}=await supabase.from("notices").insert({title,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+  closeModal(); renderNotices();
+}
+
+async function showNotice(id){
+  const {data,error}=await supabase.from("notices").select(`*, profiles(nickname,handle)`).eq("id",id).single();
+  if(error){ msg(error.message); return; }
+  openModal(`
+    <h2>${escapeHTML(data.title)}</h2>
+    <p class="meta">작성자: <b>${authorLabel(data.profiles,data.author_id)}</b> · ${data.created_at.slice(0,10)}</p>
+    <hr><p style="white-space:pre-wrap">${escapeHTML(data.content)}</p>
+    ${canDelete(data.author_id)?`<button class="danger" onclick="deletePost('notices',${data.id},'notices')">삭제</button>`:""}
+  `);
+}
+
+
+/* =========================================================
+   SCHEDULE
+========================================================= */
+
+async function renderSchedule(){
+  showLoading();
+  const {data,error}=await supabase.from("schedules").select(`*, profiles(nickname,handle)`).order("event_date");
+  if(error){ msg(error.message); return; }
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>일정</h1><p>학교 및 학급의 주요 일정을 확인하세요.</p></div>
+    <div class="toolbar">
+      <span>총 ${data.length}건</span>
+      ${isStaff() ? `<button class="primary" onclick="scheduleForm()">일정 등록</button>` : ""}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>제목</th><th>날짜</th><th>내용</th><th>작성자</th><th>관리</th></tr></thead>
+        <tbody>
+          ${data.length ? data.map(s=>`
+            <tr>
+              <td>${escapeHTML(s.title)}</td><td>${s.event_date}</td><td>${escapeHTML(s.content||"")}</td>
+              <td>${authorLabel(s.profiles,s.author_id)}</td>
+              <td>${canDelete(s.author_id)?`<button class="danger" onclick="deletePost('schedules',${s.id},'schedule')">삭제</button>`:""}</td>
+            </tr>
+          `).join("") : `<tr><td colspan="5" class="empty">일정이 없습니다.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function scheduleForm(){
+  if(!isStaff()){ msg("관리자 또는 선생님만 일정을 등록할 수 있습니다."); return; }
+  openModal(`
+    <h2>일정 등록</h2>
+    <div class="form-group"><label>제목</label><input id="sTitle"></div>
+    <div class="form-group"><label>날짜</label><input id="sDate" type="date"></div>
+    <div class="form-group"><label>내용</label><textarea id="sContent"></textarea></div>
+    <button class="primary" onclick="createSchedule()">등록</button>
+  `);
+}
+
+async function createSchedule(){
+  if(!isStaff())return;
+  const title=document.getElementById("sTitle").value.trim();
+  const event_date=document.getElementById("sDate").value;
+  const content=document.getElementById("sContent").value.trim();
+  if(!title||!event_date){ msg("제목과 날짜를 입력해주세요."); return; }
+  const {error}=await supabase.from("schedules").insert({title,event_date,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+  closeModal(); renderSchedule();
+}
+
+
+/* =========================================================
+   ASSIGNMENTS
+========================================================= */
+
+async function renderAssignments(){
+  showLoading();
+  const {data,error}=await supabase.from("assignments").select(`*, profiles(nickname,handle)`).order("event_date");
+  if(error){ msg(error.message); return; }
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>수행평가</h1><p>과목별 수행평가 일정을 확인하세요.</p></div>
+    <div class="toolbar">
+      <span>총 ${data.length}건</span>
+      ${isStaff() ? `<button class="primary" onclick="assignmentForm()">수행평가 등록</button>` : ""}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>과목</th><th>제목</th><th>날짜</th><th>내용</th><th>작성자</th><th>관리</th></tr></thead>
+        <tbody>
+          ${data.length ? data.map(a=>`
+            <tr>
+              <td><span class="badge">${escapeHTML(a.subject)}</span></td>
+              <td>${escapeHTML(a.title)}</td><td>${a.event_date}</td><td>${escapeHTML(a.content||"")}</td>
+              <td>${authorLabel(a.profiles,a.author_id)}</td>
+              <td>${canDelete(a.author_id)?`<button class="danger" onclick="deletePost('assignments',${a.id},'assignments')">삭제</button>`:""}</td>
+            </tr>
+          `).join("") : `<tr><td colspan="6" class="empty">등록된 수행평가가 없습니다.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function assignmentForm(){
+  if(!isStaff()){ msg("관리자 또는 선생님만 수행평가를 등록할 수 있습니다."); return; }
+  openModal(`
+    <h2>수행평가 등록</h2>
+    <div class="form-group"><label>과목</label><input id="aSubject" placeholder="예: 수학"></div>
+    <div class="form-group"><label>제목</label><input id="aTitle"></div>
+    <div class="form-group"><label>날짜</label><input id="aDate" type="date"></div>
+    <div class="form-group"><label>내용</label><textarea id="aContent"></textarea></div>
+    <button class="primary" onclick="createAssignment()">등록</button>
+  `);
+}
+
+async function createAssignment(){
+  if(!isStaff())return;
+  const subject=document.getElementById("aSubject").value.trim();
+  const title=document.getElementById("aTitle").value.trim();
+  const event_date=document.getElementById("aDate").value;
+  const content=document.getElementById("aContent").value.trim();
+  if(!subject||!title||!event_date){ msg("과목, 제목, 날짜를 입력해주세요."); return; }
+  const {error}=await supabase.from("assignments").insert({subject,title,event_date,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+  closeModal(); renderAssignments();
+}
+
+
+/* =========================================================
+   CALENDAR
+========================================================= */
+
+async function renderCalendar(){
+  showLoading();
+  const y=calendarDate.getFullYear();
+  const m=calendarDate.getMonth();
+  const first=new Date(y,m,1);
+  const last=new Date(y,m+1,0);
+  const start=`${y}-${String(m+1).padStart(2,"0")}-01`;
+  const end=`${y}-${String(m+1).padStart(2,"0")}-${last.getDate()}`;
+
+  const [schedulesResult,assignmentsResult]=await Promise.all([
+    supabase.from("schedules").select("*").gte("event_date",start).lte("event_date",end),
+    supabase.from("assignments").select("*").gte("event_date",start).lte("event_date",end)
+  ]);
+  const schedules=schedulesResult.data||[];
+  const assignments=assignmentsResult.data||[];
+
+  let html="";
+  for(let i=0;i<first.getDay();i++) html+=`<div class="day"></div>`;
+
+  for(let d=1;d<=last.getDate();d++){
+    const date=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const daySchedules=schedules.filter(x=>x.event_date===date);
+    const dayAssignments=assignments.filter(x=>x.event_date===date);
+    const now=new Date();
+    const isToday=now.getFullYear()===y && now.getMonth()===m && now.getDate()===d;
+
+    html+=`
+      <div class="day ${isToday?"today":""}">
+        <b>${d}</b>
+        ${daySchedules.map(e=>`<div class="event">📅 ${escapeHTML(e.title)}</div>`).join("")}
+        ${dayAssignments.map(e=>`<div class="event">📝 ${escapeHTML(e.subject)}: ${escapeHTML(e.title)}</div>`).join("")}
+      </div>
+    `;
+  }
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>학급 캘린더</h1><p>일정과 수행평가를 달력으로 확인하세요.</p></div>
+    <div class="calendar">
+      <div class="calendar-head">
+        <button class="outline" onclick="changeMonth(-1)">‹</button>
+        <b>${y}년 ${m+1}월</b>
+        <button class="outline" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="calendar-grid">
+        ${["일","월","화","수","목","금","토"].map(x=>`<div class="day-head">${x}</div>`).join("")}
+        ${html}
+      </div>
+    </div>
+  `;
+}
+
+function changeMonth(n){ calendarDate.setMonth(calendarDate.getMonth()+n); renderCalendar(); }
+
+
+/* =========================================================
+   VOTES
+========================================================= */
+
+async function renderVotes(){
+  showLoading();
+  const {data,error}=await supabase.from("votes").select(`*, profiles(nickname,handle), vote_options(*)`).order("created_at",{ascending:false});
+  if(error){ msg(error.message); return; }
+
+  const voteIds=data.map(v=>v.id);
+  let responses=[];
+  if(voteIds.length){
+    const result=await supabase.from("vote_responses").select("vote_id,option_id,user_id").in("vote_id",voteIds);
+    if(result.error){ msg(result.error.message); return; }
+    responses=result.data||[];
+  }
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>투표</h1><p>우리 반의 의견을 정해보세요.</p></div>
+    ${isStaff() ? `
+      <div class="toolbar">
+        <span>관리자/선생님이 투표를 만들 수 있습니다.</span>
+        <button class="primary" onclick="voteForm()">+ 투표 만들기</button>
+      </div>` : ""}
+    ${data.length ? data.map(v=>renderVoteCard(v,responses)).join("") : `<div class="card empty">등록된 투표가 없습니다.</div>`}
+  `;
+}
+
+function renderVoteCard(v,responses){
+  const myVote=responses.find(r=>r.vote_id===v.id && r.user_id===currentUser.id);
+  const total=responses.filter(r=>r.vote_id===v.id).length;
+  const expired=v.expires_at && new Date(v.expires_at)<new Date();
+  const active=v.is_active!==false && !expired;
+  const showResults=Boolean(myVote)||!active;
+
+  return `
+    <div class="poll">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+        <div>
+          <h3 style="margin:0 0 6px">${escapeHTML(v.title)}</h3>
+          <div class="meta">작성자: ${authorLabel(v.profiles,v.author_id)}</div>
+        </div>
+        ${active ? `<span class="badge">진행중</span>` : `<span class="badge">종료</span>`}
+      </div>
+      ${v.description ? `<p>${escapeHTML(v.description)}</p>` : ""}
+      ${v.expires_at ? `<div class="meta">마감: ${new Date(v.expires_at).toLocaleString("ko-KR")}</div>` : ""}
+      ${active && !myVote ? `
+        <div style="margin-top:12px">
+          ${(v.vote_options||[]).map(o=>`
+            <button class="poll-option" onclick="vote(${v.id},${o.id})">${escapeHTML(o.option_text)}</button>
+          `).join("")}
+        </div>` : ""}
+      ${myVote ? `<p style="color:var(--main);font-weight:600">✓ 이미 투표했습니다.</p>` : ""}
+      ${showResults ? renderVoteResults(v,responses,total) : ""}
+      ${isStaff() ? `<button class="danger" style="margin-top:15px" onclick="deleteVote(${v.id})">투표 삭제</button>` : ""}
+    </div>
+  `;
+}
+
+function renderVoteResults(v,responses,total){
+  return `
+    <div class="vote-result">
+      <b>투표 결과 ${total===0 ? "(아직 참여자가 없습니다)" : ""}</b>
+      ${(v.vote_options||[]).map(o=>{
+        const count=responses.filter(r=>r.vote_id===v.id && r.option_id===o.id).length;
+        const percent=total ? Math.round(count/total*100) : 0;
+        return `
+          <div style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between">
+              <span>${escapeHTML(o.option_text)}</span><span>${count}표 (${percent}%)</span>
+            </div>
+            <div class="vote-bar"><div class="vote-bar-inner" style="width:${percent}%"></div></div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function voteForm(){
+  if(!isStaff()){ msg("관리자 또는 선생님만 투표를 만들 수 있습니다."); return; }
+  openModal(`
+    <h2>🗳️ 투표 만들기</h2>
+    <div class="form-group"><label>질문</label><input id="vTitle" placeholder="예: 다음 학급 행사는 어디로 갈까요?"></div>
+    <div class="form-group"><label>설명</label><textarea id="vDescription" style="min-height:90px" placeholder="투표에 대한 설명 (선택)"></textarea></div>
+    <div class="form-group">
+      <label>선택지</label>
+      <input id="v1" placeholder="선택지 1"><br><br>
+      <input id="v2" placeholder="선택지 2"><br><br>
+      <input id="v3" placeholder="선택지 3 (선택)"><br><br>
+      <input id="v4" placeholder="선택지 4 (선택)">
+    </div>
+    <div class="form-group">
+      <label>마감일시</label>
+      <input id="vExpires" type="datetime-local">
+      <div class="meta">비워두면 마감일이 없습니다.</div>
+    </div>
+    <button class="primary" onclick="createVote()">투표 만들기</button>
+  `);
+}
+
+async function createVote(){
+  if(!isStaff())return;
+  const title=document.getElementById("vTitle").value.trim();
+  const description=document.getElementById("vDescription").value.trim();
+  const options=["v1","v2","v3","v4"].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+  const expiresInput=document.getElementById("vExpires").value;
+  if(!title||options.length<2){ msg("질문과 선택지 2개 이상을 입력해주세요."); return; }
+  const expires_at=expiresInput ? new Date(expiresInput).toISOString() : null;
+
+  const {data:voteRow,error}=await supabase.from("votes").insert({title,description,author_id:currentUser.id,expires_at}).select().single();
+  if(error){ msg("투표 생성 실패:\n"+error.message); return; }
+
+  const {error:optionError}=await supabase.from("vote_options").insert(options.map(option_text=>({vote_id:voteRow.id,option_text})));
+  if(optionError){
+    await supabase.from("votes").delete().eq("id",voteRow.id);
+    msg("선택지 등록 실패:\n"+optionError.message);
+    return;
+  }
+  closeModal(); renderVotes();
+}
+
+async function vote(voteId,optionId){
+  if(!currentUser){ msg("로그인이 필요합니다."); return; }
+  const {data:existing}=await supabase.from("vote_responses").select("id").eq("vote_id",voteId).eq("user_id",currentUser.id).maybeSingle();
+  if(existing){ msg("이미 이 투표에 참여했어요."); return; }
+
+  const {error}=await supabase.from("vote_responses").insert({vote_id:voteId,option_id:optionId,user_id:currentUser.id});
+  if(error){ msg(error.code==="23505" ? "이미 이 투표에 참여했어요." : "투표 실패:\n"+error.message); return; }
+
+  msg("투표가 완료되었습니다!");
+  renderVotes();
+}
+
+async function deleteVote(id){
+  if(!isStaff())return;
+  if(!confirm("이 투표를 삭제할까요?"))return;
+  const {error}=await supabase.from("votes").delete().eq("id",id);
+  if(error){ msg("삭제 실패:\n"+error.message); return; }
+  renderVotes();
+}
+
+
+/* =========================================================
+   LOST ITEMS (파일 업로드 제거, 링크 공유 방식 권장)
+========================================================= */
+
+async function renderLost(){
+  showLoading();
+  const {data,error}=await supabase.from("lost_items").select(`*, profiles(nickname,handle)`).order("created_at",{ascending:false});
+  if(error){ msg(error.message); return; }
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>분실물</h1><p>분실물을 등록하거나 찾아보세요.</p></div>
+    <div class="toolbar">
+      <span>총 ${data.length}건</span>
+      <button class="primary" onclick="lostForm()">분실물 등록</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>번호</th><th>물건</th><th>설명</th><th>등록자</th><th>날짜</th><th>관리</th></tr></thead>
+        <tbody>
+          ${data.length ? data.map(x=>`
+            <tr>
+              <td>${x.id}</td>
+              <td class="title-cell" onclick="showLost(${x.id})">${escapeHTML(x.title)}</td>
+              <td>${escapeHTML(x.content)}</td>
+              <td>${authorLabel(x.profiles,x.author_id)}</td>
+              <td>${x.created_at.slice(0,10)}</td>
+              <td>${canDelete(x.author_id)?`<button class="danger" onclick="deletePost('lost_items',${x.id},'lost')">삭제</button>`:""}</td>
+            </tr>
+          `).join("") : `<tr><td colspan="6" class="empty">등록된 분실물이 없습니다.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function lostForm(){
+  openModal(`
+    <h2>분실물 등록</h2>
+    <div class="form-group"><label>물건 이름</label><input id="lTitle" placeholder="예: 검은색 필통"></div>
+    <div class="form-group"><label>설명</label><textarea id="lContent" placeholder="발견 장소나 특징을 적어주세요."></textarea></div>
+    <p class="meta">💡 사진은 직접 업로드 대신, SNS 피드에 이미지 링크로 올려서 공유해보세요.</p>
+    <button class="primary" onclick="createLost()">등록</button>
+  `);
+}
+
+async function createLost(){
+  const title=document.getElementById("lTitle").value.trim();
+  const content=document.getElementById("lContent").value.trim();
+  if(!title||!content){ msg("물건 이름과 설명을 입력해주세요."); return; }
+
+  const {error}=await supabase.from("lost_items").insert({title,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+  closeModal(); renderLost();
+}
+
+async function showLost(id){
+  const {data,error}=await supabase.from("lost_items").select(`*, profiles(nickname,handle)`).eq("id",id).single();
+  if(error)return;
+  openModal(`
+    <h2>${escapeHTML(data.title)}</h2>
+    <p style="white-space:pre-wrap">${escapeHTML(data.content)}</p>
+    <p class="meta">등록자: <b>${authorLabel(data.profiles,data.author_id)}</b></p>
+    ${canDelete(data.author_id)?`<button class="danger" style="margin-top:15px" onclick="deletePost('lost_items',${data.id},'lost')">삭제</button>`:""}
+  `);
+}
+
+
+/* =========================================================
+   📱 SNS 피드 (구 의견함)
+   - 실명제 (닉네임+학번 항상 노출)
+   - 좋아요/싫어요 (게시글 + 댓글)
+   - 클린봇 1차 필터
+   - 링크 미리보기 (유튜브 임베드 / 이미지 링크)
+   - 관리자 "채택" 시 포인트 지급
+========================================================= */
+
+const YOUTUBE_RE=/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{6,})/;
+const IMAGE_RE=/https?:\/\/\S+\.(?:png|jpe?g|gif|webp)(\?\S*)?/i;
+const URL_RE=/https?:\/\/[^\s]+/i;
+
+// 영상은 클릭 전까지 로드되지 않도록 썸네일+[보기] 버튼만 우선 표시합니다.
+function renderLinkEmbed(text){
+  const yt=text.match(YOUTUBE_RE);
+  if(yt){
+    const videoId=yt[1];
+    return `
+      <div class="video-placeholder" id="video-${videoId}-${Math.random().toString(36).slice(2,7)}">
+        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" loading="lazy" alt="영상 미리보기">
+        <button onclick="playFeedVideo(this,'${videoId}')">▶ 보기</button>
+      </div>
+    `;
+  }
+
+  const img=text.match(IMAGE_RE);
+  if(img){
+    return `<div class="feed-post-embed"><img src="${escapeHTML(img[0])}" loading="lazy"></div>`;
+  }
+
+  // 유튜브/이미지가 아닌 일반 링크도 클릭해서 이동할 수 있도록 카드로 보여줍니다.
+  const url=text.match(URL_RE);
+  if(url){
+    let domain=url[0];
+    try{ domain=new URL(url[0]).hostname; }catch(e){}
+    return `<a class="link-card" href="${escapeHTML(url[0])}" target="_blank" rel="noopener noreferrer"><b>🔗 ${escapeHTML(domain)}</b>${escapeHTML(url[0])}</a>`;
+  }
+
+  return "";
+}
+
+function playFeedVideo(btn,videoId){
+  const wrap=btn.closest(".video-placeholder");
+  wrap.outerHTML=`<div class="feed-post-embed"><iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>`;
+}
+
+let feedCache={posts:[],likes:[],comments:[]};
+let feedSearchQuery="";
+
+async function renderFeed(){
+  showLoading();
+  await loadSettings();
+
+  const {data,error}=await supabase
+    .from("opinions")
+    .select(`*, profiles(nickname,handle,equipped_color,equipped_title,equipped_border)`)
+    .order("created_at",{ascending:false});
+
+  if(error){ msg(error.message); return; }
+
+  const postIds=data.map(p=>p.id);
+  let likes=[];
+  let comments=[];
+
+  if(postIds.length){
+    const [likesResult,commentsResult]=await Promise.all([
+      supabase.from("feed_likes").select("*").in("post_id",postIds),
+      supabase.from("feed_comments").select(`*, profiles(nickname,handle,equipped_color,equipped_title,equipped_border)`).in("post_id",postIds).order("created_at")
+    ]);
+    likes=likesResult.data||[];
+    comments=commentsResult.data||[];
+  }
+
+  feedCache={posts:data,likes,comments};
+  renderFeedList();
+}
+
+function renderFeedList(){
+  const {posts,likes,comments}=feedCache;
+  const q=feedSearchQuery.trim().toLowerCase();
+
+  const filtered=!q ? posts : posts.filter(post=>{
+    const nickname=(post.profiles?.nickname||"").toLowerCase();
+    const handle=(post.profiles?.handle||"").toLowerCase();
+    const content=(post.content||"").toLowerCase();
+    return content.includes(q) || nickname.includes(q) || handle.includes(q);
+  });
+
+  const locked=Boolean(appSettings.sns_locked) && profile.role!=="admin";
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title">
+      <h1>SNS</h1>
+      <p>실명으로 소통하는 우리 반 피드입니다.</p>
+    </div>
+
+    ${locked ? `<div class="feed-lock-banner">🔒 관리자에 의해 SNS 글쓰기/댓글 기능이 잠시 제한되었습니다. 기존 글은 계속 볼 수 있어요.</div>` : ""}
+
+    <div class="toolbar">
+      <input class="feed-search" id="feedSearchInput" placeholder="🔍 내용, 닉네임, 학번 검색" value="${escapeHTML(feedSearchQuery)}" oninput="onFeedSearch(this.value)">
+      <span>총 ${filtered.length}개의 글</span>
+      <button class="primary" onclick="feedPostForm()" ${locked?"disabled":""}>✏️ 글쓰기</button>
+    </div>
+
+    ${
+      filtered.length
+      ? filtered.map(post=>renderFeedPost(post,likes,comments.filter(c=>c.post_id===post.id),locked)).join("")
+      : `<div class="card empty">${q ? "검색 결과가 없습니다." : "아직 올라온 글이 없습니다. 첫 글을 남겨보세요!"}</div>`
+    }
+  `;
+}
+
+function onFeedSearch(value){
+  feedSearchQuery=value;
+  renderFeedList();
+}
+
+function renderFeedPost(post,likes,postComments,locked){
+  const myLike=likes.find(l=>l.post_id===post.id && l.user_id===currentUser.id);
+  const likeCount=likes.filter(l=>l.post_id===post.id && l.value===1).length;
+  const dislikeCount=likes.filter(l=>l.post_id===post.id && l.value===-1).length;
+
+  const embed=renderLinkEmbed(post.content);
+  const flagged=containsBadWord(post.content);
+  const avatarBorder=borderClassFor(post.profiles?.equipped_border);
+
+  return `
+    <div class="feed-post" id="feed-post-${post.id}">
+
+      <div class="feed-post-head">
+        <div class="avatar ${avatarBorder}" style="width:36px;height:36px;font-size:13px">
+          ${escapeHTML((post.profiles?.nickname||"?").charAt(0))}
+        </div>
+        <div>
+          ${feedAuthorLabel(post.profiles,post.author_id)}
+          <div class="meta">${post.created_at.slice(0,16).replace("T"," ")}</div>
+        </div>
+        ${post.is_featured ? `<span class="badge" style="margin-left:auto;background:#e6f9ee;color:var(--success)">⭐ 채택됨</span>` : ""}
+      </div>
+
+      <div class="feed-post-body">${escapeHTML(post.content)}</div>
+      ${embed}
+
+      ${flagged ? `<div class="feed-warning">⚠️ 클린봇이 삭제한 글입니다..</div>` : ""}
+
+      <div class="feed-actions">
+        <button class="feed-action-btn ${myLike?.value===1?"active-like":""}" onclick="toggleLike(${post.id},1)">👍 ${likeCount}</button>
+        <button class="feed-action-btn ${myLike?.value===-1?"active-dislike":""}" onclick="toggleLike(${post.id},-1)">👎 ${dislikeCount}</button>
+
+        ${
+          isStaff() && !post.is_featured
+          ? `<button class="feed-action-btn" style="margin-left:auto" onclick="featurePost(${post.id})">⭐ 채택하기 (+${FEATURE_POINTS}P)</button>`
+          : ""
+        }
+
+        ${canDelete(post.author_id) ? `<button class="feed-action-btn" onclick="deleteFeedPost(${post.id})">🗑️ 삭제</button>` : ""}
+      </div>
+
+      <div class="feed-comments">
+        ${postComments.map(c=>renderFeedComment(c)).join("")}
+
+        ${locked ? `<p class="meta" style="margin-top:10px">🔒 SNS가 잠겨 있어 댓글을 남길 수 없습니다.</p>` : `
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input id="commentInput-${post.id}" placeholder="댓글을 남겨보세요..." style="flex:1;padding:8px;border:1px solid #ccd3da;border-radius:5px">
+          <button class="outline" onclick="addComment(${post.id})">등록</button>
+        </div>
+        `}
+      </div>
+
+    </div>
+  `;
+}
+
+function renderFeedComment(c){
+  return `
+    <div class="feed-comment" id="feed-comment-${c.id}">
+      ${feedAuthorLabel(c.profiles,c.author_id)}
+      <span class="meta">· ${c.created_at.slice(0,16).replace("T"," ")}</span>
+      <div>${escapeHTML(c.content)}</div>
+      <div class="feed-comment-actions">
+        <button onclick="toggleCommentLike(${c.id},1)">👍</button>
+        <button onclick="toggleCommentLike(${c.id},-1)">👎</button>
+        ${canDelete(c.author_id) ? `<button onclick="deleteComment(${c.id},${c.post_id})">삭제</button>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function feedPostForm(){
+  if(Boolean(appSettings.sns_locked) && profile.role!=="admin"){ msg("🔒 관리자가 SNS 기능을 잠갔습니다. 지금은 글을 쓸 수 없어요."); return; }
+  openModal(`
+    <h2>✏️ 글쓰기</h2>
+    <p class="meta" style="margin-bottom:10px">
+      실명제 게시판입니다. 작성자는 항상 닉네임과 학번으로 공개됩니다.<br>
+      사진은 직접 업로드 대신 <b>이미지/유튜브/일반 링크</b>를 붙여넣으면 자동으로 미리보기가 뜹니다. (영상은 [보기]를 눌러야 재생됩니다)
+    </p>
+    <div class="form-group">
+      <label>내용</label>
+      <textarea id="feedContent" placeholder="오늘 있었던 일, 의견, 짤방 링크 등 자유롭게 남겨주세요.<br>[상대방의 이름이 들어가지 않아도, 누구인지 알 수 있으면, 사이버 폭력입니다.]"></textarea>
+    </div>
+    <button class="primary" onclick="createFeedPost()">게시</button>
+  `);
+}
+
+async function createFeedPost(){
+  if(Boolean(appSettings.sns_locked) && profile.role!=="admin"){ msg("🔒 관리자가 SNS 기능을 잠갔습니다."); return; }
+  const contentRaw=document.getElementById("feedContent").value.trim();
+  if(!contentRaw){ msg("내용을 입력해주세요."); return; }
+
+  if(containsBadWord(contentRaw)){
+    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 게시됩니다.\n계속하시겠습니까?")){
+      return;
+    }
+  }
+
+  const content=maskBadWords(contentRaw);
+  const title=content.slice(0,30) || "제목 없음";
+
+  const {error}=await supabase.from("opinions").insert({title,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+
+  closeModal();
+  renderFeed();
+}
+
+async function deleteFeedPost(id){
+  await deletePost("opinions",id,"feed");
+}
+
+async function toggleLike(postId,value){
+  if(!currentUser){ msg("로그인이 필요합니다."); return; }
+
+  const {data:existing}=await supabase
+    .from("feed_likes").select("*").eq("post_id",postId).eq("user_id",currentUser.id).maybeSingle();
+
+  if(existing && existing.value===value){
+    await supabase.from("feed_likes").delete().eq("id",existing.id);
+  }else if(existing){
+    await supabase.from("feed_likes").update({value}).eq("id",existing.id);
+  }else{
+    await supabase.from("feed_likes").insert({post_id:postId,user_id:currentUser.id,value});
+  }
+
+  renderFeed();
+}
+
+async function addComment(postId){
+  if(Boolean(appSettings.sns_locked) && profile.role!=="admin"){ msg("🔒 관리자가 SNS 기능을 잠갔습니다."); return; }
+  const input=document.getElementById(`commentInput-${postId}`);
+  const contentRaw=input.value.trim();
+  if(!contentRaw)return;
+
+  const content=maskBadWords(contentRaw);
+
+  const {error}=await supabase.from("feed_comments").insert({post_id:postId,author_id:currentUser.id,content});
+  if(error){ msg("댓글 등록 실패: "+error.message); return; }
+
+  renderFeed();
+}
+
+async function deleteComment(commentId,postId){
+  if(!confirm("댓글을 삭제할까요?"))return;
+  const {error}=await supabase.from("feed_comments").delete().eq("id",commentId);
+  if(error){ msg("삭제 실패: "+error.message); return; }
+  renderFeed();
+}
+
+async function toggleCommentLike(commentId,value){
+  if(!currentUser){ msg("로그인이 필요합니다."); return; }
+
+  const {data:existing}=await supabase
+    .from("feed_comment_likes").select("*").eq("comment_id",commentId).eq("user_id",currentUser.id).maybeSingle();
+
+  if(existing && existing.value===value){
+    await supabase.from("feed_comment_likes").delete().eq("id",existing.id);
+  }else if(existing){
+    await supabase.from("feed_comment_likes").update({value}).eq("id",existing.id);
+  }else{
+    await supabase.from("feed_comment_likes").insert({comment_id:commentId,user_id:currentUser.id,value});
+  }
+
+  renderFeed();
+}
+
+// 관리자/선생님이 "채택" -> 포인트 지급
+// ⚠️ profiles.points에 대한 UPDATE 권한이 스태프에게 RLS로 허용돼 있어야 동작합니다.
+async function featurePost(postId){
+  if(!isStaff())return;
+  if(!confirm(`이 글을 채택하고 작성자에게 ${FEATURE_POINTS}P를 지급할까요?`))return;
+
+  const {data:post,error:postError}=await supabase.from("opinions").select("author_id,is_featured").eq("id",postId).single();
+  if(postError){ msg(postError.message); return; }
+  if(post.is_featured){ msg("이미 채택된 글입니다."); return; }
+
+  const {error:updateError}=await supabase.from("opinions").update({is_featured:true}).eq("id",postId);
+  if(updateError){ msg("채택 처리 실패: "+updateError.message); return; }
+
+  const {data:authorProfile,error:profileError}=await supabase.from("profiles").select("points").eq("id",post.author_id).single();
+  if(profileError){ msg("포인트 지급 실패: "+profileError.message); return; }
+
+  const {error:pointError}=await supabase
+    .from("profiles")
+    .update({points:(authorProfile.points||0)+FEATURE_POINTS})
+    .eq("id",post.author_id);
+
+  if(pointError){
+    msg("⚠️ 글은 채택되었지만 포인트 지급에 실패했습니다: "+pointError.message+"\n(RLS 정책에서 스태프의 profiles.points 수정 권한을 확인해주세요.)");
+  }else{
+    msg(`채택 완료! 작성자에게 ${FEATURE_POINTS}P가 지급되었습니다.`);
+  }
+
+  renderFeed();
+}
+
+
+/* =========================================================
+   GAMES
+========================================================= */
+
+const GAME_LIST=[
+  {icon:"🔢",name:"2048",desc:"같은 숫자를 합쳐 2048을 만드는 퍼즐 게임",url:"https://play2048.co/"},
+  {icon:"♟️",name:"체스",desc:"다른 사람과 체스를 즐길 수 있는 온라인 게임",url:"https://lichess.org/"},
+  {icon:"🧩",name:"스도쿠",desc:"숫자를 규칙에 맞게 채우는 논리 퍼즐",url:"https://sudoku.com/"},
+  {icon:"💣",name:"지뢰찾기",desc:"숫자를 보고 지뢰의 위치를 추리하는 클래식 퍼즐",url:"https://minesweeper.online/"},
+  {icon:"🟦",name:"테트리스",desc:"블록을 쌓아 줄을 없애는 퍼즐 게임",url:"https://tetris.com/play-tetris"},
+  {icon:"🐍",name:"스네이크",desc:"먹이를 먹으며 점점 길어지는 클래식 게임",url:"https://playsnake.org/"}
+];
+
+function renderGames(){
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>게임</h1><p>가볍게 즐길 수 있는 게임 모음입니다.</p></div>
+    <div class="game-note">💡 아래 게임은 직접 제작한 게임이 아닙니다.</div>
+    <div class="games-grid">
+      ${GAME_LIST.map(g=>`
+        <div class="game-card">
+          <div class="game-icon">${g.icon}</div>
+          <h3>${g.name}</h3>
+          <p>${g.desc}</p>
+          <a class="game-link" href="${g.url}" target="_blank" rel="noopener noreferrer">게임 시작 →</a>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   DELETE (공통)
+========================================================= */
+
+async function deletePost(table,id,page){
+  if(!confirm("정말 삭제할까요?"))return;
+  const {data,error}=await supabase.from(table).select("author_id").eq("id",id).single();
+  if(error){ msg(error.message); return; }
+  if(!canDelete(data.author_id)){ msg("삭제 권한이 없습니다."); return; }
+  const result=await supabase.from(table).delete().eq("id",id);
+  if(result.error){ msg("삭제 실패:\n"+result.error.message); return; }
+  closeModal();
+  render(page);
+}
+
+
+/* =========================================================
+   ACCOUNT (닉네임 변경 + 포인트 상점 + 관리자)
+========================================================= */
+
+function nicknameCooldown(profile){
+  if(!profile?.nickname_updated_at) return {canChange:true,daysLeft:0};
+  const lastUpdate=new Date(profile.nickname_updated_at);
+  const diffDays=Math.floor((new Date()-lastUpdate)/(1000*60*60*24));
+  if(diffDays>=NICKNAME_COOLDOWN_DAYS) return {canChange:true,daysLeft:0};
+  return {canChange:false,daysLeft:NICKNAME_COOLDOWN_DAYS-diffDays};
+}
+
+async function renderAccount(){
+  showLoading();
+
+  const studentNum=getStudentNumber(profile?.handle);
+  const {canChange,daysLeft}=nicknameCooldown(profile);
+  const nextChangeText=canChange ? "지금 바로 변경 가능합니다." : `최근 닉네임을 변경하셨습니다. (다음 변경까지 ${daysLeft}일 남음)`;
+
+  const borderClass=
+    profile.equipped_border==="neon" ? "border-neon" :
+    profile.equipped_border==="gold" ? "border-gold" :
+    profile.equipped_border==="gradient" ? "border-gradient" : "";
+
+  const adminSection=isStaff() ? await renderAdminSection() : "";
+
+  document.getElementById("app").innerHTML=`
+
+    <div class="page-title"><h1>계정 설정</h1><p>프로필 정보를 확인하고 닉네임/포인트를 관리할 수 있습니다.</p></div>
+
+    <div class="profile-box ${borderClass}">
+      <div class="avatar" title="학번 끝자리(번호)">${escapeHTML(studentNum)}</div>
+      <div>
+        <b style="${profile.equipped_color?`color:${escapeHTML(profile.equipped_color)}`:""}">${escapeHTML(profile.nickname)}</b>
+        ${profile.equipped_title ? `<span class="badge badge-title">${escapeHTML(profile.equipped_title)}</span>` : ""}
+        <div class="meta">
+          고정 학번: <b>${escapeHTML(profile.handle)}</b> · ${roleBadge(profile.role)} · 🪙 ${profile.points||0}P
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>💬 프로필 상태 메시지</h3>
+      <p style="font-size:13px;color:var(--muted);">다른 친구가 내 프로필을 열어볼 때 보이는 한 줄 메시지예요.</p>
+      <div class="form-group" style="max-width:400px;margin-top:15px;">
+        <input id="statusMessageInput" type="text" maxlength="60" placeholder="상태 메시지를 입력해주세요" value="${escapeHTML(profile.status_message||"")}">
+      </div>
+      <button class="primary" onclick="updateStatusMessage()">저장</button>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>✏️ 표시 닉네임 변경</h3>
+      <p style="font-size:13px;color:var(--muted);">
+        닉네임은 <b>1달에 1번(${NICKNAME_COOLDOWN_DAYS}일 주기)</b>만 변경할 수 있습니다.<br>
+        닉네임을 변경하더라도 고정 학번(${escapeHTML(profile.handle)})은 항상 함께 표시됩니다.
+      </p>
+      <div class="form-group" style="max-width:400px;margin-top:15px;">
+        <label>새 표시 닉네임</label>
+        <input id="newNickname" type="text" placeholder="새 닉네임 입력" value="${escapeHTML(profile.nickname)}" ${!canChange?"disabled":""}>
+      </div>
+      <p class="meta" style="margin-bottom:15px;color:${canChange?"var(--main)":"var(--danger)"};">ℹ️ ${nextChangeText}</p>
+      <button class="primary" onclick="updateNickname()" ${!canChange?"disabled":""}>닉네임 변경 저장</button>
+    </div>
+
+    <div class="card shop-section">
+      <h3>🪙 포인트 상점 (보유: ${profile.points||0}P)</h3>
+      <p class="meta">출석체크(+${CHECKIN_POINTS}P/일)와 SNS 피드 글 채택(+${FEATURE_POINTS}P)으로 포인트를 모을 수 있어요.</p>
+
+      <h4 style="margin:16px 0 4px">글꼴</h4>
+      <div class="shop-grid">${FONT_ITEMS.map(item=>renderShopItem(item,"font")).join("")}</div>
+
+      <h4 style="margin:16px 0 4px">프로필 테두리</h4>
+      <div class="shop-grid">${BORDER_ITEMS.map(item=>renderShopItem(item,"border")).join("")}</div>
+
+      <h4 style="margin:16px 0 4px">칭호</h4>
+      <div class="shop-grid">${TITLE_ITEMS.map(item=>renderShopItem(item,"title")).join("")}</div>
+
+      <h4 style="margin:16px 0 4px">닉네임 색상</h4>
+      <div class="shop-item" style="max-width:220px">
+        <div class="icon">${COLOR_ITEM.icon}</div>
+        <div class="name">${COLOR_ITEM.name}</div>
+        <div class="price">🪙 ${COLOR_ITEM.price}P</div>
+        <input type="color" id="nicknameColorPicker" class="nickname-color-input" value="${profile.equipped_color||"#1769aa"}">
+        <button class="outline" style="margin-top:8px" onclick="buyNicknameColor()">적용/구매</button>
+      </div>
+    </div>
+
+    ${adminSection}
+
+  `;
+}
+
+function renderShopItem(item,category){
+  const owned=item.price===0 || (profile.owned_items||[]).includes(item.id);
+  const equipped=
+    (category==="font" && profile.equipped_font===item.id) ||
+    (category==="border" && `border-${profile.equipped_border}`===item.id) ||
+    (category==="title" && profile.equipped_title===item.text);
+
+  let buttonHtml;
+  if(equipped){
+    buttonHtml=`<button class="outline" disabled>✓ 적용 중</button>`;
+  }else if(owned){
+    buttonHtml=`<button class="primary" onclick="equipItem('${category}','${item.id}')">적용하기</button>`;
+  }else{
+    buttonHtml=`<button class="outline" onclick="buyItem('${category}','${item.id}')">구매하기</button>`;
+  }
+
+  return `
+    <div class="shop-item ${owned?"owned":""}">
+      <div class="icon">${item.icon}</div>
+      <div class="name">${escapeHTML(item.name)}</div>
+      <div class="price">${item.price===0 ? "무료" : `🪙 ${item.price}P`}</div>
+      ${buttonHtml}
+    </div>
+  `;
+}
+
+async function buyItem(category,itemId){
+  const pool=category==="font"?FONT_ITEMS:category==="border"?BORDER_ITEMS:TITLE_ITEMS;
+  const item=pool.find(i=>i.id===itemId);
+  if(!item)return;
+
+  if((profile.points||0)<item.price){ msg("포인트가 부족합니다."); return; }
+  if(!confirm(`'${item.name}'을(를) ${item.price}P에 구매할까요?`))return;
+
+  const newOwned=[...(profile.owned_items||[]),itemId];
+  const newPoints=(profile.points||0)-item.price;
+
+  const {error}=await supabase.from("profiles").update({points:newPoints,owned_items:newOwned}).eq("id",currentUser.id);
+  if(error){ msg("구매 실패: "+error.message); return; }
+
+  await loadProfile();
+  await equipItem(category,itemId);
+}
+
+async function equipItem(category,itemId){
+  const update={};
+
+  if(category==="font"){
+    update.equipped_font=itemId;
+  }else if(category==="border"){
+    const item=BORDER_ITEMS.find(i=>i.id===itemId);
+    update.equipped_border=item?.cssClass||"none";
+  }else if(category==="title"){
+    const item=TITLE_ITEMS.find(i=>i.id===itemId);
+    update.equipped_title=item?.text||null;
+  }
+
+  const {error}=await supabase.from("profiles").update(update).eq("id",currentUser.id);
+  if(error){ msg("적용 실패: "+error.message); return; }
+
+  await loadProfile();
+  applyEquippedStyles();
+  renderAccount();
+}
+
+async function buyNicknameColor(){
+  const color=document.getElementById("nicknameColorPicker").value;
+  const alreadyOwned=(profile.owned_items||[]).includes(COLOR_ITEM.id);
+
+  if(!alreadyOwned){
+    if((profile.points||0)<COLOR_ITEM.price){ msg("포인트가 부족합니다."); return; }
+    if(!confirm(`닉네임 색상 기능을 ${COLOR_ITEM.price}P에 구매할까요? (색은 이후 무료로 다시 바꿀 수 있어요)`))return;
+  }
+
+  const update={equipped_color:color};
+  if(!alreadyOwned){
+    update.points=(profile.points||0)-COLOR_ITEM.price;
+    update.owned_items=[...(profile.owned_items||[]),COLOR_ITEM.id];
+  }
+
+  const {error}=await supabase.from("profiles").update(update).eq("id",currentUser.id);
+  if(error){ msg("적용 실패: "+error.message); return; }
+
+  await loadProfile();
+  renderUserInfo();
+  renderAccount();
+}
+
+async function renderAdminSection(){
+  const counts=await getTableCounts(["notices","schedules","assignments","opinions","lost_items"]);
+  return `
+    <hr style="margin:30px 0;border:0;border-top:1px solid var(--border);">
+    <h2>🔒 관리자 기능</h2>
+    <div class="stats">
+      <div class="stat-card">공지사항<b>${counts.notices}</b></div>
+      <div class="stat-card">일정<b>${counts.schedules}</b></div>
+      <div class="stat-card">수행평가<b>${counts.assignments}</b></div>
+      <div class="stat-card">SNS 글<b>${counts.opinions}</b></div>
+      <div class="stat-card">분실물<b>${counts.lost_items}</b></div>
+    </div>
+    <div class="admin-box">
+      <strong>🧹 오래된 게시글 관리</strong>
+      <p>2개월 이상 지난 공지, 일정, 수행평가, 분실물, SNS 글을 검토하고 삭제할 수 있습니다.</p>
+      <button class="outline" onclick="oldPosts()">검토하기</button>
+    </div>
+  `;
+}
+
+// ⚠️ supabase "profiles" 테이블에 status_message(text) 컬럼이 필요합니다.
+async function updateStatusMessage(){
+  const value=document.getElementById("statusMessageInput").value.trim();
+  const {error}=await supabase.from("profiles").update({status_message:value}).eq("id",currentUser.id);
+  if(error){ msg("저장 실패: "+error.message); return; }
+  await loadProfile();
+  msg("상태 메시지가 저장되었습니다.");
+  renderAccount();
+}
+
+/* =========================================================
+   다른 사람 프로필 보기 (SNS 글의 학번을 눌렀을 때)
+   ⚠️ supabase에 "profile_messages" 테이블(id, target_id, author_id,
+   content, created_at)이 필요하며, 로그인한 사용자가 누구에게나
+   메시지를 INSERT 할 수 있도록 RLS를 설정해주세요.
+========================================================= */
+
+async function showUserProfile(targetId){
+  const {data:p,error}=await supabase
+    .from("profiles")
+    .select("nickname,handle,role,equipped_border,equipped_title,equipped_color,status_message")
+    .eq("id",targetId).single();
+
+  if(error || !p){ msg("프로필을 불러오지 못했습니다."); return; }
+
+  const {data:messages}=await supabase
+    .from("profile_messages")
+    .select(`*, profiles(nickname,handle)`)
+    .eq("target_id",targetId)
+    .order("created_at",{ascending:false});
+
+  openModal(renderProfileModal(targetId,p,messages||[]));
+}
+
+function renderProfileModal(targetId,p,messages){
+  const borderClass=borderClassFor(p.equipped_border);
+
+  return `
+    <h2>👤 프로필</h2>
+    <div class="profile-box ${borderClass}">
+      <div class="avatar" title="학번 끝자리(번호)">${escapeHTML(getStudentNumber(p.handle))}</div>
+      <div>
+        <b style="${p.equipped_color?`color:${escapeHTML(p.equipped_color)}`:""}">${escapeHTML(p.nickname)}</b>
+        ${p.equipped_title ? `<span class="badge badge-title">${escapeHTML(p.equipped_title)}</span>` : ""}
+        <div class="meta">학번: <b>${escapeHTML(p.handle)}</b> · ${roleBadge(p.role)}</div>
+      </div>
+    </div>
+
+    ${p.status_message ? `<p style="padding:10px 12px;background:#f7f9fb;border-radius:6px;margin-top:12px">💬 ${escapeHTML(p.status_message)}</p>` : ""}
+
+    <div style="margin-top:18px">
+      <h3 style="margin-bottom:8px">📮 메시지 남기기</h3>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input id="profileMsgInput" placeholder="이 친구의 프로필에 메시지를 남겨보세요..." style="flex:1;padding:8px;border:1px solid #ccd3da;border-radius:5px">
+        <button class="outline" onclick="addProfileMessage('${targetId}')">등록</button>
+      </div>
+      <div id="profileMsgList">
+        ${messages.length ? messages.map(m=>`
+          <div class="feed-comment">
+            <b>${escapeHTML(m.profiles?.nickname||"?")}</b>
+            <span class="meta">(${escapeHTML(m.profiles?.handle||"?")}) · ${m.created_at.slice(0,16).replace("T"," ")}</span>
+            <div>${escapeHTML(m.content)}</div>
+          </div>
+        `).join("") : `<p class="meta">아직 남겨진 메시지가 없습니다.</p>`}
+      </div>
+    </div>
+  `;
+}
+
+async function addProfileMessage(targetId){
+  const input=document.getElementById("profileMsgInput");
+  const content=input.value.trim();
+  if(!content)return;
+
+  if(containsBadWord(content)){
+    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.\n계속하시겠습니까?")) return;
+  }
+
+  const {error}=await supabase.from("profile_messages").insert({target_id:targetId,author_id:currentUser.id,content:maskBadWords(content)});
+  if(error){ msg("메시지 등록 실패: "+error.message); return; }
+
+  showUserProfile(targetId);
+}
+
+async function updateNickname(){
+  const newNickname=document.getElementById("newNickname").value.trim();
+  if(!newNickname){ msg("닉네임을 입력해주세요."); return; }
+  if(newNickname===profile.nickname){ msg("현재 닉네임과 동일합니다."); return; }
+
+  const {canChange,daysLeft}=nicknameCooldown(profile);
+  if(!canChange){ msg(`닉네임은 ${NICKNAME_COOLDOWN_DAYS}일에 한 번만 변경 가능합니다. (남은 기간: ${daysLeft}일)`); return; }
+  if(!confirm(`닉네임을 '${newNickname}'(으)로 변경하시겠습니까?\n변경 후 ${NICKNAME_COOLDOWN_DAYS}일 동안 재변경이 불가능합니다.`))return;
+
+  const {error}=await supabase.from("profiles").update({nickname:newNickname,nickname_updated_at:new Date().toISOString()}).eq("id",currentUser.id);
+  if(error){ msg("닉네임 변경 실패: "+error.message); return; }
+
+  msg("닉네임이 성공적으로 변경되었습니다!");
+  await loadProfile();
+  renderUserInfo();
+  renderAccount();
+}
+
+const OLD_POST_TABLE_MAP={notice:"notices",schedule:"schedules",assignment:"assignments",lost_item:"lost_items",opinion:"opinions"};
+
+async function oldPosts(){
+  if(!isStaff())return;
+  const {data,error}=await supabase.rpc("get_old_posts");
+  if(error){ msg(error.message); return; }
+
+  openModal(`
+    <h2>🧹 오래된 게시글</h2>
+    <p>2개월 이상 지난 게시글: <b>${data.length}개</b></p>
+    ${data.length ? data.map(n=>`
+      <div style="padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <div>
+          <div><span class="badge">${escapeHTML(n.post_type)}</span> <b>${escapeHTML(n.title)}</b></div>
+          <div class="meta">${n.created_at.slice(0,10)}</div>
+        </div>
+        <button class="danger" onclick="deleteOldPost('${n.post_type}',${n.post_id})">삭제</button>
+      </div>
+    `).join("") : "<p>정리할 게시글이 없습니다.</p>"}
+  `);
+}
+
+async function deleteOldPost(postType,id){
+  if(!isStaff())return;
+  const table=OLD_POST_TABLE_MAP[postType];
+  if(!table)return;
+  if(!confirm("이 게시글을 삭제할까요?"))return;
+  const {error}=await supabase.from(table).delete().eq("id",id);
+  if(error){ msg("삭제 실패:\n"+error.message); return; }
+  oldPosts();
+}
+
+
+/* =========================================================
+   GLOBAL EXPORTS
+========================================================= */
+
+Object.assign(window,{
+  login, logout, go, closeModal,
+  noticeForm, createNotice, showNotice,
+  scheduleForm, createSchedule,
+  assignmentForm, createAssignment,
+  changeMonth,
+  voteForm, createVote, vote, deleteVote,
+  lostForm, createLost, showLost,
+  feedPostForm, createFeedPost, deleteFeedPost,
+  toggleLike, addComment, deleteComment, toggleCommentLike, featurePost,
+  deletePost,
+  updateNickname, updateStatusMessage, buyItem, equipItem, buyNicknameColor,
+  oldPosts, deleteOldPost,
+  toggleSnsLock, onFeedSearch, playFeedVideo,
+  showUserProfile, addProfileMessage
+});
+
+
+/* =========================================================
+   START
+========================================================= */
+
+restoreLogin();
+
+})();
+</script>
+
+</body>
+</html>
