@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>교하중학교 1학년 3반 (테스트)</title>
+<title>3반 웹사이트</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -258,7 +258,7 @@ textarea{min-height:120px;resize:vertical}
   <div class="top">
     <div class="logo">
       교하중학교 1학년 3반 홈페이지 (테스트 버전)
-      <small>이거 만드는데 일주일 걸림</small>
+      <small>이거 만드는데 일주일(+14일) 걸림</small>
     </div>
 
     <div class="user-area">
@@ -340,8 +340,47 @@ function idToEmail(studentId){ return `${studentId}@classroom.local`; }
 
 
 // ===== 클린봇: 매우 단순한 1차 필터 (완벽하지 않음, 보조 수단) =====
-const BAD_WORDS=["시발","씨발","병신","좆","개새끼","존나","니미","fuck","shit",
-  "느금마", "좆갈", "ㅈㄴ", "ㅈㄹ", "ㅄ", "ㅂㅅ", "ㅅㅂ", "ㅅㅂㄹ", "ㅗ"
+const ADDED_BAD_WORDS = [
+  // --- 기존 목록 ---
+  "개판", "개뿔", "미친", "미친년", "미친놈", "꺼져", "닥쳐", "등신", 
+  "지랄", "옘병", "염병", "쓰레기", "개구라", "호구", "호로", "창녀",
+  "ㅈㄹ", "ㄷㅊ", "ㄲㅈ", "ㅁㅊ", "ㅁㅊㄴ", "ㅁㅊ놈", "ㅆㅂ", "ㅆㅂㄹㅁ", 
+  "개새", "개년", "개놈", "개역겨워", "엠생", "애미", "니애미",
+  "asshole", "bitch", "bastard", "cunt", "dick", "fucker", "idiot", "motherfucker",
+
+  // --- 기본 욕설 및 파생형 ---
+  "시발", "씨발", "씨바", "시바", "씨팔", "시팔", "씨벌", "시벌",
+  "개새끼", "개새키", "개새기", "개세끼", "개쉐이", "개족보", "개딸",
+  "병신", "븅신", "빙신", "ㅂㅅ", "호구새끼", "등신새끼", "머저리",
+  "새끼", "새키", "새기", "쉐끼", "섀끼", "색기", "상노인", "쌍놈", "쌍년",
+  "년", "놈", "걸레", "보지", "자지", "자지새끼", "씹", "씹새", "씹년", "씹놈",
+
+  // --- 초성 및 줄임말 은어 (확장) ---
+  "ㅅㅂ", "ㅅㅂㄹㅁ", "ㅆㅂㄹ", "ㅅㅂㄴ", "ㅂㅅ", "ㅈㄴ", "존나", "졸라", 
+  " ㅗ", "ㅗㅗ", "시볼", "시뻘", "꺼지셈", "입닥쳐", "아가리", "아구창", 
+  "족쳐", "뒈져", "디져", "죽어", "자살해", "현피",
+
+  // --- 인신공격 및 정신적 비하 ---
+  "정신병자", "돌아이", "도라이", "돌대가리", "닭대가리", "개구리", "호빗",
+  "난쟁이", "돼지", "뚱땡이", "멸치", "해골", "호구새끼", "흑우", "흑두루미",
+  "바보", "멍청이", "샌님", "개털", "무개념", "뇌에이브", "뇌없", "뇌순실",
+
+  // --- 행동 및 저주 관련 ---
+  "뒈져라", "뒤져라", "뒈짐", "죽어버려", "꺼져버려", "사라져", "꺼져라",
+  "엿먹어", "엿이나", "지랄하네", "지랄탄", "지랄발광", "오바하네", "개소리",
+  "헛소리", "쌉소리", "개수작", "수작", "속닥", "이빨까", "약치네", "구라",
+
+  // --- 영어 비속어 및 슬랭 확장 ---
+  "shit", "shitty", "shittier", "bullshit", "horseshit", "crap", "crappy",
+  "damn", "damned", "goddamn", "hell", "bloody", "piss", "pissed",
+  "dickhead", "dickweed", "cock", "cocksucker", "pussy", "twat", "whore",
+  "slut", "sluttish", "hooker", "prostitute", "pimp", "skank", "hoe",
+  "ass", "asshat", "assclown", "jackass", "dumbass", "fatass", "smartass",
+  "loser", "scumbag", "douche", "douchebag", "prick", "wanker", "jerktard",
+  "retard", "retarded", "spastic", "gayass", "fag", "faggot", "dyke", "queer",
+
+  // --- 그냥 기분 나쁨 ---
+  "정진우"
 ];
 
 function containsBadWord(text){
@@ -361,8 +400,8 @@ function maskBadWords(text){
 // ===== 상점 아이템 정의 =====
 const FONT_ITEMS=[
   {id:"font-default", name:"기본 폰트", icon:"🔤", price:0, cssClass:""},
-  {id:"font-cute",    name:"귀여운 폰트", icon:"🌸", price:50, cssClass:"font-cute"},
-  {id:"font-round",   name:"둥근 폰트",   icon:"⭕", price:50, cssClass:"font-round"},
+  {id:"font-cute",    name:"시각적 친근함과 정돈된 느낌을 주는 라운드 산스(Round Sans) 서체", icon:"🌸", price:50, cssClass:"font-cute"},
+  {id:"font-round",   name:"둥근 글꼴",   icon:"⭕", price:50, cssClass:"font-round"},
   {id:"font-serif",   name:"명조 폰트",   icon:"✒️", price:50, cssClass:"font-serif"}
 ];
 
@@ -375,9 +414,9 @@ const BORDER_ITEMS=[
 
 const TITLE_ITEMS=[
   {id:"title-none",     name:"칭호 없음",     icon:"—",  price:0,  text:null},
-  {id:"title-hotcomment",name:"열혈 댓글러",  icon:"💬", price:60, text:"열혈 댓글러"},
-  {id:"title-idea",     name:"아이디어왕",    icon:"💡", price:60, text:"아이디어왕"},
-  {id:"title-mvp",      name:"학급 MVP",      icon:"👑", price:150,text:"학급 MVP"}
+  {id:"title-hotcomment",name:"3반1짱",  icon:"💬", price:60, text:"3반1짱"},
+  {id:"title-idea",     name:"뭐하지",    icon:"💡", price:60, text:"뭐하지"},
+  {id:"title-mvp",      name:"칭호1",      icon:"👑", price:150,text:"칭호1"}
 ];
 
 const COLOR_ITEM={id:"nickname-color", name:"닉네임 색상", icon:"🎨", price:70};
