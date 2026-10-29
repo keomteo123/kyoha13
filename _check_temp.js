@@ -1,0 +1,2521 @@
+
+
+
+(function(){
+
+if(window.__classroomAppInitialized){
+  console.warn("classroom app already initialized");
+  return;
+}
+window.__classroomAppInitialized=true;
+
+
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SUPABASE_URL="https://jllqnaoprtrcjfnzywdd.supabase.co";
+const SUPABASE_KEY="sb_publishable_JkZ3SaNaxC-SdHyNJiRx7g_ARp-FmJJ";
+const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+
+/* =========================================================
+   STATE / 상수
+========================================================= */
+
+let currentUser=null;
+let profile=null;
+let calendarDate=new Date();
+let appSettings={sns_locked:false};
+
+const NICKNAME_COOLDOWN_DAYS=30;
+const CHECKIN_POINTS=10;
+const FEATURE_POINTS=30;
+const EXAM_NOTIFY_DAYS=3; // 시험/수행평가 D-N 이내면 알림
+const EXAM_NOTIFY_STORAGE_KEY="examNotifiedDates_v1";
+
+const STUDENT_IDS=[
+  "10300","10301","10302","10303","10304","10305","10306","10307","10308","10309",
+  "10310","10311","10312","10313","10314","10315","10316","10317","10318","10319",
+  "10320","10321","10322","10323","10324","10325","10326","10327","10328","10329",
+  "10330","103"
+];
+
+function idToEmail(studentId){ return `${studentId}@classroom.local`; }
+
+
+// ===== 클린봇: 매우 단순한 1차 필터 (완벽하지 않음, 보조 수단) =====
+const BAD_WORDS = [
+  // --- 기존 목록 ---
+  "개판", "개뿔", "미친", "미친년", "미친놈", "꺼져", "닥쳐", "등신", 
+  "지랄", "옘병", "염병", "쓰레기", "개구라", "호구", "호로", "창녀",
+  "ㅈㄹ", "ㄷㅊ", "ㄲㅈ", "ㅁㅊ", "ㅁㅊㄴ", "ㅁㅊ놈", "ㅆㅂ", "ㅆㅂㄹㅁ", 
+  "개새", "개년", "개놈", "개역겨워", "엠생", "애미", "니애미",
+  "asshole", "bitch", "bastard", "cunt", "dick", "fucker", "idiot", "motherfucker",
+
+  // --- 기본 욕설 및 파생형 ---
+  "시발", "씨발", "씨바", "시바", "씨팔", "시팔", "씨벌", "시벌",
+  "개새끼", "개새키", "개새기", "개세끼", "개쉐이", "개족보", "개딸",
+  "병신", "븅신", "빙신", "ㅂㅅ", "호구새끼", "등신새끼", "머저리",
+  "새끼", "새키", "새기", "쉐끼", "섀끼", "색기", "상노인", "쌍놈", "쌍년",
+  "년", "놈", "걸레", "보지", "자지", "자지새끼", "씹", "씹새", "씹년", "씹놈",
+
+  // --- 초성 및 줄임말 은어 (확장) ---
+  "ㅅㅂ", "ㅅㅂㄹㅁ", "ㅆㅂㄹ", "ㅅㅂㄴ", "ㅂㅅ", "ㅈㄴ", "존나", "졸라", 
+  " ㅗ", "ㅗㅗ", "시볼", "시뻘", "꺼지셈", "입닥쳐", "아가리", "아구창", 
+  "족쳐", "뒈져", "디져", "죽어", "자살해", "현피",
+
+  // --- 인신공격 및 정신적 비하 ---
+  "정신병자", "돌아이", "도라이", "돌대가리", "닭대가리", "개구리", "호빗",
+  "난쟁이", "돼지", "뚱땡이", "멸치", "해골", "호구새끼", "흑우", "흑두루미",
+  "바보", "멍청이", "샌님", "개털", "무개념", "뇌에이브", "뇌없", "뇌순실",
+
+  // --- 행동 및 저주 관련 ---
+  "뒈져라", "뒤져라", "뒈짐", "죽어버려", "꺼져버려", "사라져", "꺼져라",
+  "엿먹어", "엿이나", "지랄하네", "지랄탄", "지랄발광", "오바하네", "개소리",
+  "헛소리", "쌉소리", "개수작", "수작", "속닥", "이빨까", "약치네", "구라",
+
+  // --- 영어 비속어 및 슬랭 확장 ---
+  "shit", "shitty", "shittier", "bullshit", "horseshit", "crap", "crappy",
+  "damn", "damned", "goddamn", "hell", "bloody", "piss", "pissed",
+  "dickhead", "dickweed", "cock", "cocksucker", "pussy", "twat", "whore",
+  "slut", "sluttish", "hooker", "prostitute", "pimp", "skank", "hoe",
+  "ass", "asshat", "assclown", "jackass", "dumbass", "fatass", "smartass",
+  "loser", "scumbag", "douche", "douchebag", "prick", "wanker", "jerktard",
+  "retard", "retarded", "spastic", "gayass", "fag", "faggot", "dyke", "queer",
+
+  // --- 그냥 기분 나쁨 ---
+  "정진우"
+];
+
+// 방어코드: BAD_WORDS 선언이 배포 과정에서 누락/손상되어도 앱 전체가
+// 죽지 않도록 안전하게 처리합니다.
+function containsBadWord(text){
+  if(typeof BAD_WORDS==="undefined" || !Array.isArray(BAD_WORDS) || !text) return false;
+  const normalized=String(text).toLowerCase().replace(/\s+/g,"");
+  return BAD_WORDS.some(w=>normalized.includes(w));
+}
+
+function maskBadWords(text){
+  if(typeof BAD_WORDS==="undefined" || !Array.isArray(BAD_WORDS) || !text) return text;
+  let result=text;
+  BAD_WORDS.forEach(w=>{
+    const re=new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi");
+    result=result.replace(re,"*".repeat(w.length));
+  });
+  return result;
+}
+
+// 클린봇을 어디서든 재사용하기 위한 공통 헬퍼:
+// 부적절한 표현이 있으면 확인창을 띄우고, 진행 시 마스킹된 텍스트를 반환.
+// 사용자가 취소하면 null을 반환.
+function cleanBotCheck(...texts){
+  const flagged=texts.some(t=>containsBadWord(t||""));
+  if(flagged){
+    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.")){
+      return null;
+    }
+  }
+  return texts.map(t=>maskBadWords(t||""));
+}
+
+// ===== 상점 아이템 정의 =====
+const FONT_ITEMS=[
+  {id:"font-default", name:"기본 폰트", icon:"🔤", price:0, cssClass:""},
+  {id:"font-cute",    name:"시각적 친근함과 정돈된 느낌을 주는 라운드 산스(Round Sans) 서체", icon:"🌸", price:100, cssClass:"font-cute"},
+  {id:"font-round",   name:"둥근 글꼴",   icon:"⭕", price:100, cssClass:"font-round"},
+  {id:"font-serif",   name:"명조 폰트",   icon:"✒️", price:100, cssClass:"font-serif"}
+];
+
+const BORDER_ITEMS=[
+  {id:"border-none",     name:"기본 프레임",             icon:"⬜", price:0,    cssClass:"none"},
+  {id:"border-neon",     name:"네온 라이트 프라임",      icon:"💡", price:120,  cssClass:"neon"},
+  {id:"border-gold",     name:"골든 에지 프라임",        icon:"🏆", price:180,  cssClass:"gold"},
+  {id:"border-gradient", name:"그라데이션 프라임",       icon:"🌈", price:260,  cssClass:"gradient"},
+  {id:"border-vine",     name:"톱니바귀 초록 에지 프라임", icon:"⚙️", price:320,  cssClass:"vine"},
+  {id:"border-branch",   name:"스트라이프 우드 프라임",  icon:"🪵", price:360,  cssClass:"branch"},
+  {id:"border-thorn",    name:"사선 퍼플 마름모 프라임", icon:"🟣", price:420,  cssClass:"thorn"},
+  {id:"border-spark",    name:"골든 스태틱 프라임",      icon:"✨", price:480,  cssClass:"spark"},
+  {id:"border-crystal",  name:"컷팅 다이아 박스 프라임", icon:"💎", price:540,  cssClass:"crystal"},
+  {id:"border-comet",    name:"레드 사선 레이저 프라임", icon:"☄️", price:220,  cssClass:"comet"},
+  {id:"border-ribbon",   name:"다이아곤 빗살무늬 프라임",icon:"📐", price:700,  cssClass:"ribbon"},
+  {id:"border-lotus",    name:"핑크 방사형 패턴 프라임", icon:"🌸", price:780,  cssClass:"lotus"},
+  {id:"border-crown",    name:"크라운 피크 프라임",      icon:"👑", price:860,  cssClass:"crown"},
+  {id:"border-wing",     name:"아쿠아 사이드 윙 프라임", icon:"🪽", price:940,  cssClass:"wing"},
+  {id:"border-nova",     name:"코스모스 노바 프라임",    icon:"🌌", price:1040, cssClass:"nova"},
+  {id:"border-spire",    name:"오렌지 시타델 프라임",    icon:"🔺", price:1150, cssClass:"spire"}
+];
+
+const TITLE_ITEMS=[
+  {id:"title-none",      name:"칭호 없음",     icon:"—",  price:0,   text:null},
+  {id:"title-hotcomment",name:"3반1짱",       icon:"👑", price:300, text:"3반1짱"},
+  {id:"title-sloth",     name:"나무늘보",    icon:"🦥", price:100, text:"🦥"},
+  {id:"title-chick",     name:"병아리",      icon:"🐥", price:50,  text:"🐥"},
+  {id:"title-tiger",     name:"호랑이",      icon:"🐯", price:300, text:"🐯"},
+  {id:"title-cat",       name:"고양이",      icon:"🐱", price:200, text:"🐱"},
+  {id:"title-hamster",   name:"햄스터",      icon:"🐹", price:150, text:"🐹"},
+  {id:"title-puppy",     name:"강아지",      icon:"🐶", price:250, text:"🐶"},
+  {id:"title-fox",       name:"여우",    icon:"🦊", price:200, text:"🦊"},
+  {id:"title-panda",     name:"판다",        icon:"🐼", price:180, text:"🐼"},
+  {id:"title-owl",       name:"부엉이",      icon:"🦉", price:620, text:"🦉"},
+  {id:"title-rabbit",    name:"토끼",        icon:"🐰", price:130, text:"🐰"},
+  {id:"title-penguin",   name:"펭귄",        icon:"🐧", price:170, text:"🐧"}
+];
+
+const COLOR_ITEM={id:"nickname-color", name:"닉네임 색상", icon:"🎨", price:70};
+
+const NEIS_SCHOOL_STORAGE_KEY="neis_school_config_v1";
+const NEIS_MEAL_CACHE_KEY="neis_meal_cache_v1";
+const NEIS_TIMETABLE_CACHE_KEY="neis_timetable_cache_v1";
+
+function getNeisSchoolConfig(){
+  try{
+    return JSON.parse(localStorage.getItem(NEIS_SCHOOL_STORAGE_KEY)||"{}") || {};
+  }catch(e){
+    return {};
+  }
+}
+
+function setNeisSchoolConfig(config){
+  try{
+    localStorage.setItem(NEIS_SCHOOL_STORAGE_KEY, JSON.stringify(config || {}));
+  }catch(e){
+    console.warn("NEIS 학교 설정 저장 실패", e);
+  }
+}
+
+function saveNeisSchoolConfig(){
+  const atptInput=document.getElementById("neisAtptCode");
+  const sdInput=document.getElementById("neisSdCode");
+
+  const atpt=atptInput?.value.trim() || "";
+  const sd=sdInput?.value.trim() || "";
+
+  if(!atpt || !sd){
+    msg("교육청 코드와 학교 코드를 모두 입력해주세요.");
+    return;
+  }
+
+  const config={atptOfcdcScCode:atpt, sdSchulCode:sd};
+  setNeisSchoolConfig(config);
+  localStorage.removeItem(NEIS_MEAL_CACHE_KEY);
+  localStorage.removeItem(NEIS_TIMETABLE_CACHE_KEY);
+
+  msg("급식/시간표 학교 설정이 저장되었습니다.");
+
+  const currentPage=document.querySelector('.nav-btn.active')?.dataset.page;
+  if(currentPage==="meals") renderMealPage();
+}
+
+function resetNeisSchoolConfig(){
+  setNeisSchoolConfig({});
+  localStorage.removeItem(NEIS_MEAL_CACHE_KEY);
+  localStorage.removeItem(NEIS_TIMETABLE_CACHE_KEY);
+
+  const atptInput=document.getElementById("neisAtptCode");
+  const sdInput=document.getElementById("neisSdCode");
+  if(atptInput) atptInput.value="";
+  if(sdInput) sdInput.value="";
+
+  msg("학교 설정이 초기화되었습니다. 다른 코드를 다시 입력해 주세요.");
+}
+
+function fallbackMealData(){
+  return {
+    date: today(),
+    items: [
+      "제공된 급식 데이터가 아직 없어요.",
+      "학교 코드/급식 API 키가 연결되면 자동으로 표시됩니다.",
+      "예시: 치킨마요 덮밥, 감자샐러드, 배추김치"
+    ],
+    source: "샘플 데이터"
+  };
+}
+
+function fallbackTimetableData(){
+  return {
+    date: today(),
+    rows: [
+      {period:"1교시", subject:"국어"},
+      {period:"2교시", subject:"수학"},
+      {period:"3교시", subject:"사회"},
+      {period:"4교시", subject:"과학"},
+      {period:"5교시", subject:"체육"},
+      {period:"6교시", subject:"영어"}
+    ],
+    source:"샘플 시간표"
+  };
+}
+
+async function fetchSchoolMealData(){
+  // 여기에 직접 입력해버리기
+  const config = {
+    atptOfcdcScCode: "J10",
+    sdSchulCode: "J100000676",
+    apiKey: "여기에_발급받은_인증키_입력"
+  };
+
+  try{
+    const ymd=today().replace(/-/g,"");
+    const url=`https://open.neis.go.kr/hub/mealServiceDietInfo?ATPT_OFCDC_SC_CODE=${encodeURIComponent(config.atptOfcdcScCode)}&SD_SCHUL_CODE=${encodeURIComponent(config.sdSchulCode)}&MLSV_YMD=${ymd}&Type=json`;
+    const response=await fetch(url,{cache:"no-store"});
+    if(!response.ok) throw new Error("NEIS 급식 호출 실패");
+    const json=await response.json();
+    const items=(json?.mealServiceDietInfo?.[1]?.row || json?.mealServiceDietInfo?.[0]?.row || []).map(row=>row?.DDISH_NM || "")
+      .filter(Boolean)
+      .flatMap(text=>text.split("<br/>").map(s=>s.trim()).filter(Boolean));
+
+    const result={date:today(), items:items.length?items:["급식 정보가 아직 없습니다."], source:"NEIS API"};
+    localStorage.setItem(NEIS_MEAL_CACHE_KEY, JSON.stringify(result));
+    return result;
+  }catch(e){
+    console.warn("NEIS 급식 불러오기 실패", e);
+    const cached=JSON.parse(localStorage.getItem(NEIS_MEAL_CACHE_KEY)||"null");
+    return cached || fallbackMealData();
+  }
+}
+
+async function fetchSchoolTimetableData(){
+  const config=getNeisSchoolConfig();
+  if(!config.atptOfcdcScCode || !config.sdSchulCode){
+    const cached=JSON.parse(localStorage.getItem(NEIS_TIMETABLE_CACHE_KEY)||"null");
+    return cached || fallbackTimetableData();
+  }
+
+  try{
+    const ymd=today().replace(/-/g,"");
+    const url=`https://open.neis.go.kr/hub/hisTimetable?ATPT_OFCDC_SC_CODE=${encodeURIComponent(config.atptOfcdcScCode)}&SD_SCHUL_CODE=${encodeURIComponent(config.sdSchulCode)}&ALL_TI_YMD=${ymd}&Type=json`;
+    const response=await fetch(url,{cache:"no-store"});
+    if(!response.ok) throw new Error("NEIS 시간표 호출 실패");
+    const json=await response.json();
+    const rows=(json?.hisTimetable?.[1]?.row || json?.hisTimetable?.[0]?.row || []).map(row=>({
+      period: row?.PERIO || row?.PERIO_NM || "-",
+      subject: row?.ITRT_CNTNT || row?.SUBJECT || "-"
+    })).filter(item=>item.subject !== "-");
+
+    const result={date:today(), rows:rows.length?rows:[{period:"-",subject:"시간표 정보가 아직 없습니다."}], source:"NEIS API"};
+    localStorage.setItem(NEIS_TIMETABLE_CACHE_KEY, JSON.stringify(result));
+    return result;
+  }catch(e){
+    console.warn("NEIS 시간표 불러오기 실패", e);
+    const cached=JSON.parse(localStorage.getItem(NEIS_TIMETABLE_CACHE_KEY)||"null");
+    return cached || fallbackTimetableData();
+  }
+}
+
+
+/* =========================================================
+   공통 HELPERS
+========================================================= */
+
+function escapeHTML(value){
+  return String(value ?? "")
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+}
+
+function today(){
+  const d=new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
+
+function msg(text){ alert(text); }
+function openModal(html){ document.getElementById("modalContent").innerHTML=html; document.getElementById("modalBg").style.display="flex"; }
+function closeModal(){ document.getElementById("modalBg").style.display="none"; }
+function showLoading(){ document.getElementById("app").innerHTML=`<div class="spinner-row">불러오는 중...</div>`; }
+
+function isStaff(){ return Boolean(profile && (profile.role==="admin" || profile.role==="teacher")); }
+function canDelete(authorId){ return Boolean(isStaff() || currentUser?.id===authorId); }
+
+function isEditedRecord(row){
+  if(!row) return false;
+  const created=row.created_at;
+  const updated=row.updated_at || row.edited_at;
+  if(!created || !updated) return false;
+  return new Date(updated).getTime() !== new Date(created).getTime();
+}
+
+function formatMetaTimestamp(row){
+  const dateValue=row?.created_at || "";
+  if(!dateValue) return "";
+  const stamp=dateValue.slice(0,16).replace("T"," ");
+  return isEditedRecord(row) ? `${stamp} (수정됨)` : stamp;
+}
+
+function borderClassFor(equipped){
+  const map={
+    neon:"border-neon",
+    gold:"border-gold",
+    gradient:"border-gradient",
+    vine:"border-vine",
+    branch:"border-branch",
+    thorn:"border-thorn",
+    spark:"border-spark",
+    crystal:"border-crystal",
+    comet:"border-comet",
+    ribbon:"border-ribbon",
+    lotus:"border-lotus",
+    crown:"border-crown",
+    wing:"border-wing",
+    nova:"border-nova",
+    spire:"border-spire"
+  };
+  return map[equipped] || "";
+}
+
+function roleBadge(role){
+  if(role==="admin") return `<span class="badge badge-admin">관리자</span>`;
+  if(role==="teacher") return `<span class="badge badge-teacher">선생님</span>`;
+  return `<span class="badge badge-student">학생</span>`;
+}
+
+function authorLabel(joinedProfile,authorId){
+  if(!joinedProfile) return escapeHTML(authorId||"알 수 없음");
+  const nickname=joinedProfile.nickname||"";
+  const handle=joinedProfile.handle||authorId||"";
+  return `${escapeHTML(nickname)} (${escapeHTML(handle)})`;
+}
+
+function feedAuthorLabel(joinedProfile,authorId){
+  if(!joinedProfile) return "알 수 없음";
+
+  const nameColor=joinedProfile.equipped_color
+    ? `style="color:${escapeHTML(joinedProfile.equipped_color)};font-weight:700"`
+    : `style="font-weight:700"`;
+
+  const titleBadge=joinedProfile.equipped_title
+    ? `<span class="badge badge-title">${escapeHTML(joinedProfile.equipped_title)}</span>`
+    : "";
+
+  const handleHtml=authorId
+    ? `<span class="meta handle-link" onclick="showUserProfile('${authorId}')" title="프로필 보기">(${escapeHTML(joinedProfile.handle)})</span>`
+    : `<span class="meta">(${escapeHTML(joinedProfile.handle)})</span>`;
+
+  return `
+    <span ${nameColor}>${escapeHTML(joinedProfile.nickname)}</span>
+    ${handleHtml}
+    ${titleBadge}
+  `;
+}
+
+function getStudentNumber(handle){
+  if(!handle) return "??";
+  const s=String(handle);
+  return s.length>=2 ? s.slice(-2) : s;
+}
+
+function renderUserInfo(){
+  const el=document.getElementById("userInfo");
+  if(!el || !profile)return;
+
+  el.innerHTML=`
+    <span class="points-badge">🪙 ${profile.points ?? 0}P</span>
+    <span class="user-badge">${escapeHTML(profile.nickname)} (${escapeHTML(profile.handle)})</span>
+    ${roleBadge(profile.role)}
+  `;
+
+  const lockBtn=document.getElementById("snsLockBtn");
+  if(lockBtn){
+    if(profile.role==="admin"){
+      lockBtn.style.display="";
+      lockBtn.textContent=appSettings.sns_locked ? "🔓 SNS 풀기" : "🔒 SNS 막기";
+      lockBtn.className=appSettings.sns_locked ? "outline" : "outline";
+    }else{
+      lockBtn.style.display="none";
+    }
+  }
+}
+
+async function getTableCounts(tables){
+  const counts={};
+  await Promise.all(tables.map(async table=>{
+    const {count}=await supabase.from(table).select("*",{count:"exact",head:true});
+    counts[table]=count||0;
+  }));
+  return counts;
+}
+
+function applyEquippedStyles(){
+  document.body.className=document.body.className.split(" ").filter(c=>!c.startsWith("font-")).join(" ");
+  const fontItem=FONT_ITEMS.find(f=>f.id===profile?.equipped_font);
+  if(fontItem?.cssClass) document.body.classList.add(fontItem.cssClass);
+}
+
+function daysUntil(dateStr){
+  const target=new Date(dateStr+"T00:00:00");
+  const now=new Date();
+  now.setHours(0,0,0,0);
+  return Math.ceil((target-now)/(1000*60*60*24));
+}
+
+function ddayLabel(diff){
+  if(diff===0) return "D-DAY";
+  if(diff>0) return `D-${diff}`;
+  return `D+${Math.abs(diff)}`;
+}
+
+
+/* =========================================================
+   LOGIN
+========================================================= */
+
+async function login(){
+  const studentId=document.getElementById("loginId").value.trim();
+  const password=document.getElementById("loginPassword").value;
+
+  if(!STUDENT_IDS.includes(studentId)){ msg("존재하지 않는 학번입니다."); return; }
+  if(!password){ msg("비밀번호를 입력해주세요."); return; }
+
+  const {data,error}=await supabase.auth.signInWithPassword({email:idToEmail(studentId),password});
+  if(error){ msg("학번 또는 비밀번호가 올바르지 않습니다."); return; }
+
+  currentUser=data.user;
+  await loadProfile();
+  await updateLastLoginStamp();
+  await loadProfile();
+
+  if(!profile){
+    msg("프로필을 불러오지 못했습니다. 관리자에게 문의해주세요.");
+    await supabase.auth.signOut();
+    currentUser=null;
+    return;
+  }
+
+  document.getElementById("loginPage").style.display="none";
+  applyEquippedStyles();
+  await loadSettings();
+  renderUserInfo();
+  render("home");
+
+  await tryDailyCheckin();
+  await initExamNotifications();
+}
+
+async function logout(){
+  await supabase.auth.signOut();
+  currentUser=null;
+  profile=null;
+  document.getElementById("loginPage").style.display="flex";
+  document.getElementById("loginId").value="";
+  document.getElementById("loginPassword").value="";
+}
+
+async function updateLastLoginStamp(){
+  if(!currentUser) return;
+  const stamp=new Date().toISOString();
+
+  const {error}=await supabase.from("profiles").update({updated_at:stamp}).eq("id",currentUser.id);
+  if(error){
+    console.warn("마지막 접속일 갱신 실패:", error.message);
+  }
+}
+
+async function loadProfile(){
+  if(!currentUser)return;
+  const {data,error}=await supabase.from("profiles").select("*").eq("id",currentUser.id).single();
+  if(error){ console.error(error); profile=null; return; }
+  profile=data;
+}
+
+async function restoreLogin(){
+  const {data}=await supabase.auth.getSession();
+  if(!data.session){ document.getElementById("loginPage").style.display="flex"; return; }
+
+  currentUser=data.session.user;
+  await loadProfile();
+  await updateLastLoginStamp();
+  await loadProfile();
+
+  if(!profile){
+    await supabase.auth.signOut();
+    currentUser=null;
+    document.getElementById("loginPage").style.display="flex";
+    return;
+  }
+
+  document.getElementById("loginPage").style.display="none";
+  applyEquippedStyles();
+  await loadSettings();
+  renderUserInfo();
+  render("home");
+
+  await tryDailyCheckin();
+  await initExamNotifications();
+}
+
+
+/* =========================================================
+   앱 전역 설정 (SNS 잠금 등)
+   ⚠️ supabase에 "app_settings" 테이블(id int8, sns_locked bool)이
+   필요하며, id=1 행이 하나 있어야 합니다. 관리자만 UPDATE 가능하도록
+   RLS를 설정해주세요. 테이블이 없으면 잠금 기능은 항상 꺼짐 상태로 동작합니다.
+
+   토글이 반응하지 않을 때 체크할 것:
+   1) app_settings 테이블/컬럼(id int8, sns_locked bool)이 실제로 있는지
+   2) id=1 행이 미리 한 줄 들어있는지 (없으면 upsert가 실패할 수 있음)
+   3) profiles.role 값이 정확히 'admin' 문자열인지 (공백/오타 확인)
+   4) admin이 app_settings를 UPDATE/INSERT 할 수 있도록 RLS 정책이
+      설정되어 있는지 (SELECT만 허용되어 있으면 버튼을 눌러도 반영되지 않음)
+========================================================= */
+
+async function loadSettings(){
+  const {data,error}=await supabase.from("app_settings").select("*").eq("id",1).maybeSingle();
+  if(error){ console.warn("app_settings 로드 실패 (테이블/RLS 확인 필요):",error); }
+  if(error || !data){ appSettings={sns_locked:false}; return; }
+  appSettings=data;
+}
+
+async function toggleSnsLock(){
+  if(!profile || profile.role!=="admin")return;
+  const next=!appSettings.sns_locked;
+  if(!confirm(next ? "SNS 기능을 잠그시겠습니까? 학생들이 글쓰기/댓글을 할 수 없게 됩니다." : "SNS 잠금을 해제하시겠습니까?"))return;
+
+  const {error}=await supabase.from("app_settings").upsert({id:1,sns_locked:next});
+  if(error){
+    console.error("SNS 잠금 변경 실패:",error);
+    msg("설정 변경 실패: "+error.message+"\n(app_settings 테이블/RLS 정책을 확인해주세요. 콘솔에 자세한 오류가 출력되었습니다.)");
+    return;
+  }
+
+  // 반영이 제대로 됐는지 서버에서 다시 확인 (RLS로 인해 조용히 실패하는 경우 방지)
+  await loadSettings();
+  if(appSettings.sns_locked!==next){
+    msg("설정이 저장되지 않은 것 같습니다. 관리자 권한/RLS 정책을 확인해주세요.");
+    return;
+  }
+
+  renderUserInfo();
+
+  const activeBtn=document.querySelector('.nav-btn.active');
+  if(activeBtn && activeBtn.dataset.page==="feed") renderFeed();
+}
+
+
+/* =========================================================
+   출석체크 (일일 포인트)
+========================================================= */
+
+async function tryDailyCheckin(){
+  if(!profile)return;
+  if(profile.last_checkin_date===today())return;
+
+  const newPoints=(profile.points||0)+CHECKIN_POINTS;
+
+  const {error}=await supabase
+    .from("profiles")
+    .update({points:newPoints,last_checkin_date:today()})
+    .eq("id",currentUser.id);
+
+  if(error){ console.error(error); return; }
+
+  await loadProfile();
+  renderUserInfo();
+
+  msg(`✅ 출석체크 완료! +${CHECKIN_POINTS}P 지급되었습니다.\n(현재 ${profile.points}P)`);
+}
+
+
+/* =========================================================
+   📅 시험/수행평가 임박 알림
+   - 브라우저 Notification API 사용 (탭/앱이 열려있을 때 동작)
+   - 완전한 백그라운드 푸시(앱을 꺼도 오는 알림)를 원한다면
+     Service Worker + Push API + 서버(Edge Function 등)의 예약 발송이
+     추가로 필요합니다. 이 함수는 로그인 시점에 다가오는 시험을
+     체크해서 로컬 알림을 띄워주는 "1차" 기능입니다.
+========================================================= */
+
+function getNotifiedDates(){
+  try{
+    return JSON.parse(localStorage.getItem(EXAM_NOTIFY_STORAGE_KEY)||"[]");
+  }catch(e){
+    return [];
+  }
+}
+
+function markNotified(keys){
+  try{
+    const existing=getNotifiedDates();
+    localStorage.setItem(EXAM_NOTIFY_STORAGE_KEY,JSON.stringify([...new Set([...existing,...keys])]));
+  }catch(e){ /* localStorage 사용 불가 시 무시 */ }
+}
+
+function getNotificationPermissionState(){
+  if(typeof window==="undefined" || !("Notification" in window)) return "unsupported";
+  return Notification.permission;
+}
+
+async function initExamNotifications(){
+  if(!("Notification" in window))return;
+
+  if(Notification.permission==="default"){
+    try{ await Notification.requestPermission(); }catch(e){ /* 무시 */ }
+  }
+
+  const permissionState=getNotificationPermissionState();
+  if(permissionState!=="granted"){
+    if(typeof renderAccount==="function") renderAccount();
+    return;
+  }
+
+  const in3days=new Date();
+  in3days.setDate(in3days.getDate()+EXAM_NOTIFY_DAYS);
+  const untilStr=`${in3days.getFullYear()}-${String(in3days.getMonth()+1).padStart(2,"0")}-${String(in3days.getDate()).padStart(2,"0")}`;
+
+  const {data,error}=await supabase
+    .from("assignments")
+    .select("*")
+    .gte("event_date",today())
+    .lte("event_date",untilStr);
+
+  if(error || !data || !data.length)return;
+
+  const notifiedDates=getNotifiedDates();
+  const newlyNotified=[];
+
+  data.forEach(a=>{
+    const key=`${a.id}-${a.event_date}`;
+    if(notifiedDates.includes(key))return;
+
+    const diff=daysUntil(a.event_date);
+    try{
+      new Notification(`📝 수행평가/시험 임박: ${a.subject}`,{
+        body:`${a.title} · ${ddayLabel(diff)} (${a.event_date})`,
+        tag:key
+      });
+    }catch(e){ /* 알림 생성 실패 시 무시 */ }
+
+    newlyNotified.push(key);
+  });
+
+  if(newlyNotified.length) markNotified(newlyNotified);
+}
+
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+document.querySelectorAll(".nav-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    document.querySelectorAll(".nav-btn").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+    render(btn.dataset.page);
+  });
+});
+
+function go(page){
+  document.querySelectorAll(".nav-btn").forEach(x=>x.classList.toggle("active",x.dataset.page===page));
+  render(page);
+}
+
+const PAGE_RENDERERS={
+  home:renderHome, notices:renderNotices, schedule:renderSchedule,
+  assignments:renderAssignments, calendar:renderCalendar, votes:renderVotes,
+  feed:renderFeed, meals:renderMealPage, lost:renderLost, games:renderGames, account:renderAccount
+};
+
+function render(page){
+  const renderer=PAGE_RENDERERS[page];
+  if(renderer) renderer();
+}
+
+
+/* =========================================================
+   HOME (D-Day 위젯 + 리더보드 + 요약)
+========================================================= */
+
+async function renderHome(){
+  showLoading();
+
+  const in7days=new Date();
+  in7days.setDate(in7days.getDate()+7);
+  const in7daysStr=`${in7days.getFullYear()}-${String(in7days.getMonth()+1).padStart(2,"0")}-${String(in7days.getDate()).padStart(2,"0")}`;
+
+  const [
+    noticesResult, schedulesResult, assignmentsResult,
+    upcomingSchedules, upcomingAssignments,
+    topPointsResult, topCommentersRaw
+  ]=await Promise.all([
+    supabase.from("notices").select("*").order("created_at",{ascending:false}).limit(5),
+    supabase.from("schedules").select("*").gte("event_date",today()).order("event_date").limit(5),
+    supabase.from("assignments").select("*").gte("event_date",today()).order("event_date").limit(5),
+    supabase.from("schedules").select("*").gte("event_date",today()).lte("event_date",in7daysStr).order("event_date"),
+    supabase.from("assignments").select("*").gte("event_date",today()).lte("event_date",in7daysStr).order("event_date"),
+    supabase.from("profiles").select("nickname,handle,points").order("points",{ascending:false}).limit(3),
+    supabase.from("feed_comments").select("author_id, profiles(nickname,handle)")
+  ]);
+
+  const notices=noticesResult.data||[];
+  const schedules=schedulesResult.data||[];
+  const assignments=assignmentsResult.data||[];
+  const ddayItems=[
+    ...(upcomingSchedules.data||[]).map(s=>({...s,type:"일정",icon:"📅"})),
+    ...(upcomingAssignments.data||[]).map(a=>({...a,type:"수행평가",icon:"📝",title:`[${a.subject}] ${a.title}`}))
+  ].sort((a,b)=>a.event_date.localeCompare(b.event_date));
+
+  const topPoints=topPointsResult.data||[];
+
+  const commentCounts={};
+  (topCommentersRaw.data||[]).forEach(c=>{
+    const key=c.author_id;
+    if(!commentCounts[key]) commentCounts[key]={count:0,profile:c.profiles};
+    commentCounts[key].count++;
+  });
+  const topCommenters=Object.values(commentCounts).sort((a,b)=>b.count-a.count).slice(0,3);
+
+  const notifyBanner=(typeof Notification!=="undefined" && Notification.permission!=="granted")
+    ? `<div class="notify-banner">
+         <span>🔔 시험/수행평가가 다가오면 알림을 받아보시겠어요?</span>
+         <button class="outline" onclick="initExamNotifications()">알림 켜기</button>
+       </div>`
+    : "";
+
+  document.getElementById("app").innerHTML=`
+
+    ${notifyBanner}
+
+    <div class="hero">
+      <h2>안녕하세요, ${escapeHTML(profile?.nickname||"학생")} 👋</h2>
+      <p>교하중학교 1학년 3반 학급 홈페이지입니다. ver.3.7</p>
+    </div>
+
+    ${
+      ddayItems.length
+      ? `
+        <h3 style="margin:0 0 10px">⏳ 7일 이내 다가오는 일정</h3>
+        <div class="dday-row">
+          ${ddayItems.map(item=>{
+            const diff=daysUntil(item.event_date);
+            const safeTitle=item.title.replace(/'/g,"\\'");
+            const safeContent=(item.content||"상세 내용 없음").replace(/'/g,"\\'");
+            return `
+              <div class="dday-card" onclick="alert('${safeTitle}\\n날짜: ${item.event_date}\\n${safeContent}')">
+                <div class="dday-num ${diff<=1?"urgent":""}">${ddayLabel(diff)}</div>
+                <div class="dday-label">${item.icon} ${escapeHTML(item.title)}</div>
+                <div class="dday-type">${item.type}</div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      `
+      : ""
+    }
+
+    <div class="home-grid">
+
+      <div class="card">
+        <h3>📢 최근 공지사항</h3>
+        ${notices.length ? notices.map(n=>`
+          <div class="notice-preview" onclick="showNotice(${n.id})" style="cursor:pointer">
+            <b>${escapeHTML(n.title)}</b>
+            <div class="meta">${n.created_at.slice(0,10)}</div>
+          </div>
+        `).join("") : "<p>공지사항이 없습니다.</p>"}
+      </div>
+
+      <div class="card">
+        <h3>🔥 랭킹</h3>
+        <div class="meta" style="margin-bottom:6px">포인트 TOP 3</div>
+        ${
+          topPoints.length
+          ? topPoints.map((p,i)=>`
+              <div class="leaderboard-row">
+                <div class="rank-badge rank-${i+1}">${i+1}</div>
+                <div style="flex:1">${escapeHTML(p.nickname)} (${escapeHTML(p.handle)})</div>
+                <b style="color:var(--main)">${p.points}P</b>
+              </div>
+            `).join("")
+          : "<p class='meta'>아직 데이터가 없습니다.</p>"
+        }
+
+        <div class="meta" style="margin:14px 0 6px">댓글 열정왕 TOP 3</div>
+        ${
+          topCommenters.length
+          ? topCommenters.map((c,i)=>`
+              <div class="leaderboard-row">
+                <div class="rank-badge rank-${i+1}">${i+1}</div>
+                <div style="flex:1">${escapeHTML(c.profile?.nickname||"?")} (${escapeHTML(c.profile?.handle||"?")})</div>
+                <b>${c.count}개</b>
+              </div>
+            `).join("")
+          : "<p class='meta'>아직 댓글이 없습니다.</p>"
+        }
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3>📝 다가오는 수행평가</h3>
+      ${assignments.length ? assignments.map(a=>`
+        <div class="schedule-preview">
+          <b>[${escapeHTML(a.subject)}] ${escapeHTML(a.title)}</b>
+          <div class="meta">${a.event_date}</div>
+        </div>
+      `).join("") : "<p>예정된 수행평가가 없습니다.</p>"}
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <h3>📌 바로가기</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+        <button class="outline" onclick="go('notices')">📢 공지사항</button>
+        <button class="outline" onclick="go('schedule')">📅 일정</button>
+        <button class="outline" onclick="go('assignments')">📝 수행평가</button>
+        <button class="outline" onclick="go('calendar')">🗓️ 캘린더</button>
+        <button class="outline" onclick="go('votes')">🗳️ 투표</button>
+        <button class="outline" onclick="go('lost')">🔎 분실물</button>
+        <button class="outline" onclick="go('feed')">📱 SNS</button>
+        <button class="outline" onclick="go('meals')">🍽️ 급식</button>
+        <button class="outline" onclick="go('games')">🎮 게임</button>
+      </div>
+    </div>
+
+  `;
+}
+
+
+/* =========================================================
+   NOTICES
+========================================================= */
+
+async function renderNotices(){
+  showLoading();
+  const [noticesResult, timetableResult]=await Promise.all([
+    supabase.from("notices").select(`*, profiles(nickname,handle)`).order("created_at",{ascending:false}),
+    fetchSchoolTimetableData()
+  ]);
+
+  const {data,error}=noticesResult;
+  if(error){ msg(error.message); return; }
+
+  const timetableRows=(timetableResult?.rows||[]).map(item=>`
+    <div style="display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eee">
+      <span class="badge">${escapeHTML(item.period)}</span>
+      <span style="flex:1;text-align:right;">${escapeHTML(item.subject)}</span>
+    </div>
+  `).join("");
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>공지사항</h1><p>우리 반의 중요한 소식을 확인하세요.</p></div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3>📌 오늘의 시간표</h3>
+      <p class="meta">${escapeHTML(timetableResult?.date || today())} · ${escapeHTML(timetableResult?.source || "샘플 데이터")}</p>
+      <div style="margin-top:12px;">
+        ${timetableRows || "<p class='meta'>오늘의 시간표는 아직 준비되지 않았습니다.</p>"}
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <span>총 ${data.length}건</span>
+      ${isStaff() ? `<button class="primary" onclick="noticeForm()">공지 작성</button>` : ""}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>번호</th><th>제목</th><th>작성자</th><th>등록일</th><th>관리</th></tr></thead>
+        <tbody>
+          ${data.length ? data.map(n=>`
+            <tr>
+              <td>${n.id}</td>
+              <td class="title-cell" onclick="showNotice(${n.id})">${escapeHTML(n.title)}</td>
+              <td>${authorLabel(n.profiles,n.author_id)}</td>
+              <td>${n.created_at.slice(0,10)}</td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                  ${canEdit(n.author_id)?`<button class="outline" onclick="editPost('notices',${n.id},'notices')">수정</button>`:""}
+                  ${canDelete(n.author_id)?`<button class="danger" onclick="deletePost('notices',${n.id},'notices')">삭제</button>`:""}
+                </div>
+              </td>
+            </tr>
+          `).join("") : `<tr><td colspan="5" class="empty">공지사항이 없습니다.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function noticeForm(){
+  if(!isStaff()){ msg("관리자 또는 선생님만 공지를 작성할 수 있습니다."); return; }
+  openModal(`
+    <h2>공지사항 작성</h2>
+    <div class="form-group"><label>제목</label><input id="nTitle"></div>
+    <div class="form-group"><label>내용</label><textarea id="nContent"></textarea></div>
+    <button class="primary" onclick="createNotice()">등록</button>
+  `);
+}
+
+async function createNotice(){
+  if(!isStaff())return;
+  const titleRaw=document.getElementById("nTitle").value.trim();
+  const contentRaw=document.getElementById("nContent").value.trim();
+  if(!titleRaw||!contentRaw){ msg("제목과 내용을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(titleRaw,contentRaw);
+  if(!cleaned)return;
+  const [title,content]=cleaned;
+
+  const {error}=await supabase.from("notices").insert({title,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+  closeModal(); renderNotices();
+}
+
+async function showNotice(id){
+  const {data,error}=await supabase.from("notices").select(`*, profiles(nickname,handle)`).eq("id",id).single();
+  if(error){ msg(error.message); return; }
+  openModal(`
+    <h2>${escapeHTML(data.title)}</h2>
+    <p class="meta">작성자: <b>${authorLabel(data.profiles,data.author_id)}</b> · ${data.created_at.slice(0,10)}${isEditedRecord(data) ? " (수정됨)" : ""}</p>
+    <hr><p style="white-space:pre-wrap">${escapeHTML(data.content)}</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+      ${canEdit(data.author_id)?`<button class="outline" onclick="editPost('notices',${data.id},'notices')">수정</button>`:""}
+      ${canDelete(data.author_id)?`<button class="danger" onclick="deletePost('notices',${data.id},'notices')">삭제</button>`:""}
+    </div>
+  `);
+}
+
+
+/* =========================================================
+   SCHEDULE
+========================================================= */
+
+async function renderSchedule(){
+  showLoading();
+  const {data,error}=await supabase.from("schedules").select(`*, profiles(nickname,handle)`).order("event_date");
+  if(error){ msg(error.message); return; }
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>일정</h1><p>학교 및 학급의 주요 일정을 확인하세요.</p></div>
+    <div class="toolbar">
+      <span>총 ${data.length}건</span>
+      ${isStaff() ? `<button class="primary" onclick="scheduleForm()">일정 등록</button>` : ""}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>제목</th><th>날짜</th><th>내용</th><th>작성자</th><th>관리</th></tr></thead>
+        <tbody>
+          ${data.length ? data.map(s=>`
+            <tr>
+              <td>${escapeHTML(s.title)}</td><td>${s.event_date}</td><td>${escapeHTML(s.content||"")}</td>
+              <td>${authorLabel(s.profiles,s.author_id)}</td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                  ${canEdit(s.author_id)?`<button class="outline" onclick="editPost('schedules',${s.id},'schedule')">수정</button>`:""}
+                  ${canDelete(s.author_id)?`<button class="danger" onclick="deletePost('schedules',${s.id},'schedule')">삭제</button>`:""}
+                </div>
+              </td>
+            </tr>
+          `).join("") : `<tr><td colspan="5" class="empty">일정이 없습니다.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function scheduleForm(){
+  if(!isStaff()){ msg("관리자 또는 선생님만 일정을 등록할 수 있습니다."); return; }
+  openModal(`
+    <h2>일정 등록</h2>
+    <div class="form-group"><label>제목</label><input id="sTitle"></div>
+    <div class="form-group"><label>날짜</label><input id="sDate" type="date"></div>
+    <div class="form-group"><label>내용</label><textarea id="sContent"></textarea></div>
+    <button class="primary" onclick="createSchedule()">등록</button>
+  `);
+}
+
+async function createSchedule(){
+  if(!isStaff())return;
+  const titleRaw=document.getElementById("sTitle").value.trim();
+  const event_date=document.getElementById("sDate").value;
+  const contentRaw=document.getElementById("sContent").value.trim();
+  if(!titleRaw||!event_date){ msg("제목과 날짜를 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(titleRaw,contentRaw);
+  if(!cleaned)return;
+  const [title,content]=cleaned;
+
+  const {error}=await supabase.from("schedules").insert({title,event_date,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+  closeModal(); renderSchedule();
+}
+
+
+/* =========================================================
+   ASSIGNMENTS
+========================================================= */
+
+async function renderAssignments(){
+  showLoading();
+  const {data,error}=await supabase.from("assignments").select(`*, profiles(nickname,handle)`).order("event_date");
+  if(error){ msg(error.message); return; }
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>수행평가</h1><p>과목별 수행평가 일정을 확인하세요.</p></div>
+    <div class="toolbar">
+      <span>총 ${data.length}건</span>
+      ${isStaff() ? `<button class="primary" onclick="assignmentForm()">수행평가 등록</button>` : ""}
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>과목</th><th>제목</th><th>날짜</th><th>내용</th><th>작성자</th><th>관리</th></tr></thead>
+        <tbody>
+          ${data.length ? data.map(a=>`
+            <tr>
+              <td><span class="badge">${escapeHTML(a.subject)}</span></td>
+              <td>${escapeHTML(a.title)}</td><td>${a.event_date}</td><td>${escapeHTML(a.content||"")}</td>
+              <td>${authorLabel(a.profiles,a.author_id)}</td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                  ${canEdit(a.author_id)?`<button class="outline" onclick="editPost('assignments',${a.id},'assignments')">수정</button>`:""}
+                  ${canDelete(a.author_id)?`<button class="danger" onclick="deletePost('assignments',${a.id},'assignments')">삭제</button>`:""}
+                </div>
+              </td>
+            </tr>
+          `).join("") : `<tr><td colspan="6" class="empty">등록된 수행평가가 없습니다.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function assignmentForm(){
+  if(!isStaff()){ msg("관리자 또는 선생님만 수행평가를 등록할 수 있습니다."); return; }
+  openModal(`
+    <h2>수행평가 등록</h2>
+    <div class="form-group"><label>과목</label><input id="aSubject" placeholder="예: 수학"></div>
+    <div class="form-group"><label>제목</label><input id="aTitle"></div>
+    <div class="form-group"><label>날짜</label><input id="aDate" type="date"></div>
+    <div class="form-group"><label>내용</label><textarea id="aContent"></textarea></div>
+    <button class="primary" onclick="createAssignment()">등록</button>
+  `);
+}
+
+async function createAssignment(){
+  if(!isStaff())return;
+  const subjectRaw=document.getElementById("aSubject").value.trim();
+  const titleRaw=document.getElementById("aTitle").value.trim();
+  const event_date=document.getElementById("aDate").value;
+  const contentRaw=document.getElementById("aContent").value.trim();
+  if(!subjectRaw||!titleRaw||!event_date){ msg("과목, 제목, 날짜를 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(subjectRaw,titleRaw,contentRaw);
+  if(!cleaned)return;
+  const [subject,title,content]=cleaned;
+
+  const {error}=await supabase.from("assignments").insert({subject,title,event_date,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+  closeModal(); renderAssignments();
+
+  // 새 수행평가가 임박한 경우를 대비해 알림 목록을 다시 확인
+  initExamNotifications();
+}
+
+
+/* =========================================================
+   CALENDAR
+========================================================= */
+
+async function renderCalendar(){
+  showLoading();
+  const y=calendarDate.getFullYear();
+  const m=calendarDate.getMonth();
+  const first=new Date(y,m,1);
+  const last=new Date(y,m+1,0);
+  const start=`${y}-${String(m+1).padStart(2,"0")}-01`;
+  const end=`${y}-${String(m+1).padStart(2,"0")}-${last.getDate()}`;
+
+  const [schedulesResult,assignmentsResult]=await Promise.all([
+    supabase.from("schedules").select("*").gte("event_date",start).lte("event_date",end),
+    supabase.from("assignments").select("*").gte("event_date",start).lte("event_date",end)
+  ]);
+  const schedules=schedulesResult.data||[];
+  const assignments=assignmentsResult.data||[];
+
+  let html="";
+  for(let i=0;i<first.getDay();i++) html+=`<div class="day"></div>`;
+
+  for(let d=1;d<=last.getDate();d++){
+    const date=`${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+    const daySchedules=schedules.filter(x=>x.event_date===date);
+    const dayAssignments=assignments.filter(x=>x.event_date===date);
+    const now=new Date();
+    const isToday=now.getFullYear()===y && now.getMonth()===m && now.getDate()===d;
+
+    html+=`
+      <div class="day ${isToday?"today":""}">
+        <b>${d}</b>
+        ${daySchedules.map(e=>`<div class="event">📅 ${escapeHTML(e.title)}</div>`).join("")}
+        ${dayAssignments.map(e=>`<div class="event">📝 ${escapeHTML(e.subject)}: ${escapeHTML(e.title)}</div>`).join("")}
+      </div>
+    `;
+  }
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>학급 캘린더</h1><p>일정과 수행평가를 달력으로 확인하세요.</p></div>
+    <div class="calendar">
+      <div class="calendar-head">
+        <button class="outline" onclick="changeMonth(-1)">‹</button>
+        <b>${y}년 ${m+1}월</b>
+        <button class="outline" onclick="changeMonth(1)">›</button>
+      </div>
+      <div class="calendar-grid">
+        ${["일","월","화","수","목","금","토"].map(x=>`<div class="day-head">${x}</div>`).join("")}
+        ${html}
+      </div>
+    </div>
+  `;
+}
+
+function changeMonth(n){ calendarDate.setMonth(calendarDate.getMonth()+n); renderCalendar(); }
+
+
+/* =========================================================
+   VOTES
+========================================================= */
+
+async function renderVotes(){
+  showLoading();
+  const {data,error}=await supabase.from("votes").select(`*, profiles(nickname,handle), vote_options(*)`).order("created_at",{ascending:false});
+  if(error){ msg(error.message); return; }
+
+  const voteIds=data.map(v=>v.id);
+  let responses=[];
+  if(voteIds.length){
+    const result=await supabase.from("vote_responses").select("vote_id,option_id,user_id").in("vote_id",voteIds);
+    if(result.error){ msg(result.error.message); return; }
+    responses=result.data||[];
+  }
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>투표</h1><p>우리 반의 의견을 정해보세요.</p></div>
+    ${isStaff() ? `
+      <div class="toolbar">
+        <span>관리자/선생님이 투표를 만들 수 있습니다.</span>
+        <button class="primary" onclick="voteForm()">+ 투표 만들기</button>
+      </div>` : ""}
+    ${data.length ? data.map(v=>renderVoteCard(v,responses)).join("") : `<div class="card empty">등록된 투표가 없습니다.</div>`}
+  `;
+}
+
+function renderVoteCard(v,responses){
+  const myVote=responses.find(r=>r.vote_id===v.id && r.user_id===currentUser.id);
+  const total=responses.filter(r=>r.vote_id===v.id).length;
+  const expired=v.expires_at && new Date(v.expires_at)<new Date();
+  const active=v.is_active!==false && !expired;
+  const showResults=Boolean(myVote)||!active;
+
+  return `
+    <div class="poll">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+        <div>
+          <h3 style="margin:0 0 6px">${escapeHTML(v.title)}</h3>
+          <div class="meta">작성자: ${authorLabel(v.profiles,v.author_id)}</div>
+        </div>
+        ${active ? `<span class="badge">진행중</span>` : `<span class="badge">종료</span>`}
+      </div>
+      ${v.description ? `<p>${escapeHTML(v.description)}</p>` : ""}
+      ${v.expires_at ? `<div class="meta">마감: ${new Date(v.expires_at).toLocaleString("ko-KR")}</div>` : ""}
+      ${active && !myVote ? `
+        <div style="margin-top:12px">
+          ${(v.vote_options||[]).map(o=>`
+            <button class="poll-option" onclick="vote(${v.id},${o.id})">${escapeHTML(o.option_text)}</button>
+          `).join("")}
+        </div>` : ""}
+      ${myVote ? `<p style="color:var(--main);font-weight:600">✓ 이미 투표했습니다.</p>` : ""}
+      ${showResults ? renderVoteResults(v,responses,total) : ""}
+      ${isStaff() ? `<button class="danger" style="margin-top:15px" onclick="deleteVote(${v.id})">투표 삭제</button>` : ""}
+    </div>
+  `;
+}
+
+function renderVoteResults(v,responses,total){
+  return `
+    <div class="vote-result">
+      <b>투표 결과 ${total===0 ? "(아직 참여자가 없습니다)" : ""}</b>
+      ${(v.vote_options||[]).map(o=>{
+        const count=responses.filter(r=>r.vote_id===v.id && r.option_id===o.id).length;
+        const percent=total ? Math.round(count/total*100) : 0;
+        return `
+          <div style="margin-top:12px">
+            <div style="display:flex;justify-content:space-between">
+              <span>${escapeHTML(o.option_text)}</span><span>${count}표 (${percent}%)</span>
+            </div>
+            <div class="vote-bar"><div class="vote-bar-inner" style="width:${percent}%"></div></div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function voteForm(){
+  if(!isStaff()){ msg("관리자 또는 선생님만 투표를 만들 수 있습니다."); return; }
+  openModal(`
+    <h2>🗳️ 투표 만들기</h2>
+    <div class="form-group"><label>질문</label><input id="vTitle" placeholder="예: 다음 학급 행사는 어디로 갈까요?"></div>
+    <div class="form-group"><label>설명</label><textarea id="vDescription" style="min-height:90px" placeholder="투표에 대한 설명 (선택)"></textarea></div>
+    <div class="form-group">
+      <label>선택지</label>
+      <input id="v1" placeholder="선택지 1"><br><br>
+      <input id="v2" placeholder="선택지 2"><br><br>
+      <input id="v3" placeholder="선택지 3 (선택)"><br><br>
+      <input id="v4" placeholder="선택지 4 (선택)">
+    </div>
+    <div class="form-group">
+      <label>마감일시</label>
+      <input id="vExpires" type="datetime-local">
+      <div class="meta">비워두면 마감일이 없습니다.</div>
+    </div>
+    <button class="primary" onclick="createVote()">투표 만들기</button>
+  `);
+}
+
+async function createVote(){
+  if(!isStaff())return;
+  const titleRaw=document.getElementById("vTitle").value.trim();
+  const descriptionRaw=document.getElementById("vDescription").value.trim();
+  const optionsRaw=["v1","v2","v3","v4"].map(id=>document.getElementById(id).value.trim()).filter(Boolean);
+  const expiresInput=document.getElementById("vExpires").value;
+  if(!titleRaw||optionsRaw.length<2){ msg("질문과 선택지 2개 이상을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(titleRaw,descriptionRaw,...optionsRaw);
+  if(!cleaned)return;
+  const [title,description,...options]=cleaned;
+
+  const expires_at=expiresInput ? new Date(expiresInput).toISOString() : null;
+
+  const {data:voteRow,error}=await supabase.from("votes").insert({title,description,author_id:currentUser.id,expires_at}).select().single();
+  if(error){ msg("투표 생성 실패:\n"+error.message); return; }
+
+  const {error:optionError}=await supabase.from("vote_options").insert(options.map(option_text=>({vote_id:voteRow.id,option_text})));
+  if(optionError){
+    await supabase.from("votes").delete().eq("id",voteRow.id);
+    msg("선택지 등록 실패:\n"+optionError.message);
+    return;
+  }
+  closeModal(); renderVotes();
+}
+
+async function vote(voteId,optionId){
+  if(!currentUser){ msg("로그인이 필요합니다."); return; }
+  const {data:existing}=await supabase.from("vote_responses").select("id").eq("vote_id",voteId).eq("user_id",currentUser.id).maybeSingle();
+  if(existing){ msg("이미 이 투표에 참여했어요."); return; }
+
+  const {error}=await supabase.from("vote_responses").insert({vote_id:voteId,option_id:optionId,user_id:currentUser.id});
+  if(error){ msg(error.code==="23505" ? "이미 이 투표에 참여했어요." : "투표 실패:\n"+error.message); return; }
+
+  msg("투표가 완료되었습니다!");
+  renderVotes();
+}
+
+async function deleteVote(id){
+  if(!isStaff())return;
+  if(!confirm("이 투표를 삭제할까요?"))return;
+  const {error}=await supabase.from("votes").delete().eq("id",id);
+  if(error){ msg("삭제 실패:\n"+error.message); return; }
+  renderVotes();
+}
+
+
+/* =========================================================
+   LOST ITEMS (파일 업로드 제거, 링크 공유 방식 권장)
+========================================================= */
+
+async function renderLost(){
+  showLoading();
+  const {data,error}=await supabase.from("lost_items").select(`*, profiles(nickname,handle)`).order("created_at",{ascending:false});
+  if(error){ msg(error.message); return; }
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>분실물</h1><p>분실물을 등록하거나 찾아보세요.</p></div>
+    <div class="toolbar">
+      <span>총 ${data.length}건</span>
+      <button class="primary" onclick="lostForm()">분실물 등록</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>번호</th><th>물건</th><th>설명</th><th>등록자</th><th>날짜</th><th>관리</th></tr></thead>
+        <tbody>
+          ${data.length ? data.map(x=>`
+            <tr>
+              <td>${x.id}</td>
+              <td class="title-cell" onclick="showLost(${x.id})">${escapeHTML(x.title)}</td>
+              <td>${escapeHTML(x.content)}</td>
+              <td>${authorLabel(x.profiles,x.author_id)}</td>
+              <td>${x.created_at.slice(0,10)}</td>
+              <td>
+                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap">
+                  <button class="outline" onclick="showLost(${x.id})">댓글 보기</button>
+                  ${canEdit(x.author_id)?`<button class="outline" onclick="editPost('lost_items',${x.id},'lost')">수정</button>`:""}
+                  ${canDelete(x.author_id)?`<button class="danger" onclick="deletePost('lost_items',${x.id},'lost')">삭제</button>`:""}
+                </div>
+              </td>
+            </tr>
+          `).join("") : `<tr><td colspan="6" class="empty">등록된 분실물이 없습니다.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function lostForm(){
+  openModal(`
+    <h2>분실물 등록</h2>
+    <div class="form-group"><label>물건 이름</label><input id="lTitle" placeholder="예: 검은색 필통"></div>
+    <div class="form-group"><label>설명</label><textarea id="lContent" placeholder="발견 장소나 특징을 적어주세요.\n예: 2층 복도에서 발견, 검은색 필통, 네임스티커 있음"></textarea></div>
+    <p class="meta">💡 사진은 직접 업로드 대신, SNS 피드에 이미지 링크로 올려서 공유해보세요.</p>
+    <button class="primary" onclick="createLost()">등록</button>
+  `);
+}
+
+async function createLost(){
+  const titleRaw=document.getElementById("lTitle").value.trim();
+  const contentRaw=document.getElementById("lContent").value.trim();
+  if(!titleRaw||!contentRaw){ msg("물건 이름과 설명을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(titleRaw,contentRaw);
+  if(!cleaned)return;
+  const [title,content]=cleaned;
+
+  const {error}=await supabase.from("lost_items").insert({title,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+  closeModal(); renderLost();
+}
+
+async function showLost(id){
+  const [{data:lostItem,error:lostError},{data:comments,error:commentsError}]=await Promise.all([
+    supabase.from("lost_items").select(`*, profiles(nickname,handle)`).eq("id",id).single(),
+    supabase.from("lost_comments").select(`*`).eq("lost_id",id).order("created_at",{ascending:true})
+  ]);
+
+  if(lostError || !lostItem){ msg("분실물 정보를 불러오지 못했습니다."); return; }
+  if(commentsError){ console.warn(commentsError); }
+
+  const authorIds=[...new Set((comments||[]).map(c=>c.author_id).filter(Boolean))];
+  let authorMap={};
+  if(authorIds.length){
+    const {data:profiles,error:profileError}=await supabase
+      .from("profiles")
+      .select("id,nickname,handle")
+      .in("id",authorIds);
+
+    if(!profileError){
+      authorMap = Object.fromEntries((profiles||[]).map(p=>[p.id,p]));
+    }
+  }
+
+  const normalizedComments=(comments||[]).map(c=>({
+    ...c,
+    profiles: authorMap[c.author_id] || null
+  }));
+
+  openModal(`
+    <h2>${escapeHTML(lostItem.title)}</h2>
+    <p style="white-space:pre-wrap">${escapeHTML(lostItem.content)}</p>
+    <p class="meta">등록자: <b>${authorLabel(lostItem.profiles,lostItem.author_id)}</b> · ${lostItem.created_at.slice(0,10)}</p>
+
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid #eee;">
+      <h3 style="margin:0 0 10px;">💬 댓글</h3>
+      ${(normalizedComments).length
+        ? `<div style="display:flex;flex-direction:column;gap:10px;max-height:220px;overflow:auto;padding-right:4px;">
+            ${(normalizedComments).map(c=>`
+              <div style="padding:10px 12px;border:1px solid #eee;border-radius:8px;background:#f7f9fb;">
+                <div><b>${escapeHTML(c.profiles?.nickname||"?")}</b> <span class="meta">(${escapeHTML(c.profiles?.handle||"?")})</span></div>
+                <div style="margin-top:4px;white-space:pre-wrap;">${escapeHTML(c.content)}</div>
+                <div class="meta" style="margin-top:5px;">${formatMetaTimestamp(c)}</div>
+              </div>
+            `).join("")}
+          </div>`
+        : `<p class="meta">아직 댓글이 없습니다. 어디서 찾았는지 알려주세요.</p>`
+      }
+
+      <div style="margin-top:14px;display:flex;gap:8px;align-items:flex-start;">
+        <textarea id="lostCommentInput" rows="3" style="flex:1;resize:vertical;padding:8px;border:1px solid #ccd3da;border-radius:5px;" placeholder="어디서 찾았는지 적어주세요. 예: 2층 복도, 화장실 앞, 교실 책상 밑"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px;gap:8px;flex-wrap:wrap;">
+        <button class="outline" onclick="addLostComment(${id})">댓글 등록</button>
+        ${canEdit(lostItem.author_id)?`<button class="outline" onclick="editPost('lost_items',${lostItem.id},'lost')">수정</button>`:""}
+        ${canDelete(lostItem.author_id)?`<button class="danger" onclick="deletePost('lost_items',${lostItem.id},'lost')">삭제</button>`:""}
+      </div>
+    </div>
+  `);
+}
+
+async function addLostComment(lostId){
+  const el=document.getElementById("lostCommentInput");
+  const raw=(el?.value||"").trim();
+  if(!raw){ msg("댓글 내용을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(raw);
+  if(!cleaned)return;
+  const [content]=cleaned;
+
+  const {error}=await supabase.from("lost_comments").insert({lost_id:lostId,author_id:currentUser.id,content});
+  if(error){ msg("댓글 등록 실패: "+error.message); return; }
+
+  showLost(lostId);
+}
+
+
+/* =========================================================
+   📱 SNS 피드 (구 의견함)
+   - 실명제 (닉네임+학번 항상 노출)
+   - 좋아요/싫어요 (게시글 + 댓글)
+   - 클린봇 1차 필터
+   - 링크 미리보기 (유튜브 임베드 / 이미지 링크)
+   - 관리자 "채택" 시 포인트 지급
+========================================================= */
+
+// 보완된 유튜브 정규식: watch?v=, shorts/, embed/, live/, youtu.be/ 모두 지원.
+// 쿼리스트링 순서(예: ?si=xxx&v=ID)가 달라도 매칭되며, videoId는 항상 11자로 고정.
+const YOUTUBE_RE=/(?:youtube\.com\/(?:watch\?(?:[^\s]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+const IMAGE_RE=/https?:\/\/\S+\.(?:png|jpe?g|gif|webp)(\?\S*)?/i;
+const URL_RE=/https?:\/\/[^\s]+/i;
+
+// 영상은 클릭 전까지 로드되지 않도록 썸네일+[보기] 버튼만 우선 표시합니다.
+function renderLinkEmbed(text){
+  const yt=text.match(YOUTUBE_RE);
+  if(yt){
+    const videoId=yt[1];
+    return `
+      <div class="video-placeholder" id="video-${videoId}-${Math.random().toString(36).slice(2,7)}">
+        <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" loading="lazy" alt="영상 미리보기">
+        <button onclick="playFeedVideo(this,'${videoId}')">▶ 보기</button>
+      </div>
+    `;
+  }
+
+  const img=text.match(IMAGE_RE);
+  if(img){
+    return `<div class="feed-post-embed"><img src="${escapeHTML(img[0])}" loading="lazy"></div>`;
+  }
+
+  // 유튜브/이미지가 아닌 일반 링크도 클릭해서 이동할 수 있도록 카드로 보여줍니다.
+  const url=text.match(URL_RE);
+  if(url){
+    let domain=url[0];
+    try{ domain=new URL(url[0]).hostname; }catch(e){}
+    return `<a class="link-card" href="${escapeHTML(url[0])}" target="_blank" rel="noopener noreferrer"><b>🔗 ${escapeHTML(domain)}</b>${escapeHTML(url[0])}</a>`;
+  }
+
+  return "";
+}
+
+function playFeedVideo(btn,videoId){
+  const wrap=btn.closest(".video-placeholder");
+  wrap.outerHTML=`<div class="feed-post-embed"><iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" allowfullscreen allow="autoplay; encrypted-media"></iframe></div>`;
+}
+
+let feedCache={posts:[],likes:[],comments:[]};
+let feedSearchQuery="";
+const seenViewPostIds=new Set();
+
+function formatViewCount(value){
+  const n=Number(value)||0;
+  if(n>=10000){
+    const scaled=n/10000;
+    return `${scaled >= 10 ? scaled.toFixed(0) : scaled.toFixed(1).replace(/\.0$/, "")}만`;
+  }
+  return n.toLocaleString("ko-KR");
+}
+
+async function incrementPostView(postId){
+  try{
+    const {data, error}=await supabase
+      .from("opinions")
+      .select("id,view_count,views")
+      .eq("id",postId)
+      .maybeSingle();
+
+    if(error || !data){ return; }
+
+    const current = Number(data.view_count ?? data.views ?? 0);
+
+    const {error:updateError}=await supabase
+      .from("opinions")
+      .update({view_count: current + 1})
+      .eq("id", postId);
+
+    if(updateError){
+      const {error:retryError}=await supabase
+        .from("opinions")
+        .update({views: current + 1})
+        .eq("id", postId);
+      if(retryError){ console.warn("조회수 반영 실패:", retryError.message); }
+    }
+  }catch(err){
+    console.warn("조회수 반영 실패:", err);
+  }
+}
+
+async function renderFeed(){
+  showLoading();
+  await loadSettings();
+
+  const {data,error}=await supabase
+    .from("opinions")
+    .select(`*, profiles(nickname,handle,equipped_color,equipped_title,equipped_border)`)
+    .order("created_at",{ascending:false});
+
+  if(error){ msg(error.message); return; }
+
+  const postIds=data.map(p=>p.id);
+  let likes=[];
+  let comments=[];
+
+  if(postIds.length){
+    const [likesResult,commentsResult]=await Promise.all([
+      supabase.from("feed_likes").select("*").in("post_id",postIds),
+      supabase.from("feed_comments").select(`*, profiles(nickname,handle,equipped_color,equipped_title,equipped_border)`).in("post_id",postIds).order("created_at")
+    ]);
+    likes=likesResult.data||[];
+    comments=commentsResult.data||[];
+  }
+
+  feedCache={posts:data,likes,comments};
+  renderFeedList();
+}
+
+function renderFeedList(){
+  const {posts,likes,comments}=feedCache;
+  const q=feedSearchQuery.trim().toLowerCase();
+
+  const filtered=!q ? posts : posts.filter(post=>{
+    const nickname=(post.profiles?.nickname||"").toLowerCase();
+    const handle=(post.profiles?.handle||"").toLowerCase();
+    const content=(post.content||"").toLowerCase();
+    return content.includes(q) || nickname.includes(q) || handle.includes(q);
+  });
+
+  const locked=Boolean(appSettings.sns_locked) && profile.role!=="admin";
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title">
+      <h1>SNS</h1>
+      <p>실명으로 소통하는 우리 반 피드입니다.</p>
+    </div>
+
+    ${locked ? `<div class="feed-lock-banner">🔒 관리자에 의해 SNS 글쓰기/댓글 기능이 잠시 제한되었습니다. 기존 글은 계속 볼 수 있어요.</div>` : ""}
+
+    <div class="toolbar">
+      <input class="feed-search" id="feedSearchInput" placeholder="🔍 내용, 닉네임, 학번 검색" value="${escapeHTML(feedSearchQuery)}" oninput="onFeedSearch(this.value)">
+      <span>총 ${filtered.length}개의 글</span>
+      <button class="primary" onclick="feedPostForm()" ${locked?"disabled":""}>✏️ 글쓰기</button>
+    </div>
+
+    ${
+      filtered.length
+      ? filtered.map(post=>renderFeedPost(post,likes,comments.filter(c=>c.post_id===post.id),locked)).join("")
+      : `<div class="card empty">${q ? "검색 결과가 없습니다." : "아직 올라온 글이 없습니다. 첫 글을 남겨보세요!"}</div>`
+    }
+  `;
+}
+
+function onFeedSearch(value){
+  feedSearchQuery=value;
+  renderFeedList();
+}
+
+function renderFeedPost(post,likes,postComments,locked){
+  const myLike=likes.find(l=>l.post_id===post.id && l.user_id===currentUser.id);
+  const likeCount=likes.filter(l=>l.post_id===post.id && l.value===1).length;
+  const dislikeCount=likes.filter(l=>l.post_id===post.id && l.value===-1).length;
+
+  const embed=renderLinkEmbed(post.content);
+  const flagged=containsBadWord(post.content);
+  const avatarBorder=borderClassFor(post.profiles?.equipped_border);
+
+  if(!seenViewPostIds.has(post.id)){
+    seenViewPostIds.add(post.id);
+    incrementPostView(post.id);
+  }
+
+  return `
+    <div class="feed-post" id="feed-post-${post.id}">
+
+      <div class="feed-post-head">
+        <div class="avatar ${avatarBorder}" style="width:36px;height:36px;font-size:13px">
+          ${escapeHTML((post.profiles?.nickname||"?").charAt(0))}
+        </div>
+        <div>
+          ${feedAuthorLabel(post.profiles,post.author_id)}
+          <div class="meta">${formatMetaTimestamp(post)} · 조회 ${formatViewCount(post.view_count ?? post.views ?? 0)}</div>
+        </div>
+        ${post.is_featured ? `<span class="badge" style="margin-left:auto;background:#e6f9ee;color:var(--success)">⭐ 채택됨</span>` : ""}
+      </div>
+
+      <div class="feed-post-body">${escapeHTML(post.content)}</div>
+      ${embed}
+
+      ${flagged ? `<div class="feed-warning">⚠️ 클린봇이 삭제한 글입니다..</div>` : ""}
+
+      <div class="feed-actions">
+        <button class="feed-action-btn ${myLike?.value===1?"active-like":""}" onclick="toggleLike(${post.id},1)">👍 ${likeCount}</button>
+        <button class="feed-action-btn ${myLike?.value===-1?"active-dislike":""}" onclick="toggleLike(${post.id},-1)">👎 ${dislikeCount}</button>
+
+        ${
+          isStaff() && !post.is_featured
+          ? `<button class="feed-action-btn" style="margin-left:auto" onclick="featurePost(${post.id})">⭐ 채택하기 (+${FEATURE_POINTS}P)</button>`
+          : ""
+        }
+
+        ${canDelete(post.author_id) ? `<button class="feed-action-btn" onclick="editPost('opinions',${post.id},'feed')">✏️ 수정</button>` : ""}
+        ${canDelete(post.author_id) ? `<button class="feed-action-btn" onclick="deleteFeedPost(${post.id})">🗑️ 삭제</button>` : ""}
+      </div>
+
+      <div class="feed-comments">
+        ${postComments.map(c=>renderFeedComment(c)).join("")}
+
+        ${locked ? `<p class="meta" style="margin-top:10px">🔒 SNS가 잠겨 있어 댓글을 남길 수 없습니다.</p>` : `
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <input id="commentInput-${post.id}" placeholder="댓글을 남겨보세요..." style="flex:1;padding:8px;border:1px solid #ccd3da;border-radius:5px">
+          <button class="outline" onclick="addComment(${post.id})">등록</button>
+        </div>
+        `}
+      </div>
+
+    </div>
+  `;
+}
+
+function renderFeedComment(c){
+  return `
+    <div class="feed-comment" id="feed-comment-${c.id}">
+      ${feedAuthorLabel(c.profiles,c.author_id)}
+      <span class="meta">· ${formatMetaTimestamp(c)}</span>
+      <div>${escapeHTML(c.content)}</div>
+      <div class="feed-comment-actions">
+        <button onclick="toggleCommentLike(${c.id},1)">👍</button>
+        <button onclick="toggleCommentLike(${c.id},-1)">👎</button>
+        ${canDelete(c.author_id) ? `<button onclick="deleteComment(${c.id},${c.post_id})">삭제</button>` : ""}
+      </div>
+    </div>
+  `;
+}
+
+function feedPostForm(){
+  if(Boolean(appSettings.sns_locked) && profile.role!=="admin"){ msg("🔒 관리자가 SNS 기능을 잠갔습니다. 지금은 글을 쓸 수 없어요."); return; }
+  openModal(`
+    <h2>✏️ 글쓰기</h2>
+    <p class="meta" style="margin-bottom:10px">
+      실명제 게시판입니다. 작성자는 항상 닉네임과 학번으로 공개됩니다.<br>
+      사진은 직접 업로드 대신 <b>이미지/유튜브/일반 링크</b>를 붙여넣으면 자동으로 미리보기가 뜹니다. (영상은 [보기]를 눌러야 재생됩니다)
+    </p>
+    <div class="form-group">
+      <label>내용</label>
+      <textarea id="feedContent" placeholder="오늘 있었던 일, 의견, 짤방 링크 등 자유롭게 남겨주세요.&#10;[상대방의 이름이 들어가지 않아도, 누구인지 알 수 있으면, 사이버 폭력입니다.]"></textarea>
+    </div>
+    <button class="primary" onclick="createFeedPost()">게시</button>
+  `);
+}
+
+async function createFeedPost(){
+  if(Boolean(appSettings.sns_locked) && profile.role!=="admin"){ msg("🔒 관리자가 SNS 기능을 잠갔습니다."); return; }
+  const contentRaw=document.getElementById("feedContent").value.trim();
+  if(!contentRaw){ msg("내용을 입력해주세요."); return; }
+
+  const cleaned=cleanBotCheck(contentRaw);
+  if(!cleaned)return;
+  const [content]=cleaned;
+  const title=content.slice(0,30) || "제목 없음";
+
+  const {error}=await supabase.from("opinions").insert({title,content,author_id:currentUser.id});
+  if(error){ msg(error.message); return; }
+
+  closeModal();
+  renderFeed();
+}
+
+async function deleteFeedPost(id){
+  await deletePost("opinions",id,"feed");
+}
+
+async function toggleLike(postId,value){
+  if(!currentUser){ msg("로그인이 필요합니다."); return; }
+
+  const {data:existing}=await supabase
+    .from("feed_likes").select("*").eq("post_id",postId).eq("user_id",currentUser.id).maybeSingle();
+
+  if(existing && existing.value===value){
+    await supabase.from("feed_likes").delete().eq("id",existing.id);
+  }else if(existing){
+    await supabase.from("feed_likes").update({value}).eq("id",existing.id);
+  }else{
+    await supabase.from("feed_likes").insert({post_id:postId,user_id:currentUser.id,value});
+  }
+
+  renderFeed();
+}
+
+async function addComment(postId){
+  if(Boolean(appSettings.sns_locked) && profile.role!=="admin"){ msg("🔒 관리자가 SNS 기능을 잠갔습니다."); return; }
+  const input=document.getElementById(`commentInput-${postId}`);
+  const contentRaw=input.value.trim();
+  if(!contentRaw)return;
+
+  const cleaned=cleanBotCheck(contentRaw);
+  if(!cleaned)return;
+  const [content]=cleaned;
+
+  const {error}=await supabase.from("feed_comments").insert({post_id:postId,author_id:currentUser.id,content});
+  if(error){ msg("댓글 등록 실패: "+error.message); return; }
+
+  renderFeed();
+}
+
+async function deleteComment(commentId,postId){
+  if(!confirm("댓글을 삭제할까요?"))return;
+  const {error}=await supabase.from("feed_comments").delete().eq("id",commentId);
+  if(error){ msg("삭제 실패: "+error.message); return; }
+  renderFeed();
+}
+
+async function toggleCommentLike(commentId,value){
+  if(!currentUser){ msg("로그인이 필요합니다."); return; }
+
+  const {data:existing}=await supabase
+    .from("feed_comment_likes").select("*").eq("comment_id",commentId).eq("user_id",currentUser.id).maybeSingle();
+
+  if(existing && existing.value===value){
+    await supabase.from("feed_comment_likes").delete().eq("id",existing.id);
+  }else if(existing){
+    await supabase.from("feed_comment_likes").update({value}).eq("id",existing.id);
+  }else{
+    await supabase.from("feed_comment_likes").insert({comment_id:commentId,user_id:currentUser.id,value});
+  }
+
+  renderFeed();
+}
+
+// 관리자/선생님이 "채택" -> 포인트 지급
+// ⚠️ profiles.points에 대한 UPDATE 권한이 스태프에게 RLS로 허용돼 있어야 동작합니다.
+async function featurePost(postId){
+  if(!isStaff())return;
+  if(!confirm(`이 글을 채택하고 작성자에게 ${FEATURE_POINTS}P를 지급할까요?`))return;
+
+  const {data:post,error:postError}=await supabase.from("opinions").select("author_id,is_featured").eq("id",postId).single();
+  if(postError){ msg(postError.message); return; }
+  if(post.is_featured){ msg("이미 채택된 글입니다."); return; }
+
+  const {error:updateError}=await supabase.from("opinions").update({is_featured:true}).eq("id",postId);
+  if(updateError){ msg("채택 처리 실패: "+updateError.message); return; }
+
+  const {data:authorProfile,error:profileError}=await supabase.from("profiles").select("points").eq("id",post.author_id).single();
+  if(profileError){ msg("포인트 지급 실패: "+profileError.message); return; }
+
+  const {error:pointError}=await supabase
+    .from("profiles")
+    .update({points:(authorProfile.points||0)+FEATURE_POINTS})
+    .eq("id",post.author_id);
+
+  if(pointError){
+    msg("⚠️ 글은 채택되었지만 포인트 지급에 실패했습니다: "+pointError.message+"\n(RLS 정책에서 스태프의 profiles.points 수정 권한을 확인해주세요.)");
+  }else{
+    msg(`채택 완료! 작성자에게 ${FEATURE_POINTS}P가 지급되었습니다.`);
+  }
+
+  renderFeed();
+}
+
+
+/* =========================================================
+   GAMES
+========================================================= */
+
+const GAME_LIST=[
+  {icon:"🔢",name:"2048",desc:"같은 숫자를 합쳐 2048을 만드는 퍼즐 게임",url:"https://play2048.co/"},
+  {icon:"♟️",name:"체스",desc:"다른 사람과 체스를 즐길 수 있는 온라인 게임",url:"https://lichess.org/"},
+  {icon:"🧩",name:"스도쿠",desc:"숫자를 규칙에 맞게 채우는 논리 퍼즐",url:"https://sudoku.com/"},
+  {icon:"💣",name:"지뢰찾기",desc:"숫자를 보고 지뢰의 위치를 추리하는 클래식 퍼즐",url:"https://minesweeper.online/"},
+  {icon:"🟦",name:"테트리스",desc:"블록을 쌓아 줄을 없애는 퍼즐 게임",url:"https://tetris.com/play-tetris"},
+  {icon:"🐍",name:"스네이크",desc:"먹이를 먹으며 점점 길어지는 클래식 게임",url:"https://playsnake.org/"}
+];
+
+function renderGames(){
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>게임</h1><p>가볍게 즐길 수 있는 게임 모음입니다.</p></div>
+    <div class="game-note">💡 아래 게임은 직접 제작한 게임이 아닙니다.</div>
+    <div class="games-grid">
+      ${GAME_LIST.map(g=>`
+        <div class="game-card">
+          <div class="game-icon">${g.icon}</div>
+          <h3>${g.name}</h3>
+          <p>${g.desc}</p>
+          <a class="game-link" href="${g.url}" target="_blank" rel="noopener noreferrer">게임 시작 →</a>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+async function renderMealPage(){
+  showLoading();
+  const mealData=await fetchSchoolMealData();
+
+  document.getElementById("app").innerHTML=`
+    <div class="page-title"><h1>오늘의 급식</h1><p>학교 급식 정보를 확인하세요.</p></div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <div class="toolbar">
+        <div>
+          <strong>오늘의 급식</strong>
+          <div class="meta">날짜: ${escapeHTML(mealData?.date || today())} · ${escapeHTML(mealData?.source || "샘플 데이터")}</div>
+        </div>
+        <button class="outline" onclick="renderMealPage()">새로고침</button>
+      </div>
+      <ul style="margin:0;padding-left:18px;line-height:1.9;">
+        ${(mealData?.items || []).map(item=>`<li>${escapeHTML(item)}</li>`).join("")}
+      </ul>
+    </div>
+  `;
+}
+
+
+/* =========================================================
+   DELETE (공통)
+========================================================= */
+
+function canEdit(authorId){ return canDelete(authorId); }
+
+async function editPost(table,id,page){
+  const {data,error}=await supabase.from(table).select("*").eq("id",id).single();
+  if(error || !data){ msg("게시글 정보를 불러오지 못했습니다."); return; }
+  if(!canEdit(data.author_id)){ msg("수정 권한이 없습니다."); return; }
+
+  if(table==="notices"){
+    openModal(`
+      <h2>공지사항 수정</h2>
+      <div class="form-group"><label>제목</label><input id="editTitle" value="${escapeHTML(data.title||"")}"></div>
+      <div class="form-group"><label>내용</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+
+  if(table==="schedules"){
+    openModal(`
+      <h2>일정 수정</h2>
+      <div class="form-group"><label>제목</label><input id="editTitle" value="${escapeHTML(data.title||"")}"></div>
+      <div class="form-group"><label>날짜</label><input id="editDate" type="date" value="${escapeHTML(data.event_date||"")}"></div>
+      <div class="form-group"><label>내용</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+
+  if(table==="assignments"){
+    openModal(`
+      <h2>수행평가 수정</h2>
+      <div class="form-group"><label>과목</label><input id="editSubject" value="${escapeHTML(data.subject||"")}"></div>
+      <div class="form-group"><label>제목</label><input id="editTitle" value="${escapeHTML(data.title||"")}"></div>
+      <div class="form-group"><label>날짜</label><input id="editDate" type="date" value="${escapeHTML(data.event_date||"")}"></div>
+      <div class="form-group"><label>내용</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+
+  if(table==="lost_items"){
+    openModal(`
+      <h2>분실물 수정</h2>
+      <div class="form-group"><label>물건 이름</label><input id="editTitle" value="${escapeHTML(data.title||"")}"></div>
+      <div class="form-group"><label>설명</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+
+  if(table==="opinions"){
+    openModal(`
+      <h2>글 수정</h2>
+      <div class="form-group"><label>내용</label><textarea id="editContent">${escapeHTML(data.content||"")}</textarea></div>
+      <button class="primary" onclick="saveEditedPost('${table}',${id},'${page}')">저장</button>
+    `);
+    return;
+  }
+}
+
+async function saveEditedPost(table,id,page){
+  let payload={};
+
+  if(table==="notices"){
+    const titleRaw=document.getElementById("editTitle").value.trim();
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!titleRaw||!contentRaw){ msg("제목과 내용을 모두 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(titleRaw,contentRaw); if(!cleaned)return; const [title,content]=cleaned;
+    payload={title,content,updated_at:new Date().toISOString()};
+  }
+  else if(table==="schedules"){
+    const titleRaw=document.getElementById("editTitle").value.trim();
+    const event_date=document.getElementById("editDate").value;
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!titleRaw||!event_date){ msg("제목과 날짜를 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(titleRaw,contentRaw); if(!cleaned)return; const [title,content]=cleaned;
+    payload={title,event_date,content,updated_at:new Date().toISOString()};
+  }
+  else if(table==="assignments"){
+    const subjectRaw=document.getElementById("editSubject").value.trim();
+    const titleRaw=document.getElementById("editTitle").value.trim();
+    const event_date=document.getElementById("editDate").value;
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!subjectRaw||!titleRaw||!event_date){ msg("과목, 제목, 날짜를 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(subjectRaw,titleRaw,contentRaw); if(!cleaned)return; const [subject,title,content]=cleaned;
+    payload={subject,title,event_date,content,updated_at:new Date().toISOString()};
+  }
+  else if(table==="lost_items"){
+    const titleRaw=document.getElementById("editTitle").value.trim();
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!titleRaw||!contentRaw){ msg("물건 이름과 설명을 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(titleRaw,contentRaw); if(!cleaned)return; const [title,content]=cleaned;
+    payload={title,content,updated_at:new Date().toISOString()};
+  }
+  else if(table==="opinions"){
+    const contentRaw=document.getElementById("editContent").value.trim();
+    if(!contentRaw){ msg("내용을 입력해주세요."); return; }
+    const cleaned=cleanBotCheck(contentRaw); if(!cleaned)return; const [content]=cleaned;
+    payload={content,updated_at:new Date().toISOString()};
+  }
+  else {
+    msg("지원하지 않는 게시판입니다."); return;
+  }
+
+  const {error}=await supabase.from(table).update(payload).eq("id",id);
+  if(error){
+    msg("수정 실패:\n" + error.message + "\n\nSupabase RLS에서 이 테이블의 UPDATE 권한이 허용됐는지 확인해주세요.");
+    return;
+  }
+
+  msg("수정되었습니다.");
+  closeModal();
+  render(page);
+}
+
+async function deletePost(table,id,page){
+  if(!confirm("정말 삭제할까요?"))return;
+  const {data,error}=await supabase.from(table).select("author_id").eq("id",id).single();
+  if(error){ msg(error.message); return; }
+  if(!canDelete(data.author_id)){ msg("삭제 권한이 없습니다."); return; }
+  const result=await supabase.from(table).delete().eq("id",id);
+  if(result.error){ msg("삭제 실패:\n"+result.error.message); return; }
+  closeModal();
+  render(page);
+}
+
+
+/* =========================================================
+   ACCOUNT (닉네임 변경 + 포인트 상점 + 관리자)
+========================================================= */
+
+function nicknameCooldown(profile){
+  if(!profile?.nickname_updated_at) return {canChange:true,daysLeft:0};
+  const lastUpdate=new Date(profile.nickname_updated_at);
+  const diffDays=Math.floor((new Date()-lastUpdate)/(1000*60*60*24));
+  if(diffDays>=NICKNAME_COOLDOWN_DAYS) return {canChange:true,daysLeft:0};
+  return {canChange:false,daysLeft:NICKNAME_COOLDOWN_DAYS-diffDays};
+}
+
+async function renderAccount(){
+  showLoading();
+
+  const studentNum=getStudentNumber(profile?.handle);
+  const {canChange,daysLeft}=nicknameCooldown(profile);
+  const nextChangeText=canChange ? "지금 바로 변경 가능합니다." : `최근 닉네임을 변경하셨습니다. (다음 변경까지 ${daysLeft}일 남음)`;
+
+  const borderClass=borderClassFor(profile?.equipped_border);
+
+  const notifPermission=getNotificationPermissionState();
+
+  const adminSection=isStaff() ? await renderAdminSection() : "";
+
+  document.getElementById("app").innerHTML=`
+
+    <div class="page-title"><h1>계정 설정</h1><p>프로필 정보를 확인하고 닉네임/포인트를 관리할 수 있습니다.</p></div>
+
+    <div class="profile-box ${borderClass}">
+      <div class="avatar" title="학번 끝자리(번호)">${escapeHTML(studentNum)}</div>
+      <div>
+        <b style="${profile.equipped_color?`color:${escapeHTML(profile.equipped_color)}`:""}">${escapeHTML(profile.nickname)}</b>
+        ${profile.equipped_title ? `<span class="badge badge-title">${escapeHTML(profile.equipped_title)}</span>` : ""}
+        <div class="meta">
+          고정 학번: <b>${escapeHTML(profile.handle)}</b> · ${roleBadge(profile.role)} · 🪙 ${profile.points||0}P
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>🔔 시험/수행평가 알림</h3>
+      <p style="font-size:13px;color:var(--muted);">
+        수행평가/시험이 ${EXAM_NOTIFY_DAYS}일 이내로 다가오면 이 브라우저(기기)에서 알림을 받을 수 있어요.<br>
+        ⚠️ 앱/탭을 완전히 꺼두면 알림이 오지 않고, 접속 중이거나 열어둔 상태에서만 동작합니다.
+      </p>
+      <p class="meta" style="margin:10px 0;">현재 상태 : ${
+        notifPermission==="granted" ? "✅ 알림 허용됨" :
+        notifPermission==="denied" ? "🚫 알림 차단됨 (브라우저 설정에서 직접 허용해야 합니다)" :
+        notifPermission==="unsupported" ? "이 브라우저는 알림 기능을 지원하지 않습니다" :
+        "아직 설정되지 않음"
+      }</p>
+      <button class="outline" onclick="initExamNotifications()">🔔 알림 켜기 / 지금 확인하기</button>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>💬 프로필 상태 메시지</h3>
+      <p style="font-size:13px;color:var(--muted);">다른 친구가 내 프로필을 열어볼 때 보이는 한 줄 메시지예요.</p>
+      <div class="form-group" style="max-width:400px;margin-top:15px;">
+        <input id="statusMessageInput" type="text" maxlength="60" placeholder="상태 메시지를 입력해주세요" value="${escapeHTML(profile.status_message||"")}">
+      </div>
+      <button class="primary" onclick="updateStatusMessage()">저장</button>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h3>✏️ 표시 닉네임 변경</h3>
+      <p style="font-size:13px;color:var(--muted);">
+        닉네임은 <b>1달에 1번(${NICKNAME_COOLDOWN_DAYS}일 주기)</b>만 변경할 수 있습니다.<br>
+        닉네임을 변경하더라도 고정 학번(${escapeHTML(profile.handle)})은 항상 함께 표시됩니다.
+      </p>
+      <div class="form-group" style="max-width:400px;margin-top:15px;">
+        <label>새 표시 닉네임</label>
+        <input id="newNickname" type="text" placeholder="새 닉네임 입력" value="${escapeHTML(profile.nickname)}" ${!canChange?"disabled":""}>
+      </div>
+      <p class="meta" style="margin-bottom:15px;color:${canChange?"var(--main)":"var(--danger)"};">ℹ️ ${nextChangeText}</p>
+      <button class="primary" onclick="updateNickname()" ${!canChange?"disabled":""}>닉네임 변경 저장</button>
+    </div>
+
+    <div class="card shop-section">
+      <h3>🪙 포인트 상점 (보유: ${profile.points||0}P)</h3>
+      <p class="meta">출석체크(+${CHECKIN_POINTS}P/일)와 SNS 피드 글 채택(+${FEATURE_POINTS}P)으로 포인트를 모을 수 있어요.</p>
+
+      <h4 style="margin:16px 0 4px">글꼴</h4>
+      ${renderShopCategory("font", FONT_ITEMS)}
+
+      <h4 style="margin:16px 0 4px">프로필 테두리</h4>
+      ${renderShopCategory("border", BORDER_ITEMS)}
+
+      <h4 style="margin:16px 0 4px">칭호</h4>
+      ${renderShopCategory("title", TITLE_ITEMS)}
+
+      <h4 style="margin:16px 0 4px">닉네임 색상</h4>
+      <div class="shop-item" style="max-width:220px">
+        <div class="icon">${COLOR_ITEM.icon}</div>
+        <div class="name">${COLOR_ITEM.name}</div>
+        <div class="price">🪙 ${COLOR_ITEM.price}P</div>
+        <input type="color" id="nicknameColorPicker" class="nickname-color-input" value="${profile.equipped_color||"#1769aa"}">
+        <button class="outline" style="margin-top:8px" onclick="buyNicknameColor()">적용/구매</button>
+      </div>
+    </div>
+
+    ${adminSection}
+
+  `;
+}
+
+const SHOP_PREVIEW_LIMIT=4;
+const SHOP_EXPANDED={font:false,border:false,title:false};
+
+function renderShopCategory(category,items){
+  const visibleItems=items.length>SHOP_PREVIEW_LIMIT && !SHOP_EXPANDED[category]
+    ? items.slice(0,SHOP_PREVIEW_LIMIT)
+    : items;
+
+  const extraItems=items.length>SHOP_PREVIEW_LIMIT ? `
+    <div style="grid-column:1/-1; margin-top:8px; text-align:center;">
+      <button class="outline" onclick="toggleShopCategory('${category}')">
+        ${SHOP_EXPANDED[category] ? "접기" : "더보기"}
+      </button>
+    </div>
+  ` : "";
+
+  return `
+    <div class="shop-grid">
+      ${visibleItems.map(item=>renderShopItem(item,category)).join("")}
+      ${extraItems}
+    </div>
+  `;
+}
+
+function toggleShopCategory(category){
+  SHOP_EXPANDED[category]=!SHOP_EXPANDED[category];
+  renderAccount();
+}
+
+function renderShopItem(item,category){
+  const owned=item.price===0 || (profile.owned_items||[]).includes(item.id);
+  const equipped=
+    (category==="font" && profile.equipped_font===item.id) ||
+    (category==="border" && `border-${profile.equipped_border}`===item.id) ||
+    (category==="title" && profile.equipped_title===item.text);
+
+  let buttonHtml;
+  if(equipped){
+    buttonHtml=`<button class="outline" disabled>✓ 적용 중</button>`;
+  }else if(owned){
+    buttonHtml=`<button class="primary" onclick="equipItem('${category}','${item.id}')">적용하기</button>`;
+  }else{
+    buttonHtml=`<button class="outline" onclick="buyItem('${category}','${item.id}')">구매하기</button>`;
+  }
+
+  return `
+    <div class="shop-item ${owned?"owned":""}">
+      <div class="icon">${item.icon}</div>
+      <div class="name">${escapeHTML(item.name)}</div>
+      <div class="price">${item.price===0 ? "무료" : `🪙 ${item.price}P`}</div>
+      ${buttonHtml}
+    </div>
+  `;
+}
+
+async function buyItem(category,itemId){
+  const pool=category==="font"?FONT_ITEMS:category==="border"?BORDER_ITEMS:TITLE_ITEMS;
+  const item=pool.find(i=>i.id===itemId);
+  if(!item)return;
+
+  if((profile.points||0)<item.price){ msg("포인트가 부족합니다."); return; }
+  if(!confirm(`'${item.name}'을(를) ${item.price}P에 구매할까요?`))return;
+
+  const newOwned=[...(profile.owned_items||[]),itemId];
+  const newPoints=(profile.points||0)-item.price;
+
+  const {error}=await supabase.from("profiles").update({points:newPoints,owned_items:newOwned}).eq("id",currentUser.id);
+  if(error){ msg("구매 실패: "+error.message); return; }
+
+  await loadProfile();
+  await equipItem(category,itemId);
+}
+
+async function equipItem(category,itemId){
+  const update={};
+
+  if(category==="font"){
+    update.equipped_font=itemId;
+  }else if(category==="border"){
+    const item=BORDER_ITEMS.find(i=>i.id===itemId);
+    update.equipped_border=item?.cssClass||"none";
+  }else if(category==="title"){
+    const item=TITLE_ITEMS.find(i=>i.id===itemId);
+    update.equipped_title=item?.text||null;
+  }
+
+  const {error}=await supabase.from("profiles").update(update).eq("id",currentUser.id);
+  if(error){ msg("적용 실패: "+error.message); return; }
+
+  await loadProfile();
+  applyEquippedStyles();
+  renderAccount();
+}
+
+async function buyNicknameColor(){
+  const color=document.getElementById("nicknameColorPicker").value;
+  const alreadyOwned=(profile.owned_items||[]).includes(COLOR_ITEM.id);
+
+  if(!alreadyOwned){
+    if((profile.points||0)<COLOR_ITEM.price){ msg("포인트가 부족합니다."); return; }
+    if(!confirm(`닉네임 색상 기능을 ${COLOR_ITEM.price}P에 구매할까요? (색은 이후 무료로 다시 바꿀 수 있어요)`))return;
+  }
+
+  const update={equipped_color:color};
+  if(!alreadyOwned){
+    update.points=(profile.points||0)-COLOR_ITEM.price;
+    update.owned_items=[...(profile.owned_items||[]),COLOR_ITEM.id];
+  }
+
+  const {error}=await supabase.from("profiles").update(update).eq("id",currentUser.id);
+  if(error){ msg("적용 실패: "+error.message); return; }
+
+  await loadProfile();
+  renderUserInfo();
+  renderAccount();
+}
+
+async function renderAdminSection(){
+  const neisConfig=getNeisSchoolConfig();
+  const counts=await getTableCounts(["notices","schedules","assignments","opinions","lost_items"]);
+  const {data:students,error}=await supabase.from("profiles").select("*").order("handle",{ascending:true});
+  const rows=(error || !students ? [] : students).map(p=>{
+    const lastSeen = p.last_login_at || p.updated_at || p.created_at || "기록 없음";
+    const dateObj = lastSeen === "기록 없음" ? null : new Date(lastSeen);
+    const formattedLastSeen = !dateObj || Number.isNaN(dateObj.getTime())
+      ? "기록 없음"
+      : dateObj.toLocaleString("ko-KR", { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" }).replace(/\s/g, " ");
+    return `
+      <tr>
+        <td>${escapeHTML(p.nickname||"-")}</td>
+        <td>${escapeHTML(p.handle||"-")}</td>
+        <td>${roleBadge(p.role)}</td>
+        <td><b>${Number(p.points||0)}P</b></td>
+        <td>${escapeHTML(formattedLastSeen)}</td>
+        <td>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="pointInput-${p.id}" value="+10" style="width:80px;padding:7px;border:1px solid #ccd3da;border-radius:5px;text-align:center">
+            <button class="outline" onclick="applyStudentPoints('${p.id}','pointInput-${p.id}')">적용</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+
+  return `
+    <hr style="margin:30px 0;border:0;border-top:1px solid var(--border);">
+    <h2>🔒 관리자 기능</h2>
+    <div class="stats">
+      <div class="stat-card">공지사항<b>${counts.notices}</b></div>
+      <div class="stat-card">일정<b>${counts.schedules}</b></div>
+      <div class="stat-card">수행평가<b>${counts.assignments}</b></div>
+      <div class="stat-card">SNS 글<b>${counts.opinions}</b></div>
+      <div class="stat-card">분실물<b>${counts.lost_items}</b></div>
+    </div>
+
+    <div class="admin-box">
+      <strong>🪙 학생 포인트 관리</strong>
+      <p>아래에서 각 학생의 포인트를 + 또는 - 값으로 한 번에 조정할 수 있습니다.</p>
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead>
+            <tr><th>닉네임</th><th>학번</th><th>역할</th><th>포인트</th><th>마지막 접속</th><th>포인트 조정</th></tr>
+          </thead>
+          <tbody>
+            ${rows || `<tr><td colspan="6" class="empty">학생 목록을 불러오지 못했습니다.</td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="admin-box">
+      <strong>🏫 급식/시간표 학교 설정</strong>
+      <p>NEIS 교육청 코드와 학교 코드를 입력하면 급식과 시간표가 실제 학교 정보로 연결됩니다.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px;">
+        <div>
+          <div class="meta" style="margin-bottom:6px">교육청 코드</div>
+          <input id="neisAtptCode" value="${escapeHTML(neisConfig.atptOfcdcScCode || "")}" placeholder="예: J10" style="width:100%;padding:10px;border:1px solid #dfe3ea;border-radius:8px;">
+        </div>
+        <div>
+          <div class="meta" style="margin-bottom:6px">학교 코드</div>
+          <input id="neisSdCode" value="${escapeHTML(neisConfig.sdSchulCode || "")}" placeholder="예: 7530043" style="width:100%;padding:10px;border:1px solid #dfe3ea;border-radius:8px;">
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+        <button class="outline" onclick="saveNeisSchoolConfig()">설정 저장</button>
+        <button class="outline" onclick="resetNeisSchoolConfig()">초기화</button>
+      </div>
+    </div>
+
+    <div class="admin-box">
+      <strong>🧹 오래된 게시글 관리</strong>
+      <p>2개월 이상 지난 공지, 일정, 수행평가, 분실물, SNS 글을 검토하고 삭제할 수 있습니다.</p>
+      <button class="outline" onclick="oldPosts()">검토하기</button>
+    </div>
+  `;
+}
+
+async function applyStudentPoints(studentId,inputId){
+  const input=document.getElementById(inputId);
+  if(!input){ msg("입력창을 찾지 못했습니다."); return; }
+
+  const raw=input.value.trim();
+  if(!/^[+-]?\d+$/.test(raw)){ msg("포인트 조정 값은 숫자 또는 +,- 기호가 포함된 값만 가능합니다.\n예: +10, -20"); return; }
+
+  const delta=Number(raw);
+  const {data:target,error:fetchErr}=await supabase.from("profiles").select("*").eq("id",studentId).single();
+  if(fetchErr || !target){ msg("학생 정보를 불러오지 못했습니다."); return; }
+
+  const nextPoint=(Number(target.points)||0)+delta;
+  const {error}=await supabase.from("profiles").update({points:Math.max(0,nextPoint)}).eq("id",studentId);
+  if(error){ msg("포인트 변경 실패: "+error.message); return; }
+
+  msg(`학생 포인트가 ${delta > 0 ? "+"+delta : delta}P 반영되었습니다.`);
+  renderAccount();
+}
+
+// ⚠️ supabase "profiles" 테이블에 status_message(text) 컬럼이 필요합니다.
+async function updateStatusMessage(){
+  const valueRaw=document.getElementById("statusMessageInput").value.trim();
+
+  const cleaned=cleanBotCheck(valueRaw);
+  if(!cleaned)return;
+  const [value]=cleaned;
+
+  const {error}=await supabase.from("profiles").update({status_message:value}).eq("id",currentUser.id);
+  if(error){ msg("저장 실패: "+error.message); return; }
+  await loadProfile();
+  msg("상태 메시지가 저장되었습니다.");
+  renderAccount();
+}
+
+/* =========================================================
+   다른 사람 프로필 보기 (SNS 글의 학번을 눌렀을 때)
+   ⚠️ supabase에 "profile_messages" 테이블(id, target_id, author_id,
+   content, created_at)이 필요하며, 로그인한 사용자가 누구에게나
+   메시지를 INSERT 할 수 있도록 RLS를 설정해주세요.
+========================================================= */
+
+async function showUserProfile(targetId){
+  const {data:p,error}=await supabase
+    .from("profiles")
+    .select("nickname,handle,role,equipped_border,equipped_title,equipped_color,status_message")
+    .eq("id",targetId).single();
+
+  if(error || !p){ msg("프로필을 불러오지 못했습니다."); return; }
+
+  const {data:messageRows,error:messageError}=await supabase
+    .from("profile_messages")
+    .select("*")
+    .eq("target_id",targetId)
+    .order("created_at",{ascending:false});
+
+  if(messageError){ msg("메시지를 불러오지 못했습니다."); return; }
+
+  const authorIds=[...new Set((messageRows||[]).map(m=>m.author_id).filter(Boolean))];
+  let authorMap={};
+  if(authorIds.length){
+    const {data:profiles,error:profilesError}=await supabase
+      .from("profiles")
+      .select("id,nickname,handle")
+      .in("id",authorIds);
+
+    if(!profilesError){
+      authorMap = Object.fromEntries((profiles||[]).map(profile=>[profile.id,profile]));
+    }
+  }
+
+  const messages=(messageRows||[]).map(m=>({
+    ...m,
+    profiles: authorMap[m.author_id] || null
+  }));
+
+  openModal(renderProfileModal(targetId,p,messages));
+}
+
+function renderProfileModal(targetId,p,messages){
+  const borderClass=borderClassFor(p.equipped_border);
+
+  return `
+    <h2>👤 프로필</h2>
+    <div class="profile-box ${borderClass}">
+      <div class="avatar" title="학번 끝자리(번호)">${escapeHTML(getStudentNumber(p.handle))}</div>
+      <div>
+        <b style="${p.equipped_color?`color:${escapeHTML(p.equipped_color)}`:""}">${escapeHTML(p.nickname)}</b>
+        ${p.equipped_title ? `<span class="badge badge-title">${escapeHTML(p.equipped_title)}</span>` : ""}
+        <div class="meta">학번: <b>${escapeHTML(p.handle)}</b> · ${roleBadge(p.role)}</div>
+      </div>
+    </div>
+
+    ${p.status_message ? `<p style="padding:10px 12px;background:#f7f9fb;border-radius:6px;margin-top:12px">💬 ${escapeHTML(p.status_message)}</p>` : ""}
+
+    <div style="margin-top:18px">
+      <h3 style="margin-bottom:8px">📮 메시지 남기기</h3>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input id="profileMsgInput" placeholder="이 친구의 프로필에 메시지를 남겨보세요..." style="flex:1;padding:8px;border:1px solid #ccd3da;border-radius:5px">
+        <button class="outline" onclick="addProfileMessage('${targetId}')">등록</button>
+      </div>
+      <div id="profileMsgList">
+        ${messages.length ? messages.map(m=>`
+          <div class="feed-comment">
+            <b>${escapeHTML(m.profiles?.nickname||"?")}</b>
+            <span class="meta">(${escapeHTML(m.profiles?.handle||"?")}) · ${formatMetaTimestamp(m)}</span>
+            <div>${escapeHTML(m.content)}</div>
+          </div>
+        `).join("") : `<p class="meta">아직 남겨진 메시지가 없습니다.</p>`}
+      </div>
+    </div>
+  `;
+}
+
+async function addProfileMessage(targetId){
+  const input=document.getElementById("profileMsgInput");
+  const contentRaw=input.value.trim();
+  if(!contentRaw)return;
+
+  const cleaned=cleanBotCheck(contentRaw);
+  if(!cleaned)return;
+  const [content]=cleaned;
+
+  const {error}=await supabase.from("profile_messages").insert({target_id:targetId,author_id:currentUser.id,content});
+  if(error){ msg("메시지 등록 실패: "+error.message); return; }
+
+  showUserProfile(targetId);
+}
+
+async function updateNickname(){
+  const newNicknameRaw=document.getElementById("newNickname").value.trim();
+  if(!newNicknameRaw){ msg("닉네임을 입력해주세요."); return; }
+  if(newNicknameRaw===profile.nickname){ msg("현재 닉네임과 동일합니다."); return; }
+
+  const {canChange,daysLeft}=nicknameCooldown(profile);
+  if(!canChange){ msg(`닉네임은 ${NICKNAME_COOLDOWN_DAYS}일에 한 번만 변경 가능합니다. (남은 기간: ${daysLeft}일)`); return; }
+
+  const cleaned=cleanBotCheck(newNicknameRaw);
+  if(!cleaned)return;
+  const [newNickname]=cleaned;
+
+  if(!confirm(`닉네임을 '${newNickname}'(으)로 변경하시겠습니까?\n변경 후 ${NICKNAME_COOLDOWN_DAYS}일 동안 재변경이 불가능합니다.`))return;
+
+  const {error}=await supabase.from("profiles").update({nickname:newNickname,nickname_updated_at:new Date().toISOString()}).eq("id",currentUser.id);
+  if(error){ msg("닉네임 변경 실패: "+error.message); return; }
+
+  msg("닉네임이 성공적으로 변경되었습니다!");
+  await loadProfile();
+  renderUserInfo();
+  renderAccount();
+}
+
+const OLD_POST_TABLE_MAP={notice:"notices",schedule:"schedules",assignment:"assignments",lost_item:"lost_items",opinion:"opinions"};
+
+async function oldPosts(){
+  if(!isStaff())return;
+  const {data,error}=await supabase.rpc("get_old_posts");
+  if(error){ msg(error.message); return; }
+
+  openModal(`
+    <h2>🧹 오래된 게시글</h2>
+    <p>2개월 이상 지난 게시글: <b>${data.length}개</b></p>
+    ${data.length ? data.map(n=>`
+      <div style="padding:12px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <div>
+          <div><span class="badge">${escapeHTML(n.post_type)}</span> <b>${escapeHTML(n.title)}</b></div>
+          <div class="meta">${n.created_at.slice(0,10)}</div>
+        </div>
+        <button class="danger" onclick="deleteOldPost('${n.post_type}',${n.post_id})">삭제</button>
+      </div>
+    `).join("") : "<p>정리할 게시글이 없습니다.</p>"}
+  `);
+}
+
+async function deleteOldPost(postType,id){
+  if(!isStaff())return;
+  const table=OLD_POST_TABLE_MAP[postType];
+  if(!table)return;
+  if(!confirm("이 게시글을 삭제할까요?"))return;
+  const {error}=await supabase.from(table).delete().eq("id",id);
+  if(error){ msg("삭제 실패:\n"+error.message); return; }
+  oldPosts();
+}
+
+
+/* =========================================================
+   GLOBAL EXPORTS
+========================================================= */
+
+Object.assign(window,{
+  login, logout, go, closeModal,
+  noticeForm, createNotice, showNotice,
+  scheduleForm, createSchedule,
+  assignmentForm, createAssignment,
+  changeMonth,
+  voteForm, createVote, vote, deleteVote,
+  lostForm, createLost, showLost,
+  feedPostForm, createFeedPost, deleteFeedPost,
+  toggleLike, addComment, deleteComment, toggleCommentLike, featurePost,
+  deletePost, editPost, saveEditedPost,
+  updateNickname, updateStatusMessage,
+  renderAccount, renderMealPage,
+  buyItem, equipItem, buyNicknameColor,
+  toggleShopCategory, applyStudentPoints, addLostComment,
+  oldPosts, deleteOldPost,
+  toggleSnsLock, onFeedSearch, playFeedVideo,
+  showUserProfile, addProfileMessage,
+  saveNeisSchoolConfig, resetNeisSchoolConfig,
+  initExamNotifications
+});
+
+
+/* =========================================================
+   START
+========================================================= */
+
+restoreLogin();
+
+})();
