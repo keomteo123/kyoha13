@@ -776,7 +776,7 @@ h1 .ic,h2 .ic,h3 .ic{color:var(--main);margin-right:2px}
 
 <main id="app"></main>
 
-<footer class="site-footer">교하중학교 1학년 3반 홈페이지 · ver.3.7</footer>
+<footer class="site-footer">교하중학교 1학년 3반 홈페이지 · ver.4.0</footer>
 
 
 <!-- MODAL -->
@@ -836,10 +836,10 @@ function emoticonSvg(code){
 }
 
 // 이미 escapeHTML 된 글에서만 사용하세요. 이모티콘 하나만 있으면 크게 보여줘요.
-function withEmoticons(escaped){
+function withEmoticons(escaped,big=false){
   const replaced=escaped.replace(/:([a-z]+):/g,(m,code)=>EMOTICON_MAP[code] ? emoticonSvg(code) : m);
   const only=/^\s*:([a-z]+):\s*$/.exec(escaped);
-  return only && EMOTICON_MAP[only[1]] ? `<span class="emo-big">${replaced}</span>` : replaced;
+  return big && only && EMOTICON_MAP[only[1]] ? `<span class="emo-big">${replaced}</span>` : replaced;
 }
 
 function emoPicker(targetId){
@@ -863,6 +863,32 @@ function insertEmoticon(targetId,code,btn){
   el.focus(); el.selectionStart=el.selectionEnd=start+text.length;
   btn.closest(".emo-picker")?.classList.remove("open");
 }
+
+// 글을 쓸 수 있는 모든 칸(textarea, 상태 메시지 등)에 이모티콘 버튼을 자동으로 붙여요
+const EMO_INPUT_SELECTOR='textarea[id], input[id].input[type="text"]:not([data-no-emo]), input[id="profileMsgInput"]';
+function attachEmoPickers(root=document){
+  root.querySelectorAll?.(EMO_INPUT_SELECTOR).forEach(el=>{
+    if(el.dataset.emo==="1" || el.readOnly || el.disabled) return;
+    if(el.closest(".login-box")) return;
+    el.dataset.emo="1";
+    const tmp=document.createElement("div");
+    tmp.innerHTML=emoPicker(el.id).trim();
+    const picker=tmp.firstElementChild;
+    const parent=el.parentElement;
+    if(parent && (parent.classList.contains("comment-form") || parent.classList.contains("inline-form"))){
+      el.after(picker);
+    }else{
+      const row=document.createElement("div");
+      row.className="emo-row";
+      row.append(picker);
+      el.after(row);
+    }
+  });
+}
+new MutationObserver(muts=>{
+  for(const m of muts) m.addedNodes.forEach(n=>{ if(n.nodeType===1) attachEmoPickers(n.parentElement||n); });
+}).observe(document.body,{childList:true,subtree:true});
+attachEmoPickers();
 
 document.addEventListener("click",e=>{
   if(!e.target.closest(".emo-picker")) document.querySelectorAll(".emo-picker.open").forEach(w=>w.classList.remove("open"));
@@ -1904,7 +1930,7 @@ async function renderHome(){
           return `
             <div class="dday-card" onclick="showDday(${i})">
               <div class="dday-num ${diff<=1?"urgent":""}">${ddayLabel(diff)}</div>
-              <div class="dday-label">${escapeHTML(item.title)}</div>
+              <div class="dday-label">${withEmoticons(escapeHTML(item.title))}</div>
               <div class="dday-type">${ic(item.icon)} ${item.type} · ${item.event_date.slice(5).replace("-","/")}</div>
             </div>
           `;
@@ -1923,7 +1949,7 @@ async function renderHome(){
         </div>
         ${notices.length ? notices.map(n=>`
           <div class="preview-row" onclick="showNotice(${n.id})">
-            <span class="preview-title">${escapeHTML(n.title)}</span>
+            <span class="preview-title">${withEmoticons(escapeHTML(n.title))}</span>
             <span class="meta">${shortDate(n.created_at)}</span>
           </div>
         `).join("") : `<p class="meta">공지사항이 없습니다.</p>`}
@@ -1938,7 +1964,7 @@ async function renderHome(){
           const comments=p.feed_comments?.[0]?.count || 0;
           return `
             <div class="preview-row" onclick="openBoardPost(${p.id})">
-              <span class="preview-title">${escapeHTML(p.title||"제목 없음")}${comments ? ` <span class="comment-count">[${comments}]</span>` : ""}</span>
+              <span class="preview-title">${withEmoticons(escapeHTML(p.title||"제목 없음"))}${comments ? ` <span class="comment-count">[${comments}]</span>` : ""}</span>
               <span class="meta">${shortDate(p.created_at)}</span>
             </div>
           `;
@@ -1952,7 +1978,7 @@ async function renderHome(){
         </div>
         ${assignments.length ? assignments.map(a=>`
           <div class="preview-row" onclick="go('assignments')">
-            <span class="preview-title"><span class="badge badge-accent">${escapeHTML(a.subject)}</span> ${escapeHTML(a.title)}</span>
+            <span class="preview-title"><span class="badge badge-accent">${escapeHTML(a.subject)}</span> ${withEmoticons(escapeHTML(a.title))}</span>
             ${ddayBadge(a.event_date)}
           </div>
         `).join("") : `<p class="meta">예정된 수행평가가 없습니다.</p>`}
@@ -1984,9 +2010,9 @@ function showDday(index){
   const item=homeDdayItems[index];
   if(!item) return;
   openModal(`
-    <h2>${escapeHTML(item.title)}</h2>
+    <h2>${withEmoticons(escapeHTML(item.title))}</h2>
     <p class="meta">${ic(item.icon)} ${item.type} · ${item.event_date} · ${ddayLabel(daysUntil(item.event_date))}</p>
-    <div class="modal-body">${escapeHTML(item.content||"상세 내용 없음")}</div>
+    <div class="modal-body">${withEmoticons(escapeHTML(item.content||"상세 내용 없음"))}</div>
   `);
 }
 
@@ -2010,7 +2036,7 @@ async function renderNotices(){
       ${data.length ? data.map(n=>`
         <div class="list-item clickable" onclick="showNotice(${n.id})">
           <div class="list-main">
-            <div class="list-title">${escapeHTML(n.title)}</div>
+            <div class="list-title">${withEmoticons(escapeHTML(n.title))}</div>
             <div class="list-sub">${authorLabel(n.profiles,n.author_id)} · ${fmtDay(n.created_at)}${isEditedRecord(n) ? " (수정됨)" : ""}</div>
           </div>
           <span class="list-arrow">›</span>
@@ -2052,9 +2078,9 @@ async function showNotice(id){
     (canEdit(data.author_id) ? `<button class="outline btn-sm" onclick="editPost('notices',${data.id},'notices')">수정</button>` : "")+
     (canDelete(data.author_id) ? `<button class="danger btn-sm" onclick="deletePost('notices',${data.id},'notices')">삭제</button>` : "");
   openModal(`
-    <h2>${escapeHTML(data.title)}</h2>
+    <h2>${withEmoticons(escapeHTML(data.title))}</h2>
     <p class="meta">${authorLabel(data.profiles,data.author_id)} · ${fmtDay(data.created_at)}${isEditedRecord(data) ? " (수정됨)" : ""}</p>
-    <div class="modal-body">${escapeHTML(data.content)}</div>
+    <div class="modal-body">${withEmoticons(escapeHTML(data.content))}</div>
     ${actions ? `<div class="modal-actions">${actions}</div>` : ""}
   `);
 }
@@ -2075,8 +2101,8 @@ async function renderSchedule(){
     <div class="list-item">
       ${dateTile(s.event_date)}
       <div class="list-main">
-        <div class="list-title">${escapeHTML(s.title)}</div>
-        ${s.content ? `<div class="list-desc">${escapeHTML(s.content)}</div>` : ""}
+        <div class="list-title">${withEmoticons(escapeHTML(s.title))}</div>
+        ${s.content ? `<div class="list-desc">${withEmoticons(escapeHTML(s.content))}</div>` : ""}
         <div class="list-sub">${authorLabel(s.profiles,s.author_id)}</div>
       </div>
       <div class="list-side">
@@ -2145,8 +2171,8 @@ async function renderAssignments(){
     <div class="list-item">
       ${dateTile(a.event_date)}
       <div class="list-main">
-        <div class="list-title"><span class="badge badge-accent">${escapeHTML(a.subject)}</span> ${escapeHTML(a.title)}</div>
-        ${a.content ? `<div class="list-desc">${escapeHTML(a.content)}</div>` : ""}
+        <div class="list-title"><span class="badge badge-accent">${escapeHTML(a.subject)}</span> ${withEmoticons(escapeHTML(a.title))}</div>
+        ${a.content ? `<div class="list-desc">${withEmoticons(escapeHTML(a.content))}</div>` : ""}
         <div class="list-sub">${authorLabel(a.profiles,a.author_id)}</div>
       </div>
       <div class="list-side">
@@ -2237,8 +2263,8 @@ async function renderCalendar(){
     cells+=`
       <div class="day ${dayClass}">
         <span class="day-num">${d}</span>
-        ${schedules.filter(x=>x.event_date===date).map(e=>`<div class="event" title="${escapeHTML(e.title)}">${escapeHTML(e.title)}</div>`).join("")}
-        ${assignments.filter(x=>x.event_date===date).map(e=>`<div class="event assignment" title="${escapeHTML(`${e.subject} · ${e.title}`)}">${escapeHTML(e.subject)} · ${escapeHTML(e.title)}</div>`).join("")}
+        ${schedules.filter(x=>x.event_date===date).map(e=>`<div class="event" title="${escapeHTML(e.title)}">${withEmoticons(escapeHTML(e.title))}</div>`).join("")}
+        ${assignments.filter(x=>x.event_date===date).map(e=>`<div class="event assignment" title="${escapeHTML(`${e.subject} · ${e.title}`)}">${escapeHTML(e.subject)} · ${withEmoticons(escapeHTML(e.title))}</div>`).join("")}
       </div>
     `;
   }
@@ -2275,7 +2301,7 @@ async function renderCalendar(){
           ${dateTile(e.event_date)}
           <div class="list-main">
             <div class="list-title">${escapeHTML(e.label)}</div>
-            ${e.content ? `<div class="list-desc">${escapeHTML(e.content)}</div>` : ""}
+            ${e.content ? `<div class="list-desc">${withEmoticons(escapeHTML(e.content))}</div>` : ""}
           </div>
           <span class="badge ${e.kind==="일정"?"badge-accent":"badge-warn"}">${e.kind}</span>
         </div>
@@ -2330,16 +2356,16 @@ function renderVoteCard(v,responses){
     <div class="poll">
       <div class="poll-head">
         <div>
-          <h3>${escapeHTML(v.title)}</h3>
+          <h3>${withEmoticons(escapeHTML(v.title))}</h3>
           <div class="meta">${authorLabel(v.profiles,v.author_id)} · ${total}명 참여${v.expires_at ? ` · 마감 ${fmtDateTime(v.expires_at)}` : ""}</div>
         </div>
         ${active ? `<span class="badge badge-accent">진행중</span>` : `<span class="badge badge-muted">종료</span>`}
       </div>
-      ${v.description ? `<p class="poll-desc">${escapeHTML(v.description)}</p>` : ""}
+      ${v.description ? `<p class="poll-desc">${withEmoticons(escapeHTML(v.description))}</p>` : ""}
       ${active && !myVote ? `
         <div class="poll-options">
           ${sortedVoteOptions(v).map(o=>`
-            <button class="poll-option" onclick="vote(${v.id},${o.id})">${escapeHTML(o.option_text)}</button>
+            <button class="poll-option" onclick="vote(${v.id},${o.id})">${withEmoticons(escapeHTML(o.option_text))}</button>
           `).join("")}
         </div>` : ""}
       ${myVote ? `<p class="poll-done">✓ 투표에 참여했어요</p>` : ""}
@@ -2359,7 +2385,7 @@ function renderVoteResults(v,responses,total,myVote){
         const mine=myVote?.option_id===o.id;
         return `
           <div class="vote-row ${mine?"mine":""}">
-            <div class="vote-row-head"><span>${escapeHTML(o.option_text)}${mine?" ✓":""}</span><span>${count}표 · ${percent}%</span></div>
+            <div class="vote-row-head"><span>${withEmoticons(escapeHTML(o.option_text))}${mine?" ✓":""}</span><span>${count}표 · ${percent}%</span></div>
             <div class="vote-bar"><div class="vote-bar-inner" style="width:${percent}%"></div></div>
           </div>
         `;
@@ -2458,8 +2484,8 @@ async function renderLost(){
       ${data.length ? data.map(x=>`
         <div class="list-item clickable" onclick="showLost(${x.id})">
           <div class="list-main">
-            <div class="list-title">${escapeHTML(x.title)}</div>
-            <div class="list-desc clamp">${escapeHTML(x.content)}</div>
+            <div class="list-title">${withEmoticons(escapeHTML(x.title))}</div>
+            <div class="list-desc clamp">${withEmoticons(escapeHTML(x.content))}</div>
             <div class="list-sub">${authorLabel(x.profiles,x.author_id)} · ${fmtDay(x.created_at)}</div>
           </div>
           <span class="list-arrow">›</span>
@@ -2525,9 +2551,9 @@ async function showLost(id){
     (canDelete(lostItem.author_id) ? `<button class="danger btn-sm" onclick="deletePost('lost_items',${lostItem.id},'lost')">삭제</button>` : "");
 
   openModal(`
-    <h2>${escapeHTML(lostItem.title)}</h2>
+    <h2>${withEmoticons(escapeHTML(lostItem.title))}</h2>
     <p class="meta">${authorLabel(lostItem.profiles,lostItem.author_id)} · ${fmtDay(lostItem.created_at)}</p>
-    <div class="modal-body">${escapeHTML(lostItem.content)}</div>
+    <div class="modal-body">${withEmoticons(escapeHTML(lostItem.content))}</div>
 
     <div class="modal-section">
       <h3>${ic("chat")} 댓글 ${normalizedComments.length}</h3>
@@ -2535,7 +2561,7 @@ async function showLost(id){
         ? normalizedComments.map(c=>`
             <div class="comment">
               <div class="comment-head"><b>${escapeHTML(c.profiles?.nickname||"?")}</b><span class="meta">${escapeHTML(c.profiles?.handle||"?")} · ${formatMetaTimestamp(c)}</span></div>
-              <div class="comment-body">${withEmoticons(escapeHTML(c.content))}</div>
+              <div class="comment-body">${withEmoticons(escapeHTML(c.content),true)}</div>
             </div>
           `).join("")
         : `<p class="meta">아직 댓글이 없습니다. 어디서 찾았는지 알려주세요.</p>`
@@ -2747,7 +2773,7 @@ function boardRowHtml(post){
     <div class="board-row" onclick="openBoardPost(${post.id})">
       <span class="c-no">${post.is_featured ? ic("star") : post.no}</span>
       <span class="c-title">
-        <span class="c-title-text">${escapeHTML(post.title || "제목 없음")}</span>
+        <span class="c-title-text">${withEmoticons(escapeHTML(post.title || "제목 없음"))}</span>
         ${post.commentCount ? `<span class="comment-count">[${post.commentCount}]</span>` : ""}
       </span>
       <span class="c-author handle-link" ${nameStyle} onclick="event.stopPropagation();showUserProfile('${escapeHTML(post.author_id)}')" title="프로필 보기">${nickname}</span>
@@ -2810,14 +2836,14 @@ function renderBoardPost(post,comments){
 
     <article class="card post">
       ${post.is_featured ? `<span class="badge badge-success">${ic("star")} 채택된 글</span>` : ""}
-      <h1 class="post-title">${escapeHTML(post.title || "제목 없음")}</h1>
+      <h1 class="post-title">${withEmoticons(escapeHTML(post.title || "제목 없음"))}</h1>
       <div class="post-meta">
         <span class="post-author">${feedAuthorLabel(post.profiles,post.author_id)}</span>
         <span>${formatMetaTimestamp(post)}</span>
         ${boardViewsEnabled ? `<span>조회 <span id="postViewCount" data-post-id="${post.id}">${formatViewCount(post.view_count)}</span></span>` : ""}
       </div>
 
-      <div class="post-body">${withEmoticons(escapeHTML(post.content || ""))}</div>
+      <div class="post-body">${withEmoticons(escapeHTML(post.content || ""),true)}</div>
       ${renderLinkEmbed(post.content || "")}
       ${flagged ? `<div class="feed-warning">${ic("alert")} 클린봇이 부적절한 표현을 감지한 글이에요.</div>` : ""}
 
@@ -2840,7 +2866,6 @@ function renderBoardPost(post,comments){
         ? `<p class="meta">${ic("lock")} 게시판이 잠겨 있어 댓글을 남길 수 없어요.</p>`
         : `<div class="comment-form">
              <textarea class="input" id="commentInput-${post.id}" rows="2" placeholder="댓글을 남겨보세요"></textarea>
-             ${emoPicker(`commentInput-${post.id}`)}
              <button class="primary" onclick="addComment(${post.id})">등록</button>
            </div>`}
     </section>
@@ -2855,7 +2880,7 @@ function renderFeedComment(c){
         <span class="meta">${formatMetaTimestamp(c)}</span>
         ${canDelete(c.author_id) ? `<button class="comment-del" onclick="deleteComment(${c.id},${c.post_id})">삭제</button>` : ""}
       </div>
-      <div class="comment-body">${withEmoticons(escapeHTML(c.content))}</div>
+      <div class="comment-body">${withEmoticons(escapeHTML(c.content),true)}</div>
     </div>
   `;
 }
@@ -2890,7 +2915,6 @@ function feedPostForm(){
     <div class="form-group">
       <label>내용</label>
       <textarea id="feedContent" placeholder="오늘 있었던 일, 의견, 짤방 링크 등 자유롭게 남겨주세요.&#10;[상대방의 이름이 들어가지 않아도, 누구인지 알 수 있으면 사이버 폭력입니다.]"></textarea>
-      <div class="emo-row">${emoPicker("feedContent")}<span class="meta">이모티콘을 눌러 글에 넣을 수 있어요</span></div>
     </div>
     <div class="btn-row end"><button class="primary" onclick="createFeedPost()">등록</button></div>
   `);
@@ -3055,7 +3079,7 @@ async function renderStudents(){
               ${p.equipped_title ? `<span class="badge badge-title">${titleHtml(p.equipped_title)}</span>` : ""}
             </span>
             <span class="meta">${escapeHTML(p.handle)}</span>
-            ${p.status_message ? `<span class="student-status">${escapeHTML(p.status_message)}</span>` : ""}
+            ${p.status_message ? `<span class="student-status">${withEmoticons(escapeHTML(p.status_message))}</span>` : ""}
           </span>
         </button>
       `).join("")}
@@ -3276,7 +3300,7 @@ async function renderAccount(){
           ${profile.equipped_title ? `<span class="badge badge-title">${titleHtml(profile.equipped_title)}</span>` : ""}
         </div>
         <div class="meta">학번 ${escapeHTML(profile.handle)} · ${roleBadge(profile.role)} · ${ic("coin")} ${profile.points||0}P</div>
-        ${profile.status_message ? `<div class="profile-status">${ic("chat")} ${escapeHTML(profile.status_message)}</div>` : ""}
+        ${profile.status_message ? `<div class="profile-status">${ic("chat")} ${withEmoticons(escapeHTML(profile.status_message))}</div>` : ""}
       </div>
     </div>
 
@@ -3294,7 +3318,7 @@ async function renderAccount(){
         <h3>${ic("pencil")} 닉네임 변경</h3>
         <p class="card-desc">${NICKNAME_COOLDOWN_DAYS}일에 한 번만 바꿀 수 있어요. 학번(${escapeHTML(profile.handle)})은 항상 함께 표시돼요.</p>
         <div class="inline-form">
-          <input class="input" id="newNickname" type="text" placeholder="새 닉네임 입력" value="${escapeHTML(profile.nickname)}" ${!canChange?"disabled":""}>
+          <input class="input" id="newNickname" data-no-emo type="text" placeholder="새 닉네임 입력" value="${escapeHTML(profile.nickname)}" ${!canChange?"disabled":""}>
           <button class="primary" onclick="updateNickname()" ${!canChange?"disabled":""}>변경</button>
         </div>
         <p class="meta" style="margin:8px 0 0;${canChange?"":"color:var(--danger)"}">${nextChangeText}</p>
@@ -3607,7 +3631,7 @@ function renderProfileModal(targetId,p,messages){
           ${p.equipped_title ? `<span class="badge badge-title">${titleHtml(p.equipped_title)}</span>` : ""}
         </div>
         <div class="meta">학번 ${escapeHTML(p.handle)} · ${roleBadge(p.role)}</div>
-        ${p.status_message ? `<div class="profile-status">${ic("chat")} ${escapeHTML(p.status_message)}</div>` : ""}
+        ${p.status_message ? `<div class="profile-status">${ic("chat")} ${withEmoticons(escapeHTML(p.status_message))}</div>` : ""}
       </div>
     </div>
 
@@ -3615,14 +3639,13 @@ function renderProfileModal(targetId,p,messages){
       <h3>${ic("mail")} 메시지 남기기</h3>
       <div class="inline-form" style="margin:10px 0 6px">
         <input class="input" id="profileMsgInput" placeholder="이 친구의 프로필에 메시지를 남겨보세요...">
-        ${emoPicker("profileMsgInput")}
         <button class="primary" onclick="addProfileMessage('${targetId}')">등록</button>
       </div>
       <div id="profileMsgList">
         ${messages.length ? messages.map(m=>`
           <div class="comment">
             <div class="comment-head"><b>${escapeHTML(m.profiles?.nickname||"?")}</b><span class="meta">${escapeHTML(m.profiles?.handle||"?")} · ${formatMetaTimestamp(m)}</span>${canDeleteProfileMessage(m,targetId) ? `<button class="danger btn-sm profile-msg-del" onclick="deleteProfileMessage(${Number(m.id)},'${escapeHTML(targetId)}')">삭제</button>` : ""}</div>
-            <div class="comment-body">${withEmoticons(escapeHTML(m.content))}</div>
+            <div class="comment-body">${withEmoticons(escapeHTML(m.content),true)}</div>
           </div>
         `).join("") : `<p class="meta">아직 남겨진 메시지가 없습니다.</p>`}
       </div>
@@ -3696,7 +3719,7 @@ async function oldPosts(){
     ${data.length ? data.map(n=>`
       <div class="old-post-row">
         <div class="list-main">
-          <div class="list-title"><span class="badge">${escapeHTML(OLD_POST_LABELS[n.post_type]||n.post_type)}</span> ${escapeHTML(n.title)}</div>
+          <div class="list-title"><span class="badge">${escapeHTML(OLD_POST_LABELS[n.post_type]||n.post_type)}</span> ${withEmoticons(escapeHTML(n.title))}</div>
           <div class="list-sub">${fmtDay(n.created_at)}</div>
         </div>
         <button class="danger btn-sm" onclick="deleteOldPost('${n.post_type}',${n.post_id})">삭제</button>
