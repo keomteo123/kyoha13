@@ -497,6 +497,43 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 .rank-badge.rank-2{background:#e9ecef;color:#495057}
 .rank-badge.rank-3{background:#f3e0d0;color:#8a4b00}
 
+/* ---------- 친구 카드: 테두리 아이템 개성 ---------- */
+.border-neon{--emoji:"⚡"}.border-gold{--emoji:"🏆"}.border-gradient{--emoji:"🌈"}.border-vine{--emoji:"🌿"}.border-branch{--emoji:"🪵"}
+.border-thorn{--emoji:"🔮"}.border-spark{--emoji:"✨"}.border-crystal{--emoji:"💎"}.border-comet{--emoji:"☄️"}.border-ribbon{--emoji:"🎀"}
+.border-lotus{--emoji:"🌸"}.border-crown{--emoji:"👑"}.border-wing{--emoji:"🕊️"}.border-nova{--emoji:"🌙"}.border-spire{--emoji:"🏰"}
+.student-card{position:relative;overflow:hidden}
+.student-card > *{position:relative;z-index:1}
+.student-card[class*="border-"]{border:2px solid var(--frame);background:var(--tint);padding-right:36px}
+.student-card[class*="border-"]:hover{border-color:var(--frame);box-shadow:0 4px 14px var(--glow)}
+.student-card[class*="border-"]::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--cover);z-index:0}
+.student-card[class*="border-"]::after{content:var(--emoji);position:absolute;right:9px;top:8px;font-size:16px;z-index:0}
+.student-card .avatar[class*="border-"]{background:var(--accent);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--frame)}
+/* 카드 모양 */
+.student-card.border-gold{border-style:double;border-width:4px;border-radius:6px}
+.student-card.border-gradient{border:2px solid transparent;background:linear-gradient(135deg,#fbf3ff,#f2f6ff) padding-box,linear-gradient(90deg,#ff8ec7,#7c7bff,#7ef7bf,#ff8ec7) border-box;background-size:100% 100%,200% 100%;animation:pf-slide 4s linear infinite}
+.student-card.border-vine{border-style:dashed;border-radius:20px 6px 20px 6px}
+.student-card.border-branch{border-radius:6px}
+.student-card.border-thorn{border-style:dotted;border-width:3px;border-radius:4px 18px 4px 18px}
+.student-card.border-crystal{border-radius:0;clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px)}
+.student-card.border-ribbon{border-radius:22px 6px 22px 6px}
+.student-card.border-lotus{border-radius:26px}
+.student-card.border-wing{border-radius:30px 10px 30px 10px}
+.student-card.border-spire{border-radius:3px}
+.student-card.border-neon{background:linear-gradient(135deg,#071a26,#0c2a3a);color:#e6f9ff;animation:pf-glow 2.4s ease-in-out infinite}
+.student-card.border-nova{background:radial-gradient(circle at 85% 20%,#3b2a8a,#1a1440 70%);color:#f1eeff}
+.student-card.border-neon .meta,.student-card.border-neon .student-status,.student-card.border-nova .meta,.student-card.border-nova .student-status{color:rgba(240,245,255,.72)}
+.student-card.border-spark::after{animation:pf-twinkle 1.6s ease-in-out infinite}
+.student-card.border-lotus::after,.student-card.border-wing::after{animation:pf-float 2.8s ease-in-out infinite}
+/* 아바타 모양 */
+.avatar.border-thorn{border-radius:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);box-shadow:none}
+.avatar.border-crystal{border-radius:0;clip-path:polygon(50% 0,100% 28%,100% 72%,50% 100%,0 72%,0 28%);box-shadow:none}
+.avatar.border-gold,.avatar.border-branch,.avatar.border-spire{border-radius:12px}
+.avatar.border-gradient{background:linear-gradient(135deg,#ff8ec7,#7c7bff,#7ef7bf)}
+.avatar.border-neon{box-shadow:0 0 0 2px #071a26,0 0 0 4px #00d8ff,0 0 10px #00d8ff}
+.avatar.border-nova{box-shadow:0 0 0 2px #1a1440,0 0 0 4px #b8b3ff,0 0 10px #7d63ff}
+.profile-msg-del{margin-left:auto;min-height:26px;padding:0 8px;font-size:12px}
+@media (prefers-reduced-motion:reduce){.student-card,.student-card::after{animation:none!important}}
+
 /* ---------- 안내 띠 ---------- */
 .notify-banner{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px;border-radius:var(--radius);background:var(--light);color:var(--dark);font-size:14px}
 .lock-banner{margin-bottom:16px;padding:12px 16px;border-radius:var(--radius);background:var(--danger-soft);color:#c62f35;font-size:14px;font-weight:600}
@@ -2884,7 +2921,7 @@ async function renderStudents(){
     <div class="page-title"><h1>친구들</h1><p>우리 반 친구들이에요. 눌러서 프로필을 보고 메시지를 남겨보세요.</p></div>
     <div class="student-grid">
       ${data.map(p=>`
-        <button class="student-card" onclick="showUserProfile('${escapeHTML(p.id)}')">
+        <button class="student-card ${borderClassFor(p.equipped_border)}" onclick="showUserProfile('${escapeHTML(p.id)}')">
           <span class="avatar ${borderClassFor(p.equipped_border)}">${escapeHTML(getStudentNumber(p.handle))}</span>
           <span class="student-info">
             <span class="student-name">
@@ -3459,13 +3496,27 @@ function renderProfileModal(targetId,p,messages){
       <div id="profileMsgList">
         ${messages.length ? messages.map(m=>`
           <div class="comment">
-            <div class="comment-head"><b>${escapeHTML(m.profiles?.nickname||"?")}</b><span class="meta">${escapeHTML(m.profiles?.handle||"?")} · ${formatMetaTimestamp(m)}</span></div>
+            <div class="comment-head"><b>${escapeHTML(m.profiles?.nickname||"?")}</b><span class="meta">${escapeHTML(m.profiles?.handle||"?")} · ${formatMetaTimestamp(m)}</span>${canDeleteProfileMessage(m,targetId) ? `<button class="danger btn-sm profile-msg-del" onclick="deleteProfileMessage(${Number(m.id)},'${escapeHTML(targetId)}')">삭제</button>` : ""}</div>
             <div class="comment-body">${escapeHTML(m.content)}</div>
           </div>
         `).join("") : `<p class="meta">아직 남겨진 메시지가 없습니다.</p>`}
       </div>
     </div>
   `;
+}
+
+// 메시지를 쓴 사람, 프로필 주인, 선생님/관리자만 삭제할 수 있어요
+function canDeleteProfileMessage(m,targetId){
+  if(!currentUser)return false;
+  return m.author_id===currentUser.id || targetId===currentUser.id || isStaff();
+}
+
+async function deleteProfileMessage(id,targetId){
+  if(!confirm("이 메시지를 삭제할까요?"))return;
+  const {data,error}=await supabase.from("profile_messages").delete().eq("id",id).select("id");
+  if(error){ msg("삭제 실패: "+error.message); return; }
+  if(!data || !data.length){ msg("삭제 권한이 없어요. (DB 삭제 정책을 확인해주세요)"); return; }
+  showUserProfile(targetId);
 }
 
 async function addProfileMessage(targetId){
