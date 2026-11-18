@@ -252,6 +252,23 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 .vote-row.mine .vote-bar-inner{background:var(--main)}
 .vote-option-inputs{display:flex;flex-direction:column;gap:8px}
 
+/* ---------- 자체 아이콘 ---------- */
+.ic{width:1.15em;height:1.15em;flex-shrink:0;vertical-align:-.2em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ic-animal{width:1.45em;height:1.45em;vertical-align:-.35em;flex-shrink:0}
+.badge .ic-animal.title-animal{width:1.7em;height:1.7em;margin:-4px -2px}
+h1 .ic,h2 .ic,h3 .ic{color:var(--main);margin-right:2px}
+.shop-item .icon{display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:14px;background:var(--light);color:var(--main)}
+.shop-item .icon .ic{width:24px;height:24px}
+.shop-item .icon .ic-animal{width:36px;height:36px}
+.game-icon{color:var(--main)}
+.game-icon .ic{width:28px;height:28px}
+.points-badge .ic,.price .ic{color:var(--warn)}
+.like-icon{filter:none!important;opacity:1!important;color:var(--muted)}
+.like-icon .ic{width:24px;height:24px}
+.like-btn.active .like-icon{color:#ef4565}
+.like-btn.active .like-icon .ic{fill:#ef4565}
+.lock-banner .ic,.feed-warning .ic,.notify-banner .ic{margin-right:2px}
+
 /* ---------- 프로필 ---------- */
 .profile-box{
   --frame:var(--border);--tint:var(--surface);--accent:var(--main);
@@ -329,12 +346,12 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 /* 덩굴: 점선 + 잎사귀 */
 .profile-box.border-vine{border-style:dashed;border-radius:24px 6px 24px 6px}
 .profile-box.border-vine::before{height:100%;width:6px;background:repeating-linear-gradient(180deg,#2ea95e 0 10px,#a8e6a8 10px 16px)}
-.profile-box.border-vine::after{content:"🌿";right:10px;top:8px;font-size:22px;transform:rotate(25deg)}
+.profile-box.border-vine::after{content:"";right:10px;top:8px;width:26px;height:26px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat;transform:rotate(25deg)}
 
 /* 나무: 나뭇결 무늬 */
 .profile-box.border-branch{border-radius:8px;border-width:3px}
 .profile-box.border-branch::before{height:100%;background:repeating-linear-gradient(100deg,transparent 0 22px,rgba(140,91,52,.06) 22px 26px);}
-.profile-box.border-branch::after{content:"🪵";right:10px;bottom:6px;font-size:22px}
+.profile-box.border-branch::after{content:"";right:10px;bottom:6px;width:26px;height:26px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat}
 .profile-box.border-branch .avatar{border-radius:10px}
 
 /* 가시: 마름모 무늬 띠 */
@@ -343,52 +360,52 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 .profile-box.border-thorn .avatar{border-radius:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);width:58px;height:58px}
 
 /* 스파크: 반짝이 */
-.profile-box.border-spark::after{content:"✨";right:12px;top:10px;font-size:20px;animation:pf-twinkle 1.6s ease-in-out infinite}
+.profile-box.border-spark::after{content:"";right:12px;top:10px;width:24px;height:24px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat;animation:pf-twinkle 1.6s ease-in-out infinite}
 .profile-box.border-spark::before{height:100%;background:radial-gradient(circle at 88% 78%,rgba(255,183,3,.6) 0 2px,transparent 3px),radial-gradient(circle at 70% 20%,rgba(255,183,3,.5) 0 2px,transparent 3px),radial-gradient(circle at 95% 45%,rgba(255,183,3,.5) 0 1.5px,transparent 2.5px)}
 
 /* 크리스탈: 모서리 깎인 보석 (모서리만 살짝) */
 .profile-box.border-crystal{border-radius:0;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px);box-shadow:none;border-width:3px}
 .profile-box.border-crystal::before{height:100%;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.8) 48%,transparent 56%),linear-gradient(135deg,rgba(93,167,255,.12),transparent 50%)}
-.profile-box.border-crystal::after{content:"💎";right:14px;top:10px;font-size:20px}
+.profile-box.border-crystal::after{content:"";right:14px;top:10px;width:24px;height:24px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat}
 .profile-box.border-crystal .avatar{border-radius:0;clip-path:polygon(50% 0,100% 28%,100% 72%,50% 100%,0 72%,0 28%)}
 
 /* 혜성: 지나가는 빛줄기 */
 .profile-box.border-comet::before{top:0;height:100%;width:30%;background:linear-gradient(90deg,transparent,rgba(255,93,93,.18),transparent);animation:pf-comet 3.5s ease-in-out infinite}
-.profile-box.border-comet::after{content:"☄️";right:12px;top:8px;font-size:20px}
+.profile-box.border-comet::after{content:"";right:12px;top:8px;width:24px;height:24px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat}
 
 /* 리본: 비대칭 + 리본 */
 .profile-box.border-ribbon{border-radius:28px 8px 28px 8px}
 .profile-box.border-ribbon::before{height:100%;width:auto;left:auto;right:28px;width:14px;background:linear-gradient(#d7a8ff,#b35eff)}
-.profile-box.border-ribbon::after{content:"🎀";right:14px;top:-2px;font-size:26px}
+.profile-box.border-ribbon::after{content:"";right:14px;top:-2px;width:30px;height:30px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat}
 
 /* 연꽃: 둥근 카드 + 꽃잎 */
 .profile-box.border-lotus{border-radius:32px}
 .profile-box.border-lotus::before{height:100%;background:radial-gradient(circle at 100% 100%,rgba(255,126,166,.18) 0 60px,transparent 61px),radial-gradient(circle at 0 0,rgba(184,242,234,.35) 0 50px,transparent 51px)}
-.profile-box.border-lotus::after{content:"🌸";right:14px;top:10px;font-size:20px;animation:pf-float 3s ease-in-out infinite}
+.profile-box.border-lotus::after{content:"";right:14px;top:10px;width:24px;height:24px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat;animation:pf-float 3s ease-in-out infinite}
 
 /* 왕관: 아바타 위 왕관 */
 .profile-box.border-crown{border-radius:10px}
 .profile-box.border-crown::before{height:7px;background:linear-gradient(135deg,transparent 50%,#ffc93d 50%) 0 0/14px 7px,linear-gradient(225deg,transparent 50%,#ffc93d 50%) 0 0/14px 7px}
 .profile-box.border-crown .avatar{position:relative;margin-top:8px}
-.profile-box.border-crown .avatar::before{content:"👑";position:absolute;top:-19px;left:50%;transform:translateX(-50%) rotate(-10deg);font-size:20px}
+.profile-box.border-crown .avatar::before{content:"";--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%208l4.5%204L12%205l4.5%207L21%208l-2%2011H5L3%208z%22%2F%3E%3C%2Fsvg%3E");position:absolute;top:-19px;left:50%;transform:translateX(-50%) rotate(-10deg);width:24px;height:24px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat}
 
 /* 날개: 양쪽 날개 장식 */
 .profile-box.border-wing{border-radius:40px 14px 40px 14px}
 .profile-box.border-wing::before{height:100%;background:radial-gradient(ellipse 60px 30px at 0 50%,rgba(50,199,200,.2),transparent),radial-gradient(ellipse 60px 30px at 100% 50%,rgba(50,199,200,.2),transparent)}
-.profile-box.border-wing::after{content:"🕊️";right:12px;top:8px;font-size:20px;animation:pf-float 2.6s ease-in-out infinite}
+.profile-box.border-wing::after{content:"";right:12px;top:8px;width:24px;height:24px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat;animation:pf-float 2.6s ease-in-out infinite}
 
 /* 노바: 밤하늘 */
 .profile-box.border-nova{--tint:radial-gradient(circle at 85% 20%,#3b2a8a,#1a1440 70%);color:#f1eeff;border-radius:18px}
 .profile-box.border-nova .meta{color:rgba(241,238,255,.7)}
 .profile-box.border-nova .profile-status{background:rgba(255,255,255,.1);color:#e3dcff}
 .profile-box.border-nova::before{height:100%;background:radial-gradient(circle at 20% 20%,#fff 0 1px,transparent 2px),radial-gradient(circle at 60% 80%,#fff 0 1px,transparent 2px),radial-gradient(circle at 80% 40%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 55%,rgba(255,255,255,.7) 0 1px,transparent 2px),radial-gradient(circle at 92% 85%,#fff 0 1px,transparent 2px)}
-.profile-box.border-nova::after{content:"🌙";right:14px;top:10px;font-size:20px}
+.profile-box.border-nova::after{content:"";right:14px;top:10px;width:24px;height:24px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat}
 .profile-box.border-nova .avatar{box-shadow:0 0 0 2px #1a1440,0 0 0 4px #b8b3ff,0 0 16px #7d63ff}
 
 /* 첨탑: 성벽 모양 윗단 */
 .profile-box.border-spire{border-radius:4px;padding-top:28px}
 .profile-box.border-spire::before{height:12px;background:linear-gradient(90deg,#ff7a18 50%,transparent 50%) 0 0/24px 12px,linear-gradient(#ff7a18,#ff7a18) 0 8px/100% 4px no-repeat}
-.profile-box.border-spire::after{content:"🏰";right:12px;bottom:8px;font-size:20px}
+.profile-box.border-spire::after{content:"";right:12px;bottom:8px;width:24px;height:24px;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat}
 .profile-box.border-spire .avatar{border-radius:6px}
 
 @media (prefers-reduced-motion:reduce){.profile-box,.profile-box *,.profile-box::before,.profile-box::after{animation:none!important}}
@@ -407,7 +424,7 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 .profile-status::before{content:"";position:absolute;top:-6px;left:50%;margin-left:-6px;border:6px solid transparent;border-top:0;border-bottom-color:rgba(0,0,0,.04)}
 .profile-box[class*="border-"]::after{top:100px}
 .profile-box.border-crown .avatar{margin-top:-40px}
-.profile-box.border-crown .avatar::before{top:-26px;font-size:28px}
+.profile-box.border-crown .avatar::before{top:-30px;width:32px;height:32px}
 
 /* 테두리별 커버 */
 .border-neon    {--cover:linear-gradient(rgba(0,216,255,.25) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(0,216,255,.25) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(135deg,#02121c,#06425a)}
@@ -498,15 +515,27 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 .rank-badge.rank-3{background:#f3e0d0;color:#8a4b00}
 
 /* ---------- 친구 카드: 테두리 아이템 개성 ---------- */
-.border-neon{--emoji:"⚡"}.border-gold{--emoji:"🏆"}.border-gradient{--emoji:"🌈"}.border-vine{--emoji:"🌿"}.border-branch{--emoji:"🪵"}
-.border-thorn{--emoji:"🔮"}.border-spark{--emoji:"✨"}.border-crystal{--emoji:"💎"}.border-comet{--emoji:"☄️"}.border-ribbon{--emoji:"🎀"}
-.border-lotus{--emoji:"🌸"}.border-crown{--emoji:"👑"}.border-wing{--emoji:"🕊️"}.border-nova{--emoji:"🌙"}.border-spire{--emoji:"🏰"}
+.border-neon{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M13%202%204%2014h7l-1%208%209-12h-7l1-8z%22%2F%3E%3C%2Fsvg%3E")}
+.border-gold{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M8%204h8v5a4%204%200%200%201-8%200V4z%22%2F%3E%3Cpath%20d%3D%22M8%206H5a3%203%200%200%200%203%204M16%206h3a3%203%200%200%201-3%204M12%2013v4M8%2021h8M9%2017h6%22%2F%3E%3C%2Fsvg%3E")}
+.border-gradient{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%2018a9%209%200%200%201%2018%200M6.5%2018a5.5%205.5%200%200%201%2011%200M10%2018a2%202%200%200%201%204%200%22%2F%3E%3C%2Fsvg%3E")}
+.border-vine{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M5%2019C5%2010%2011%205%2020%204c-1%209-6%2015-15%2015z%22%2F%3E%3Cpath%20d%3D%22M5%2019l8-8%22%2F%3E%3C%2Fsvg%3E")}
+.border-branch{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cellipse%20cx%3D%2217%22%20cy%3D%2212%22%20rx%3D%223%22%20ry%3D%225%22%2F%3E%3Cpath%20d%3D%22M17%207H7c-2%200-3%202.2-3%205s1%205%203%205h10M17%2011v2%22%2F%3E%3C%2Fsvg%3E")}
+.border-thorn{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%203l8%209-8%209-8-9%208-9z%22%2F%3E%3Cpath%20d%3D%22M12%208l4%204-4%204-4-4%204-4z%22%2F%3E%3C%2Fsvg%3E")}
+.border-spark{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%203c.6%204.5%202.5%206.4%207%207-4.5.6-6.4%202.5-7%207-.6-4.5-2.5-6.4-7-7%204.5-.6%206.4-2.5%207-7z%22%2F%3E%3Cpath%20d%3D%22M19%2015c.2%201.6.9%202.3%202.5%202.5-1.6.2-2.3.9-2.5%202.5-.2-1.6-.9-2.3-2.5-2.5%201.6-.2%202.3-.9%202.5-2.5z%22%2F%3E%3C%2Fsvg%3E")}
+.border-crystal{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%204h12l3%205-9%2011L3%209l3-5z%22%2F%3E%3Cpath%20d%3D%22M3%209h18M9%204%207.5%209%2012%2020l4.5-11L15%204%22%2F%3E%3C%2Fsvg%3E")}
+.border-comet{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%228%22%20r%3D%223.5%22%2F%3E%3Cpath%20d%3D%22M13.5%2010.5%204%2020M12%207l-6%206M17%2012.5l-6%206%22%2F%3E%3C%2Fsvg%3E")}
+.border-ribbon{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M12%2011%205%206v10l7-5zM12%2011l7-5v10l-7-5z%22%2F%3E%3Cpath%20d%3D%22M10.5%2013%208%2020M13.5%2013l2.5%207%22%2F%3E%3C%2Fsvg%3E")}
+.border-lotus{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%222.5%22%2F%3E%3Cpath%20d%3D%22M12%209.5a3%203%200%201%201%200-6%203%203%200%201%201%200%206zM12%2014.5a3%203%200%201%201%200%206%203%203%200%201%201%200-6zM9.5%2012a3%203%200%201%201-6%200%203%203%200%201%201%206%200zM14.5%2012a3%203%200%201%201%206%200%203%203%200%201%201-6%200z%22%2F%3E%3C%2Fsvg%3E")}
+.border-crown{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M3%208l4.5%204L12%205l4.5%207L21%208l-2%2011H5L3%208z%22%2F%3E%3C%2Fsvg%3E")}
+.border-wing{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M21%205C13%205%206%209%203%2018c3-2%206-2%209-2-2%200-3%201-5%203%206%200%2011-5%2014-14z%22%2F%3E%3C%2Fsvg%3E")}
+.border-nova{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M20%2014.5A8%208%200%201%201%209.5%204a6.5%206.5%200%200%200%2010.5%2010.5z%22%2F%3E%3C%2Fsvg%3E")}
+.border-spire{--deco:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M4%2021V9h3V6h2v3h2V3h2v6h2V6h2v3h3v12H4z%22%2F%3E%3Cpath%20d%3D%22M10%2021v-4a2%202%200%200%201%204%200v4%22%2F%3E%3C%2Fsvg%3E")}
 .student-card{position:relative;overflow:hidden}
 .student-card > *{position:relative;z-index:1}
 .student-card[class*="border-"]{border:2px solid var(--frame);background:var(--tint);padding-right:36px}
 .student-card[class*="border-"]:hover{border-color:var(--frame);box-shadow:0 4px 14px var(--glow)}
 .student-card[class*="border-"]::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--cover);z-index:0}
-.student-card[class*="border-"]::after{content:var(--emoji);position:absolute;right:9px;top:8px;font-size:16px;z-index:0}
+.student-card[class*="border-"]::after{content:"";position:absolute;right:9px;top:9px;width:18px;height:18px;z-index:0;background:var(--frame);-webkit-mask:var(--deco) center/contain no-repeat;mask:var(--deco) center/contain no-repeat}
 .student-card .avatar[class*="border-"]{background:var(--accent);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--frame)}
 /* 카드 모양 */
 .student-card.border-gold{border-style:double;border-width:4px;border-radius:6px}
@@ -704,7 +733,7 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 
     <div class="user-area">
       <div id="userInfo"></div>
-      <button id="snsLockBtn" class="outline btn-sm" style="display:none" onclick="toggleSnsLock()">🔒 게시판 잠금</button>
+      <button id="snsLockBtn" class="outline btn-sm" style="display:none" onclick="toggleSnsLock()"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg> 게시판 잠금</button>
       <button class="outline btn-sm" onclick="logout()">로그아웃</button>
     </div>
   </div>
@@ -752,6 +781,29 @@ if(window.__classroomAppInitialized){
   return;
 }
 window.__classroomAppInitialized=true;
+
+/* =========================================================
+   자체 아이콘 (이모지 대신 사용)
+========================================================= */
+const ICON_PATHS={"lock": "<rect x=\"5\" y=\"11\" width=\"14\" height=\"10\" rx=\"2\"/><path d=\"M8 11V7a4 4 0 0 1 8 0v4\"/>", "unlock": "<rect x=\"5\" y=\"11\" width=\"14\" height=\"10\" rx=\"2\"/><path d=\"M8 11V7a4 4 0 0 1 7.5-2\"/>", "coin": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M10 17V7h3a3 3 0 0 1 0 6h-3\"/>", "alert": "<path d=\"M12 3 2 20h20L12 3z\"/><path d=\"M12 10v4M12 17h.01\"/>", "check": "<path d=\"M5 12.5 10 17 19 7\"/>", "check-circle": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m8 12.5 3 3 5-6\"/>", "bell": "<path d=\"M6 16v-5a6 6 0 0 1 12 0v5l2 2H4l2-2z\"/><path d=\"M10 20a2 2 0 0 0 4 0\"/>", "pencil": "<path d=\"M4 20l1-4L16 5l3 3L8 19l-4 1z\"/><path d=\"M14 7l3 3\"/>", "star": "<path d=\"M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3z\"/>", "calendar": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"16\" rx=\"2\"/><path d=\"M3 10h18M8 3v4M16 3v4\"/>", "clipboard": "<rect x=\"5\" y=\"4\" width=\"14\" height=\"17\" rx=\"2\"/><path d=\"M9 4V3h6v1M9 10h6M9 14h6M9 18h3\"/>", "note": "<path d=\"M6 3h9l4 4v14H6z\"/><path d=\"M15 3v4h4M9 12h6M9 16h4\"/>", "megaphone": "<path d=\"M3 10v4h3l8 5V5l-8 5H3z\"/><path d=\"M18 9a4 4 0 0 1 0 6\"/>", "flame": "<path d=\"M12 21a6 6 0 0 0 6-6c0-4-3-6-4-10-2 2-3 4-3 6-1-1-2-2-2-3-2 2-3 4-3 7a6 6 0 0 0 6 6z\"/>", "vote": "<rect x=\"3\" y=\"12\" width=\"18\" height=\"9\" rx=\"2\"/><path d=\"M8 12l2-8 6 1.5-1.5 6.5M9 16h6\"/>", "link": "<path d=\"M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1\"/><path d=\"M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1\"/>", "eye": "<path d=\"M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>", "thumb": "<path d=\"M7 11v9H4v-9h3zM7 11l4-8a2 2 0 0 1 2 2v4h5.5a2 2 0 0 1 2 2.3l-1.2 7a2 2 0 0 1-2 1.7H7\"/>", "chat": "<path d=\"M4 5h16v11H9l-5 4V5z\"/>", "user": "<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 21a8 8 0 0 1 16 0\"/>", "mail": "<rect x=\"3\" y=\"5\" width=\"18\" height=\"14\" rx=\"2\"/><path d=\"m3 7 9 6 9-6\"/>", "broom": "<path d=\"M15 3l-3 9M6 13h10l2 8H4l2-8z\"/><path d=\"M9 17v4M13 17v4\"/>", "clock": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>", "bowl": "<path d=\"M3 11h18a9 9 0 0 1-18 0z\"/><path d=\"M8 8c0-1 1-1 1-2M12 8c0-1 1-1 1-2M16 8c0-1 1-1 1-2\"/>", "bulb": "<path d=\"M9 18h6M10 21h4\"/><path d=\"M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z\"/>", "ban": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M5.6 5.6l12.8 12.8\"/>", "shield": "<path d=\"M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z\"/>", "trophy": "<path d=\"M8 4h8v5a4 4 0 0 1-8 0V4z\"/><path d=\"M8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6\"/>", "palette": "<path d=\"M12 3a9 9 0 0 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2a4 4 0 0 0 4-4c0-4.4-4-8-9-8z\"/><circle cx=\"7.5\" cy=\"11\" r=\"1\"/><circle cx=\"10\" cy=\"7\" r=\"1\"/><circle cx=\"15\" cy=\"7.5\" r=\"1\"/>", "type": "<path d=\"M4 18 9 6l5 12M6 14h6M17 9v9M14.5 9h5\"/>", "pen": "<path d=\"M12 3l6 7-6 11-6-11 6-7z\"/><path d=\"M12 10v6\"/>", "flower": "<circle cx=\"12\" cy=\"12\" r=\"2.5\"/><path d=\"M12 9.5a3 3 0 1 1 0-6 3 3 0 1 1 0 6zM12 14.5a3 3 0 1 1 0 6 3 3 0 1 1 0-6zM9.5 12a3 3 0 1 1-6 0 3 3 0 1 1 6 0zM14.5 12a3 3 0 1 1 6 0 3 3 0 1 1-6 0z\"/>", "circle": "<circle cx=\"12\" cy=\"12\" r=\"8\"/><path d=\"M9 12a3 3 0 0 0 6 0\"/>", "square": "<rect x=\"5\" y=\"5\" width=\"14\" height=\"14\" rx=\"3\"/>", "bolt": "<path d=\"M13 2 4 14h7l-1 8 9-12h-7l1-8z\"/>", "rainbow": "<path d=\"M3 18a9 9 0 0 1 18 0M6.5 18a5.5 5.5 0 0 1 11 0M10 18a2 2 0 0 1 4 0\"/>", "leaf": "<path d=\"M5 19C5 10 11 5 20 4c-1 9-6 15-15 15z\"/><path d=\"M5 19l8-8\"/>", "log": "<ellipse cx=\"17\" cy=\"12\" rx=\"3\" ry=\"5\"/><path d=\"M17 7H7c-2 0-3 2.2-3 5s1 5 3 5h10M17 11v2\"/>", "rhombus": "<path d=\"M12 3l8 9-8 9-8-9 8-9z\"/><path d=\"M12 8l4 4-4 4-4-4 4-4z\"/>", "sparkle": "<path d=\"M12 3c.6 4.5 2.5 6.4 7 7-4.5.6-6.4 2.5-7 7-.6-4.5-2.5-6.4-7-7 4.5-.6 6.4-2.5 7-7z\"/><path d=\"M19 15c.2 1.6.9 2.3 2.5 2.5-1.6.2-2.3.9-2.5 2.5-.2-1.6-.9-2.3-2.5-2.5 1.6-.2 2.3-.9 2.5-2.5z\"/>", "gem": "<path d=\"M6 4h12l3 5-9 11L3 9l3-5z\"/><path d=\"M3 9h18M9 4 7.5 9 12 20l4.5-11L15 4\"/>", "comet": "<circle cx=\"16\" cy=\"8\" r=\"3.5\"/><path d=\"M13.5 10.5 4 20M12 7l-6 6M17 12.5l-6 6\"/>", "bow": "<path d=\"M12 11 5 6v10l7-5zM12 11l7-5v10l-7-5z\"/><path d=\"M10.5 13 8 20M13.5 13l2.5 7\"/>", "crown": "<path d=\"M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8z\"/>", "wing": "<path d=\"M21 5C13 5 6 9 3 18c3-2 6-2 9-2-2 0-3 1-5 3 6 0 11-5 14-14z\"/>", "moon": "<path d=\"M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z\"/>", "castle": "<path d=\"M4 21V9h3V6h2v3h2V3h2v6h2V6h2v3h3v12H4z\"/><path d=\"M10 21v-4a2 2 0 0 1 4 0v4\"/>", "grid": "<rect x=\"3\" y=\"3\" width=\"8\" height=\"8\" rx=\"2\"/><rect x=\"13\" y=\"3\" width=\"8\" height=\"8\" rx=\"2\"/><rect x=\"3\" y=\"13\" width=\"8\" height=\"8\" rx=\"2\"/><rect x=\"13\" y=\"13\" width=\"8\" height=\"8\" rx=\"2\"/>", "knight": "<path d=\"M6 21h12M8 18h9c0-5-1-9-3-11-1-2-3-3-5-3l-1 2-3 4 1 2 4-1-3 5z\"/>", "puzzle": "<path d=\"M4 8h4a2 2 0 1 1 4 0h4v4a2 2 0 1 1 0 4v4H4v-4a2 2 0 1 0 0-4V8z\"/>", "bomb": "<circle cx=\"11\" cy=\"14\" r=\"7\"/><path d=\"M15.5 8.5 18 6M20 3v1M21.5 5.5h-1M19 2.5\"/>", "blocks": "<path d=\"M3 13h6v6H3zM9 13h6v6H9zM9 7h6v6H9zM15 13h6v6h-6z\"/>", "snake": "<path d=\"M4 20h10a3 3 0 0 0 0-6H8a3 3 0 0 1 0-6h9\"/><circle cx=\"19\" cy=\"8\" r=\"2\"/>", "globe": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18\"/>", "heart": "<path d=\"M12 20s-7-4.4-9-9a4.8 4.8 0 0 1 9-3 4.8 4.8 0 0 1 9 3c-2 4.6-9 9-9 9z\"/>", "hand": "<path d=\"M8 13V5a1.5 1.5 0 0 1 3 0v6M11 10V4a1.5 1.5 0 0 1 3 0v7M14 10V5.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7 6 6 0 0 1-5-3l-2.5-4.5a1.5 1.5 0 0 1 2.6-1.5L8 15\"/>"};
+const ANIMAL_ART={"cat": "<path d=\"M5 9 6 3l5 4M19 9l-1-6-5 4\" fill=\"#f4a340\"/><circle cx=\"12\" cy=\"13\" r=\"8\" fill=\"#f4a340\"/><circle cx=\"9\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><circle cx=\"15\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><path d=\"M11 15h2l-1 1z\" fill=\"#d9534f\"/><path d=\"M4 14h4M4 16l4-1M20 14h-4M20 16l-4-1\" stroke=\"#a5651d\" stroke-width=\".8\"/>", "puppy": "<circle cx=\"12\" cy=\"13\" r=\"8\" fill=\"#e2b07a\"/><ellipse cx=\"4.5\" cy=\"11\" rx=\"2.6\" ry=\"5\" fill=\"#8a5a2b\"/><ellipse cx=\"19.5\" cy=\"11\" rx=\"2.6\" ry=\"5\" fill=\"#8a5a2b\"/><circle cx=\"9\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><circle cx=\"15\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><ellipse cx=\"12\" cy=\"16\" rx=\"3\" ry=\"2.2\" fill=\"#f6dcc0\"/><ellipse cx=\"12\" cy=\"15\" rx=\"1.3\" ry=\"1\" fill=\"#2b2b2b\"/>", "fox": "<path d=\"M4 3l3 7h10l3-7-5 3H9z\" fill=\"#ef7d2d\"/><path d=\"M3 9c0 7 4 12 9 12s9-5 9-12z\" fill=\"#ef7d2d\"/><path d=\"M3 11c2 5 5 7 9 10 4-3 7-5 9-10-3 3-6 3-9 3s-6 0-9-3z\" fill=\"#fff\"/><circle cx=\"9\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><circle cx=\"15\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><circle cx=\"12\" cy=\"17\" r=\"1.1\" fill=\"#2b2b2b\"/>", "tiger": "<circle cx=\"6\" cy=\"6\" r=\"2.6\" fill=\"#f39a1e\"/><circle cx=\"18\" cy=\"6\" r=\"2.6\" fill=\"#f39a1e\"/><circle cx=\"12\" cy=\"13\" r=\"8.5\" fill=\"#f39a1e\"/><path d=\"M12 5v3M9 5.5l.7 2.5M15 5.5l-.7 2.5M3.8 12h3M3.8 15h3M20.2 12h-3M20.2 15h-3\" stroke=\"#2b2b2b\" stroke-width=\"1.2\" stroke-linecap=\"round\"/><ellipse cx=\"12\" cy=\"16.5\" rx=\"3.6\" ry=\"2.6\" fill=\"#fff\"/><circle cx=\"9\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><circle cx=\"15\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><path d=\"M11 15.4h2l-1 1z\" fill=\"#2b2b2b\"/>", "panda": "<circle cx=\"5.5\" cy=\"6\" r=\"3\" fill=\"#2b2b2b\"/><circle cx=\"18.5\" cy=\"6\" r=\"3\" fill=\"#2b2b2b\"/><circle cx=\"12\" cy=\"13\" r=\"8.5\" fill=\"#fff\" stroke=\"#ddd\" stroke-width=\".6\"/><ellipse cx=\"8.6\" cy=\"12.5\" rx=\"2.2\" ry=\"2.8\" fill=\"#2b2b2b\" transform=\"rotate(-25 8.6 12.5)\"/><ellipse cx=\"15.4\" cy=\"12.5\" rx=\"2.2\" ry=\"2.8\" fill=\"#2b2b2b\" transform=\"rotate(25 15.4 12.5)\"/><circle cx=\"9\" cy=\"12.3\" r=\".8\" fill=\"#fff\"/><circle cx=\"15\" cy=\"12.3\" r=\".8\" fill=\"#fff\"/><ellipse cx=\"12\" cy=\"16\" rx=\"1.4\" ry=\"1\" fill=\"#2b2b2b\"/>", "rabbit": "<ellipse cx=\"8.5\" cy=\"5\" rx=\"2.2\" ry=\"5\" fill=\"#f3f3f3\" stroke=\"#ddd\" stroke-width=\".6\"/><ellipse cx=\"15.5\" cy=\"5\" rx=\"2.2\" ry=\"5\" fill=\"#f3f3f3\" stroke=\"#ddd\" stroke-width=\".6\"/><ellipse cx=\"8.5\" cy=\"5\" rx=\"1\" ry=\"3.4\" fill=\"#ffb3c7\"/><ellipse cx=\"15.5\" cy=\"5\" rx=\"1\" ry=\"3.4\" fill=\"#ffb3c7\"/><circle cx=\"12\" cy=\"14.5\" r=\"7.5\" fill=\"#f7f7f7\" stroke=\"#ddd\" stroke-width=\".6\"/><circle cx=\"9\" cy=\"14\" r=\"1.1\" fill=\"#2b2b2b\"/><circle cx=\"15\" cy=\"14\" r=\"1.1\" fill=\"#2b2b2b\"/><path d=\"M11.2 16.3h1.6l-.8.8z\" fill=\"#ff7aa0\"/><circle cx=\"7.5\" cy=\"16.5\" r=\"1.2\" fill=\"#ffd0dc\"/><circle cx=\"16.5\" cy=\"16.5\" r=\"1.2\" fill=\"#ffd0dc\"/>", "hamster": "<circle cx=\"6\" cy=\"6.5\" r=\"2.4\" fill=\"#e9a86a\"/><circle cx=\"18\" cy=\"6.5\" r=\"2.4\" fill=\"#e9a86a\"/><circle cx=\"6\" cy=\"6.5\" r=\"1.2\" fill=\"#ffc9b0\"/><circle cx=\"18\" cy=\"6.5\" r=\"1.2\" fill=\"#ffc9b0\"/><ellipse cx=\"12\" cy=\"13.5\" rx=\"9\" ry=\"8\" fill=\"#e9a86a\"/><ellipse cx=\"12\" cy=\"16\" rx=\"6.5\" ry=\"5\" fill=\"#fff4e6\"/><circle cx=\"9\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><circle cx=\"15\" cy=\"12.5\" r=\"1.2\" fill=\"#2b2b2b\"/><circle cx=\"6.5\" cy=\"15.5\" r=\"1.4\" fill=\"#ffb7a0\"/><circle cx=\"17.5\" cy=\"15.5\" r=\"1.4\" fill=\"#ffb7a0\"/><circle cx=\"12\" cy=\"15\" r=\".8\" fill=\"#d9534f\"/>", "chick": "<path d=\"M12 2c1 1 1 2 0 3M12 2c-1.2.6-1.6 1.6-1 2.6\" stroke=\"#f5b800\" stroke-width=\"1.3\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"12\" cy=\"13\" r=\"8.5\" fill=\"#ffd93b\"/><circle cx=\"9\" cy=\"11.5\" r=\"1.2\" fill=\"#2b2b2b\"/><circle cx=\"15\" cy=\"11.5\" r=\"1.2\" fill=\"#2b2b2b\"/><path d=\"M10 14h4l-2 2.4z\" fill=\"#ff8a1f\"/><circle cx=\"7\" cy=\"15\" r=\"1.3\" fill=\"#ffab7a\" opacity=\".7\"/><circle cx=\"17\" cy=\"15\" r=\"1.3\" fill=\"#ffab7a\" opacity=\".7\"/>", "owl": "<path d=\"M4 4l3 4h10l3-4-4 2H8z\" fill=\"#8a5a2b\"/><ellipse cx=\"12\" cy=\"13.5\" rx=\"8.5\" ry=\"8\" fill=\"#a36c3b\"/><circle cx=\"8.5\" cy=\"12\" r=\"3.2\" fill=\"#fff\"/><circle cx=\"15.5\" cy=\"12\" r=\"3.2\" fill=\"#fff\"/><circle cx=\"8.5\" cy=\"12\" r=\"1.6\" fill=\"#2b2b2b\"/><circle cx=\"15.5\" cy=\"12\" r=\"1.6\" fill=\"#2b2b2b\"/><path d=\"M11 15h2l-1 2z\" fill=\"#f5b800\"/><path d=\"M8 18.5c1.3 1 6.7 1 8 0\" stroke=\"#d9b48a\" stroke-width=\"1\" fill=\"none\"/>", "penguin": "<ellipse cx=\"12\" cy=\"12.5\" rx=\"8.5\" ry=\"9\" fill=\"#2f3b4c\"/><path d=\"M12 7c-3.5 0-6 2.5-6 6s2.7 6.5 6 6.5 6-3 6-6.5-2.5-6-6-6zm0 0c-.6 1.2-.6 2 0 3 .6-1 .6-1.8 0-3z\" fill=\"#fff\"/><circle cx=\"9.5\" cy=\"12\" r=\"1.1\" fill=\"#2b2b2b\"/><circle cx=\"14.5\" cy=\"12\" r=\"1.1\" fill=\"#2b2b2b\"/><path d=\"M10.5 14h3L12 16z\" fill=\"#ff9b2f\"/><circle cx=\"8\" cy=\"15\" r=\"1.1\" fill=\"#ffb7c5\" opacity=\".8\"/><circle cx=\"16\" cy=\"15\" r=\"1.1\" fill=\"#ffb7c5\" opacity=\".8\"/>", "sloth": "<circle cx=\"12\" cy=\"12.5\" r=\"9\" fill=\"#a08670\"/><ellipse cx=\"12\" cy=\"13.5\" rx=\"7\" ry=\"5.8\" fill=\"#e8d8c3\"/><ellipse cx=\"8.4\" cy=\"12.5\" rx=\"2.6\" ry=\"1.5\" fill=\"#5c4636\" transform=\"rotate(-20 8.4 12.5)\"/><ellipse cx=\"15.6\" cy=\"12.5\" rx=\"2.6\" ry=\"1.5\" fill=\"#5c4636\" transform=\"rotate(20 15.6 12.5)\"/><circle cx=\"8.6\" cy=\"12.4\" r=\".7\" fill=\"#fff\"/><circle cx=\"15.4\" cy=\"12.4\" r=\".7\" fill=\"#fff\"/><ellipse cx=\"12\" cy=\"15\" rx=\"1.4\" ry=\"1\" fill=\"#3a2a20\"/><path d=\"M10.5 17c1 .7 2 .7 3 0\" stroke=\"#3a2a20\" stroke-width=\".8\" fill=\"none\"/>"};
+const TITLE_EMOJI_TO_ANIMAL={"🐱": "cat", "🐶": "puppy", "🦊": "fox", "🐯": "tiger", "🐼": "panda", "🐰": "rabbit", "🐹": "hamster", "🐥": "chick", "🦉": "owl", "🐧": "penguin", "🦥": "sloth"};
+function ic(name,cls=""){
+  if(!name) return "";
+  if(name.startsWith("a:")) return animalArt(name.slice(2),cls);
+  const d=ICON_PATHS[name]; if(!d) return "";
+  return `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+}
+function animalArt(kind,cls=""){
+  const d=ANIMAL_ART[kind]; if(!d) return "";
+  return `<svg class="ic-animal ${cls}" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+}
+// 칭호: 동물 칭호(DB에는 예전 이모지로 저장)는 그림으로, 나머지는 글자로
+function titleHtml(t){
+  if(!t) return "";
+  const kind=TITLE_EMOJI_TO_ANIMAL[t];
+  return kind ? animalArt(kind,"title-animal") : escapeHTML(t);
+}
 
 
 /* =========================================================
@@ -856,7 +908,7 @@ function maskBadWords(text){
 function cleanBotCheck(...texts){
   const flagged=texts.some(t=>containsBadWord(t||""));
   if(flagged){
-    if(!confirm("⚠️ 클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.")){
+    if(!confirm("클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.")){
       return null;
     }
   }
@@ -865,48 +917,48 @@ function cleanBotCheck(...texts){
 
 // ===== 상점 아이템 정의 =====
 const FONT_ITEMS=[
-  {id:"font-default", name:"기본 폰트", icon:"🔤", price:0,  cssClass:""},
-  {id:"font-cute",    name:"시각적 친근함과 정돈된 느낌을 주는 라운드 산스 서체", icon:"🌸", price:40,  cssClass:"font-cute"},
-  {id:"font-round",   name:"둥근 글꼴",   icon:"⭕", price:40,  cssClass:"font-round"},
-  {id:"font-serif",   name:"명조 폰트",   icon:"✒️", price:50,  cssClass:"font-serif"}
+  {id:"font-default", name:"기본 폰트", icon:"type", price:0,  cssClass:""},
+  {id:"font-cute",    name:"시각적 친근함과 정돈된 느낌을 주는 라운드 산스 서체", icon:"flower", price:40,  cssClass:"font-cute"},
+  {id:"font-round",   name:"둥근 글꼴",   icon:"circle", price:40,  cssClass:"font-round"},
+  {id:"font-serif",   name:"명조 폰트",   icon:"pen", price:50,  cssClass:"font-serif"}
 ];
 
 const BORDER_ITEMS=[
-  {id:"border-none",     name:"기본 프레임",             icon:"⬜", price:0,   cssClass:"none"},
-  {id:"border-neon",     name:"네온 라이트 프라임",      icon:"💡", price:60,  cssClass:"neon"},
-  {id:"border-gold",     name:"골든 에지 프라임",        icon:"🏆", price:90,  cssClass:"gold"},
-  {id:"border-gradient", name:"그라데이션 프라임",       icon:"🌈", price:130, cssClass:"gradient"},
-  {id:"border-vine",     name:"톱니바귀 초록 에지 프라임", icon:"⚙️", price:160, cssClass:"vine"},
-  {id:"border-branch",   name:"스트라이프 우드 프라임",  icon:"🪵", price:180, cssClass:"branch"},
-  {id:"border-thorn",    name:"사선 퍼플 마름모 프라임", icon:"🟣", price:210, cssClass:"thorn"},
-  {id:"border-spark",    name:"골든 스태틱 프라임",      icon:"✨", price:240, cssClass:"spark"},
-  {id:"border-crystal",  name:"컷팅 다이아 박스 프라임", icon:"💎", price:280, cssClass:"crystal"},
-  {id:"border-comet",    name:"레드 사선 레이저 프라임", icon:"☄️", price:110, cssClass:"comet"},
-  {id:"border-ribbon",   name:"다이아곤 빗살무늬 프라임",icon:"📐", price:350, cssClass:"ribbon"},
-  {id:"border-lotus",    name:"핑크 방사형 패턴 프라임", icon:"🌸", price:400, cssClass:"lotus"},
-  {id:"border-crown",    name:"크라운 피크 프라임",      icon:"👑", price:450, cssClass:"crown"},
-  {id:"border-wing",     name:"아쿠아 사이드 윙 프라임", icon:"🪽", price:500, cssClass:"wing"},
-  {id:"border-nova",     name:"코스모스 노바 프라임",    icon:"🌌", price:550, cssClass:"nova"},
-  {id:"border-spire",    name:"오렌지 시타델 프라임",    icon:"🔺", price:600, cssClass:"spire"}
+  {id:"border-none",     name:"기본 프레임",             icon:"square", price:0,   cssClass:"none"},
+  {id:"border-neon",     name:"네온 라이트 프라임",      icon:"bolt", price:60,  cssClass:"neon"},
+  {id:"border-gold",     name:"골든 에지 프라임",        icon:"trophy", price:90,  cssClass:"gold"},
+  {id:"border-gradient", name:"그라데이션 프라임",       icon:"rainbow", price:130, cssClass:"gradient"},
+  {id:"border-vine",     name:"톱니바귀 초록 에지 프라임", icon:"leaf", price:160, cssClass:"vine"},
+  {id:"border-branch",   name:"스트라이프 우드 프라임",  icon:"log", price:180, cssClass:"branch"},
+  {id:"border-thorn",    name:"사선 퍼플 마름모 프라임", icon:"rhombus", price:210, cssClass:"thorn"},
+  {id:"border-spark",    name:"골든 스태틱 프라임",      icon:"sparkle", price:240, cssClass:"spark"},
+  {id:"border-crystal",  name:"컷팅 다이아 박스 프라임", icon:"gem", price:280, cssClass:"crystal"},
+  {id:"border-comet",    name:"레드 사선 레이저 프라임", icon:"comet", price:110, cssClass:"comet"},
+  {id:"border-ribbon",   name:"다이아곤 빗살무늬 프라임",icon:"bow", price:350, cssClass:"ribbon"},
+  {id:"border-lotus",    name:"핑크 방사형 패턴 프라임", icon:"flower", price:400, cssClass:"lotus"},
+  {id:"border-crown",    name:"크라운 피크 프라임",      icon:"crown", price:450, cssClass:"crown"},
+  {id:"border-wing",     name:"아쿠아 사이드 윙 프라임", icon:"wing", price:500, cssClass:"wing"},
+  {id:"border-nova",     name:"코스모스 노바 프라임",    icon:"moon", price:550, cssClass:"nova"},
+  {id:"border-spire",    name:"오렌지 시타델 프라임",    icon:"castle", price:600, cssClass:"spire"}
 ];
 
 const TITLE_ITEMS=[
-  {id:"title-none",      name:"칭호 없음",     icon:"—",  price:0,   text:null},
-  {id:"title-hotcomment",name:"3반1짱",       icon:"👑", price:150, text:"3반1짱"},
-  {id:"title-sloth",     name:"나무늘보",    icon:"🦥", price:50,  text:"🦥"},
-  {id:"title-chick",     name:"병아리",      icon:"🐥", price:20,  text:"🐥"},
-  {id:"title-tiger",     name:"호랑이",      icon:"🐯", price:150, text:"🐯"},
-  {id:"title-cat",       name:"고양이",      icon:"🐱", price:100, text:"🐱"},
-  {id:"title-hamster",   name:"햄스터",      icon:"🐹", price:70,  text:"🐹"},
-  {id:"title-puppy",     name:"강아지",      icon:"🐶", price:120, text:"🐶"},
-  {id:"title-fox",       name:"사막여우",    icon:"🦊", price:100, text:"🦊"},
-  {id:"title-panda",     name:"판다",        icon:"🐼", price:90,  text:"🐼"},
-  {id:"title-owl",       name:"부엉이",      icon:"🦉", price:110, text:"🦉"},
-  {id:"title-rabbit",    name:"토끼",        icon:"🐰", price:60,  text:"🐰"},
-  {id:"title-penguin",   name:"펭귄",        icon:"🐧", price:80,  text:"🐧"}
+  {id:"title-none",      name:"칭호 없음",     icon:"ban",  price:0,   text:null},
+  {id:"title-hotcomment",name:"3반1짱",       icon:"crown", price:150, text:"3반1짱"},
+  {id:"title-sloth",     name:"나무늘보",    icon:"a:sloth", price:50,  text:"🦥"},
+  {id:"title-chick",     name:"병아리",      icon:"a:chick", price:20,  text:"🐥"},
+  {id:"title-tiger",     name:"호랑이",      icon:"a:tiger", price:150, text:"🐯"},
+  {id:"title-cat",       name:"고양이",      icon:"a:cat", price:100, text:"🐱"},
+  {id:"title-hamster",   name:"햄스터",      icon:"a:hamster", price:70,  text:"🐹"},
+  {id:"title-puppy",     name:"강아지",      icon:"a:puppy", price:120, text:"🐶"},
+  {id:"title-fox",       name:"사막여우",    icon:"a:fox", price:100, text:"🦊"},
+  {id:"title-panda",     name:"판다",        icon:"a:panda", price:90,  text:"🐼"},
+  {id:"title-owl",       name:"부엉이",      icon:"a:owl", price:110, text:"🦉"},
+  {id:"title-rabbit",    name:"토끼",        icon:"a:rabbit", price:60,  text:"🐰"},
+  {id:"title-penguin",   name:"펭귄",        icon:"a:penguin", price:80,  text:"🐧"}
 ];
 
-const COLOR_ITEM={id:"nickname-color", name:"닉네임 색상", icon:"🎨", price:70};
+const COLOR_ITEM={id:"nickname-color", name:"닉네임 색상", icon:"palette", price:70};
 
 /* =========================================================
    NEIS 급식 / 시간표
@@ -1060,8 +1112,8 @@ function renderTimetableCard(result){
   const status=neisStatusMessage(result,"시간표");
   const periods=result.data || [];
   return `
-    ${neisCardHeader("📌 시간표","changeTimetableDate",result.date)}
-    ${result.offline ? `<p class="meta">⚠️ 연결이 안 돼서 저장해 둔 시간표를 보여주고 있어요.</p>` : ""}
+    ${neisCardHeader(ic("clock")+" 시간표","changeTimetableDate",result.date)}
+    ${result.offline ? `<p class="meta">${ic("alert")} 연결이 안 돼서 저장해 둔 시간표를 보여주고 있어요.</p>` : ""}
     ${status || periods.map(item=>`
       <div class="timetable-row">
         <span class="badge">${item.period}교시</span>
@@ -1076,8 +1128,8 @@ function renderTimetableCard(result){
 function renderMealCard(result){
   const status=neisStatusMessage(result,"급식");
   return `
-    ${neisCardHeader("🍚 급식","changeMealDate",result.date)}
-    ${result.offline ? `<p class="meta">⚠️ 연결이 안 돼서 저장해 둔 급식을 보여주고 있어요.</p>` : ""}
+    ${neisCardHeader(ic("bowl")+" 급식","changeMealDate",result.date)}
+    ${result.offline ? `<p class="meta">${ic("alert")} 연결이 안 돼서 저장해 둔 급식을 보여주고 있어요.</p>` : ""}
     ${status || result.data.map(meal=>`
       <div class="meal-block">
         <div class="meta">${escapeHTML(meal.type)}${meal.calories ? ` · ${escapeHTML(meal.calories)}` : ""}</div>
@@ -1242,7 +1294,7 @@ function feedAuthorLabel(joinedProfile,authorId){
     : `style="font-weight:700"`;
 
   const titleBadge=joinedProfile.equipped_title
-    ? `<span class="badge badge-title">${escapeHTML(joinedProfile.equipped_title)}</span>`
+    ? `<span class="badge badge-title">${titleHtml(joinedProfile.equipped_title)}</span>`
     : "";
 
   // 닉네임과 학번 어디를 눌러도 프로필이 열립니다
@@ -1267,7 +1319,7 @@ function renderUserInfo(){
   if(!el || !profile)return;
 
   el.innerHTML=`
-    <span class="points-badge">🪙 ${profile.points ?? 0}P</span>
+    <span class="points-badge">${ic("coin")} ${profile.points ?? 0}P</span>
     <span class="user-badge">${escapeHTML(profile.nickname)} (${escapeHTML(profile.handle)})</span>
     ${roleBadge(profile.role)}
   `;
@@ -1276,7 +1328,7 @@ function renderUserInfo(){
   if(lockBtn){
     if(profile.role==="admin"){
       lockBtn.style.display="";
-      lockBtn.textContent=appSettings.sns_locked ? "🔓 게시판 잠금 해제" : "🔒 게시판 잠금";
+      lockBtn.innerHTML=appSettings.sns_locked ? ic("unlock")+" 게시판 잠금 해제" : ic("lock")+" 게시판 잠금";
     }else{
       lockBtn.style.display="none";
     }
@@ -1485,7 +1537,7 @@ async function tryDailyCheckin(){
   await loadProfile();
   renderUserInfo();
 
-  msg(`✅ 출석체크 완료! +${CHECKIN_POINTS}P 지급되었습니다.\n(현재 ${profile.points}P)`);
+  msg(`출석체크 완료! +${CHECKIN_POINTS}P 지급되었습니다.\n(현재 ${profile.points}P)`);
 }
 
 
@@ -1586,7 +1638,7 @@ async function enablePush(){
       {onConflict:"endpoint"}
     );
     if(error) throw error;
-    msg("✅ 이제 사이트를 꺼도 시험·수행평가 알림이 와요!");
+    msg("이제 사이트를 꺼도 시험·수행평가 알림이 와요!");
   }catch(e){
     console.error(e);
     msg("알림을 켜지 못했어요: "+(e.message||e));
@@ -1649,7 +1701,7 @@ async function initExamNotifications(){
 
     const diff=daysUntil(a.event_date);
     try{
-      new Notification(`📝 수행평가/시험 임박: ${a.subject}`,{
+      new Notification(`수행평가/시험 임박: ${a.subject}`,{
         body:`${a.title} · ${ddayLabel(diff)} (${a.event_date})`,
         tag:key
       });
@@ -1737,8 +1789,8 @@ async function renderHome(){
   const topPoints=topPointsResult.data||[];
 
   homeDdayItems=[
-    ...(upcomingSchedules.data||[]).map(s=>({...s,type:"일정",icon:"📅"})),
-    ...(upcomingAssignments.data||[]).map(a=>({...a,type:"수행평가",icon:"📝",title:`[${a.subject}] ${a.title}`}))
+    ...(upcomingSchedules.data||[]).map(s=>({...s,type:"일정",icon:"calendar"})),
+    ...(upcomingAssignments.data||[]).map(a=>({...a,type:"수행평가",icon:"note",title:`[${a.subject}] ${a.title}`}))
   ].sort((a,b)=>a.event_date.localeCompare(b.event_date));
 
   const commentCounts={};
@@ -1754,7 +1806,7 @@ async function renderHome(){
 
   const notifyBanner=(typeof Notification!=="undefined" && Notification.permission==="default")
     ? `<div class="notify-banner">
-         <span>🔔 시험·수행평가가 다가오면 알림을 받아보시겠어요?</span>
+         <span>${ic("bell")} 시험·수행평가가 다가오면 알림을 받아보시겠어요?</span>
          <button class="outline btn-sm" onclick="enablePush()">알림 켜기</button>
        </div>`
     : "";
@@ -1769,7 +1821,7 @@ async function renderHome(){
 
   document.getElementById("app").innerHTML=`
     <div class="home-hello">
-      <h1>안녕하세요, ${escapeHTML(profile?.nickname||"학생")}님 👋</h1>
+      <h1>안녕하세요, ${escapeHTML(profile?.nickname||"학생")}님 ${ic("hand")}</h1>
       <p>${dateText} · 교하중학교 1학년 3반</p>
     </div>
 
@@ -1783,7 +1835,7 @@ async function renderHome(){
             <div class="dday-card" onclick="showDday(${i})">
               <div class="dday-num ${diff<=1?"urgent":""}">${ddayLabel(diff)}</div>
               <div class="dday-label">${escapeHTML(item.title)}</div>
-              <div class="dday-type">${item.icon} ${item.type} · ${item.event_date.slice(5).replace("-","/")}</div>
+              <div class="dday-type">${ic(item.icon)} ${item.type} · ${item.event_date.slice(5).replace("-","/")}</div>
             </div>
           `;
         }).join("")}
@@ -1796,7 +1848,7 @@ async function renderHome(){
 
       <div class="card">
         <div class="section-head">
-          <h3>📢 최근 공지</h3>
+          <h3>${ic("megaphone")} 최근 공지</h3>
           <button class="link-btn" onclick="go('notices')">전체 보기 ›</button>
         </div>
         ${notices.length ? notices.map(n=>`
@@ -1809,7 +1861,7 @@ async function renderHome(){
 
       <div class="card">
         <div class="section-head">
-          <h3>📋 게시판 새 글</h3>
+          <h3>${ic("clipboard")} 게시판 새 글</h3>
           <button class="link-btn" onclick="go('feed')">전체 보기 ›</button>
         </div>
         ${latestPosts.length ? latestPosts.map(p=>{
@@ -1825,7 +1877,7 @@ async function renderHome(){
 
       <div class="card">
         <div class="section-head">
-          <h3>📝 다가오는 수행평가</h3>
+          <h3>${ic("note")} 다가오는 수행평가</h3>
           <button class="link-btn" onclick="go('assignments')">전체 보기 ›</button>
         </div>
         ${assignments.length ? assignments.map(a=>`
@@ -1837,7 +1889,7 @@ async function renderHome(){
       </div>
 
       <div class="card">
-        <h3>🔥 랭킹</h3>
+        <h3>${ic("flame")} 랭킹</h3>
         <div class="rank-group">
           <div class="rank-group-title">포인트 TOP 3</div>
           ${topPoints.length ? rankRows(topPoints,p=>`${p.points}P`) : `<p class="meta">아직 데이터가 없습니다.</p>`}
@@ -1863,7 +1915,7 @@ function showDday(index){
   if(!item) return;
   openModal(`
     <h2>${escapeHTML(item.title)}</h2>
-    <p class="meta">${item.icon} ${item.type} · ${item.event_date} · ${ddayLabel(daysUntil(item.event_date))}</p>
+    <p class="meta">${ic(item.icon)} ${item.type} · ${item.event_date} · ${ddayLabel(daysUntil(item.event_date))}</p>
     <div class="modal-body">${escapeHTML(item.content||"상세 내용 없음")}</div>
   `);
 }
@@ -2249,7 +2301,7 @@ function renderVoteResults(v,responses,total,myVote){
 function voteForm(){
   if(!isStaff()){ msg("관리자 또는 선생님만 투표를 만들 수 있습니다."); return; }
   openModal(`
-    <h2>🗳️ 투표 만들기</h2>
+    <h2>${ic("vote")} 투표 만들기</h2>
     <div class="form-group"><label>질문</label><input id="vTitle" placeholder="예: 다음 학급 행사는 어디로 갈까요?"></div>
     <div class="form-group"><label>설명</label><textarea id="vDescription" style="min-height:90px" placeholder="투표에 대한 설명 (선택)"></textarea></div>
     <div class="form-group">
@@ -2352,7 +2404,7 @@ function lostForm(){
     <h2>분실물 등록</h2>
     <div class="form-group"><label>물건 이름</label><input id="lTitle" placeholder="예: 검은색 필통"></div>
     <div class="form-group"><label>설명</label><textarea id="lContent" placeholder="발견 장소나 특징을 적어주세요.\n예: 2층 복도에서 발견, 검은색 필통, 네임스티커 있음"></textarea></div>
-    <p class="hint">💡 사진은 직접 올릴 수 없어요. 게시판에 이미지 링크로 올려서 공유해보세요.</p>
+    <p class="hint">${ic("bulb")} 사진은 직접 올릴 수 없어요. 게시판에 이미지 링크로 올려서 공유해보세요.</p>
     <div class="btn-row end"><button class="primary" onclick="createLost()">등록</button></div>
   `);
 }
@@ -2408,7 +2460,7 @@ async function showLost(id){
     <div class="modal-body">${escapeHTML(lostItem.content)}</div>
 
     <div class="modal-section">
-      <h3>💬 댓글 ${normalizedComments.length}</h3>
+      <h3>${ic("chat")} 댓글 ${normalizedComments.length}</h3>
       ${normalizedComments.length
         ? normalizedComments.map(c=>`
             <div class="comment">
@@ -2483,7 +2535,7 @@ function renderLinkEmbed(text){
   if(url){
     let domain=url[0];
     try{ domain=new URL(url[0]).hostname; }catch(e){}
-    return `<a class="link-card" href="${escapeHTML(url[0])}" target="_blank" rel="noopener noreferrer"><b>🔗 ${escapeHTML(domain)}</b>${escapeHTML(url[0])}</a>`;
+    return `<a class="link-card" href="${escapeHTML(url[0])}" target="_blank" rel="noopener noreferrer"><b>${ic("link")} ${escapeHTML(domain)}</b>${escapeHTML(url[0])}</a>`;
   }
 
   return "";
@@ -2564,9 +2616,9 @@ function renderBoardList(){
       <p>누구나 자유롭게 글을 쓰고, 공감과 댓글로 이야기하는 우리 반 게시판이에요.</p>
     </div>
 
-    ${locked ? `<div class="lock-banner">🔒 관리자가 게시판 글쓰기와 댓글을 잠시 막아뒀어요. 글은 계속 읽을 수 있어요.</div>` : ""}
+    ${locked ? `<div class="lock-banner">${ic("lock")} 관리자가 게시판 글쓰기와 댓글을 잠시 막아뒀어요. 글은 계속 읽을 수 있어요.</div>` : ""}
     ${isStaff() && !boardViewsEnabled && boardPosts.length
-      ? `<div class="notify-banner">👀 조회수가 아직 꺼져 있어요. Supabase SQL Editor에서 board-views.sql을 한 번 실행하면 켜져요. (관리자에게만 보이는 안내)</div>`
+      ? `<div class="notify-banner">${ic("eye")} 조회수가 아직 꺼져 있어요. Supabase SQL Editor에서 board-views.sql을 한 번 실행하면 켜져요. (관리자에게만 보이는 안내)</div>`
       : ""}
 
     <div class="toolbar">
@@ -2576,7 +2628,7 @@ function renderBoardList(){
       </div>
       <div class="toolbar-right">
         <input class="input search-input" placeholder="제목, 내용, 작성자 검색" value="${escapeHTML(boardQuery)}" oninput="onBoardSearch(this.value)">
-        <button class="primary" onclick="feedPostForm()" ${locked?"disabled":""}>✏️ 글쓰기</button>
+        <button class="primary" onclick="feedPostForm()" ${locked?"disabled":""}>${ic("pencil")} 글쓰기</button>
       </div>
     </div>
 
@@ -2623,7 +2675,7 @@ function boardRowHtml(post){
 
   return `
     <div class="board-row" onclick="openBoardPost(${post.id})">
-      <span class="c-no">${post.is_featured ? "⭐" : post.no}</span>
+      <span class="c-no">${post.is_featured ? ic("star") : post.no}</span>
       <span class="c-title">
         <span class="c-title-text">${escapeHTML(post.title || "제목 없음")}</span>
         ${post.commentCount ? `<span class="comment-count">[${post.commentCount}]</span>` : ""}
@@ -2679,7 +2731,7 @@ function renderBoardPost(post,comments){
   const locked=boardLocked();
   const flagged=containsBadWord(post.content);
   const actions=
-    (isStaff() && !post.is_featured ? `<button class="outline btn-sm" onclick="featurePost(${post.id})">⭐ 채택하기 (+${FEATURE_POINTS}P)</button>` : "")+
+    (isStaff() && !post.is_featured ? `<button class="outline btn-sm" onclick="featurePost(${post.id})">${ic("star")} 채택하기 (+${FEATURE_POINTS}P)</button>` : "")+
     (canEdit(post.author_id) ? `<button class="outline btn-sm" onclick="editPost('opinions',${post.id},'feed')">수정</button>` : "")+
     (canDelete(post.author_id) ? `<button class="danger btn-sm" onclick="deleteFeedPost(${post.id})">삭제</button>` : "");
 
@@ -2687,7 +2739,7 @@ function renderBoardPost(post,comments){
     <button class="ghost back-btn" onclick="go('feed')">← 목록으로</button>
 
     <article class="card post">
-      ${post.is_featured ? `<span class="badge badge-success">⭐ 채택된 글</span>` : ""}
+      ${post.is_featured ? `<span class="badge badge-success">${ic("star")} 채택된 글</span>` : ""}
       <h1 class="post-title">${escapeHTML(post.title || "제목 없음")}</h1>
       <div class="post-meta">
         <span class="post-author">${feedAuthorLabel(post.profiles,post.author_id)}</span>
@@ -2697,11 +2749,11 @@ function renderBoardPost(post,comments){
 
       <div class="post-body">${escapeHTML(post.content || "")}</div>
       ${renderLinkEmbed(post.content || "")}
-      ${flagged ? `<div class="feed-warning">⚠️ 클린봇이 부적절한 표현을 감지한 글이에요.</div>` : ""}
+      ${flagged ? `<div class="feed-warning">${ic("alert")} 클린봇이 부적절한 표현을 감지한 글이에요.</div>` : ""}
 
       <div class="post-like">
         <button id="likeBtn" class="like-btn ${post.liked?"active":""}" onclick="toggleLike(${post.id})">
-          <span class="like-icon">👍</span>
+          <span class="like-icon">${ic("heart")}</span>
           <span>공감 <b class="like-count">${post.likeCount}</b></span>
         </button>
       </div>
@@ -2715,7 +2767,7 @@ function renderBoardPost(post,comments){
         ? comments.map(renderFeedComment).join("")
         : `<p class="meta">아직 댓글이 없어요. 첫 댓글을 남겨보세요.</p>`}
       ${locked
-        ? `<p class="meta">🔒 게시판이 잠겨 있어 댓글을 남길 수 없어요.</p>`
+        ? `<p class="meta">${ic("lock")} 게시판이 잠겨 있어 댓글을 남길 수 없어요.</p>`
         : `<div class="comment-form">
              <textarea class="input" id="commentInput-${post.id}" rows="2" placeholder="댓글을 남겨보세요"></textarea>
              <button class="primary" onclick="addComment(${post.id})">등록</button>
@@ -2753,9 +2805,9 @@ async function recordPostView(post){
 }
 
 function feedPostForm(){
-  if(boardLocked()){ msg("🔒 관리자가 게시판을 잠갔어요. 지금은 글을 쓸 수 없어요."); return; }
+  if(boardLocked()){ msg("관리자가 게시판을 잠갔어요. 지금은 글을 쓸 수 없어요."); return; }
   openModal(`
-    <h2>✏️ 글쓰기</h2>
+    <h2>${ic("pencil")} 글쓰기</h2>
     <p class="hint">
       작성자는 항상 닉네임과 학번으로 공개돼요.<br>
       이미지·유튜브·링크 주소를 붙여넣으면 미리보기가 떠요. (영상은 [보기]를 눌러야 재생돼요)
@@ -2773,7 +2825,7 @@ function feedPostForm(){
 }
 
 async function createFeedPost(){
-  if(boardLocked()){ msg("🔒 관리자가 게시판을 잠갔어요."); return; }
+  if(boardLocked()){ msg("관리자가 게시판을 잠갔어요."); return; }
   const titleRaw=document.getElementById("feedTitle").value.trim();
   const contentRaw=document.getElementById("feedContent").value.trim();
   if(!titleRaw||!contentRaw){ msg("제목과 내용을 모두 입력해주세요."); return; }
@@ -2824,7 +2876,7 @@ async function toggleLike(postId){
 }
 
 async function addComment(postId){
-  if(boardLocked()){ msg("🔒 관리자가 게시판을 잠갔어요."); return; }
+  if(boardLocked()){ msg("관리자가 게시판을 잠갔어요."); return; }
   const input=document.getElementById(`commentInput-${postId}`);
   const contentRaw=(input?.value||"").trim();
   if(!contentRaw)return;
@@ -2868,7 +2920,7 @@ async function featurePost(postId){
     .eq("id",post.author_id);
 
   if(pointError){
-    msg("⚠️ 글은 채택되었지만 포인트 지급에 실패했습니다: "+pointError.message+"\n(RLS 정책에서 스태프의 profiles.points 수정 권한을 확인해주세요.)");
+    msg("글은 채택되었지만 포인트 지급에 실패했습니다: "+pointError.message+"\n(RLS 정책에서 스태프의 profiles.points 수정 권한을 확인해주세요.)");
   }else{
     msg(`채택 완료! 작성자에게 ${FEATURE_POINTS}P가 지급되었습니다.`);
   }
@@ -2882,23 +2934,23 @@ async function featurePost(postId){
 ========================================================= */
 
 const GAME_LIST=[
-  {icon:"🔢",name:"2048",desc:"같은 숫자를 합쳐 2048을 만드는 퍼즐 게임",url:"https://play2048.co/"},
-  {icon:"♟️",name:"체스",desc:"다른 사람과 체스를 즐길 수 있는 온라인 게임",url:"https://lichess.org/"},
-  {icon:"🧩",name:"스도쿠",desc:"숫자를 규칙에 맞게 채우는 논리 퍼즐",url:"https://sudoku.com/"},
-  {icon:"💣",name:"지뢰찾기",desc:"숫자를 보고 지뢰의 위치를 추리하는 클래식 퍼즐",url:"https://minesweeper.online/"},
-  {icon:"🟦",name:"테트리스",desc:"블록을 쌓아 줄을 없애는 퍼즐 게임",url:"https://tetris.com/play-tetris"},
-  {icon:"🐍",name:"스네이크",desc:"먹이를 먹으며 점점 길어지는 클래식 게임",url:"https://playsnake.org/"},
-  {icon:"🌍",name:"월드페이트",desc:"국가들의 흥망성쇠를 구경하는 시뮬레이션 게임",url:"https://worldfate.kro.kr/"}
+  {icon:"grid",name:"2048",desc:"같은 숫자를 합쳐 2048을 만드는 퍼즐 게임",url:"https://play2048.co/"},
+  {icon:"knight",name:"체스",desc:"다른 사람과 체스를 즐길 수 있는 온라인 게임",url:"https://lichess.org/"},
+  {icon:"puzzle",name:"스도쿠",desc:"숫자를 규칙에 맞게 채우는 논리 퍼즐",url:"https://sudoku.com/"},
+  {icon:"bomb",name:"지뢰찾기",desc:"숫자를 보고 지뢰의 위치를 추리하는 클래식 퍼즐",url:"https://minesweeper.online/"},
+  {icon:"blocks",name:"테트리스",desc:"블록을 쌓아 줄을 없애는 퍼즐 게임",url:"https://tetris.com/play-tetris"},
+  {icon:"snake",name:"스네이크",desc:"먹이를 먹으며 점점 길어지는 클래식 게임",url:"https://playsnake.org/"},
+  {icon:"globe",name:"월드페이트",desc:"국가들의 흥망성쇠를 구경하는 시뮬레이션 게임",url:"https://worldfate.kro.kr/"}
 ];
 
 function renderGames(){
   document.getElementById("app").innerHTML=`
     <div class="page-title"><h1>게임</h1><p>쉬는 시간에 가볍게 즐길 수 있는 게임 모음이에요.</p></div>
-    <div class="game-note">💡 직접 만든 게임이 아니라 외부 사이트로 연결돼요.</div>
+    <div class="game-note">${ic("bulb")} 직접 만든 게임이 아니라 외부 사이트로 연결돼요.</div>
     <div class="games-grid">
       ${GAME_LIST.map(g=>`
         <div class="game-card">
-          <div class="game-icon">${g.icon}</div>
+          <div class="game-icon">${ic(g.icon)}</div>
           <h3>${g.name}</h3>
           <p>${g.desc}</p>
           <a class="game-link" href="${g.url}" target="_blank" rel="noopener noreferrer">게임 시작 →</a>
@@ -2928,7 +2980,7 @@ async function renderStudents(){
               <b style="${p.equipped_color?`color:${escapeHTML(p.equipped_color)}`:""}">${escapeHTML(p.nickname)}</b>
               ${p.id===currentUser?.id ? `<span class="badge badge-accent">나</span>` : ""}
               ${p.role!=="student" ? roleBadge(p.role) : ""}
-              ${p.equipped_title ? `<span class="badge badge-title">${escapeHTML(p.equipped_title)}</span>` : ""}
+              ${p.equipped_title ? `<span class="badge badge-title">${titleHtml(p.equipped_title)}</span>` : ""}
             </span>
             <span class="meta">${escapeHTML(p.handle)}</span>
             ${p.status_message ? `<span class="student-status">${escapeHTML(p.status_message)}</span>` : ""}
@@ -3120,16 +3172,16 @@ async function renderAccount(){
 
   const notifPermission=getNotificationPermissionState();
   const notifText=
-    notifPermission==="granted" ? "✅ 알림 허용됨" :
-    notifPermission==="denied" ? "🚫 차단됨 (브라우저 설정에서 허용해주세요)" :
+    notifPermission==="granted" ? ic("check-circle")+" 알림 허용됨" :
+    notifPermission==="denied" ? ic("ban")+" 차단됨 (브라우저 설정에서 허용해주세요)" :
     notifPermission==="unsupported" ? "이 브라우저는 알림을 지원하지 않아요" :
     "아직 설정하지 않음";
 
   const pushState=await getPushState();
   const pushCard={
-    on:{text:"✅ 백그라운드 알림 켜짐", button:`<button class="outline btn-sm" onclick="disablePush()">끄기</button>`},
+    on:{text:ic("check-circle")+" 백그라운드 알림 켜짐", button:`<button class="outline btn-sm" onclick="disablePush()">끄기</button>`},
     off:{text:"꺼져 있음", button:`<button class="primary btn-sm" onclick="enablePush()">알림 켜기</button>`},
-    denied:{text:"🚫 차단됨 (브라우저 설정에서 허용해주세요)", button:""},
+    denied:{text:ic("ban")+" 차단됨 (브라우저 설정에서 허용해주세요)", button:""},
     unsupported:{text:"이 브라우저는 지원하지 않아요", button:""},
     "needs-install":{text:"아이폰은 '홈 화면에 추가'로 설치해야 해요 (공유 버튼 → 홈 화면에 추가)", button:`<button class="outline btn-sm" onclick="enablePush()">방법 보기</button>`},
     unconfigured:{text:notifText, button:`<button class="outline btn-sm" onclick="enablePush()">알림 켜기 / 확인</button>`}
@@ -3149,16 +3201,16 @@ async function renderAccount(){
       <div>
         <div class="profile-name">
           <b style="${profile.equipped_color?`color:${escapeHTML(profile.equipped_color)}`:""}">${escapeHTML(profile.nickname)}</b>
-          ${profile.equipped_title ? `<span class="badge badge-title">${escapeHTML(profile.equipped_title)}</span>` : ""}
+          ${profile.equipped_title ? `<span class="badge badge-title">${titleHtml(profile.equipped_title)}</span>` : ""}
         </div>
-        <div class="meta">학번 ${escapeHTML(profile.handle)} · ${roleBadge(profile.role)} · 🪙 ${profile.points||0}P</div>
-        ${profile.status_message ? `<div class="profile-status">💬 ${escapeHTML(profile.status_message)}</div>` : ""}
+        <div class="meta">학번 ${escapeHTML(profile.handle)} · ${roleBadge(profile.role)} · ${ic("coin")} ${profile.points||0}P</div>
+        ${profile.status_message ? `<div class="profile-status">${ic("chat")} ${escapeHTML(profile.status_message)}</div>` : ""}
       </div>
     </div>
 
     <div class="account-grid">
       <div class="card">
-        <h3>💬 상태 메시지</h3>
+        <h3>${ic("chat")} 상태 메시지</h3>
         <p class="card-desc">다른 친구가 내 프로필을 열면 보이는 한 줄 메시지예요.</p>
         <div class="inline-form">
           <input class="input" id="statusMessageInput" type="text" maxlength="60" placeholder="상태 메시지를 입력해주세요" value="${escapeHTML(profile.status_message||"")}">
@@ -3167,7 +3219,7 @@ async function renderAccount(){
       </div>
 
       <div class="card">
-        <h3>✏️ 닉네임 변경</h3>
+        <h3>${ic("pencil")} 닉네임 변경</h3>
         <p class="card-desc">${NICKNAME_COOLDOWN_DAYS}일에 한 번만 바꿀 수 있어요. 학번(${escapeHTML(profile.handle)})은 항상 함께 표시돼요.</p>
         <div class="inline-form">
           <input class="input" id="newNickname" type="text" placeholder="새 닉네임 입력" value="${escapeHTML(profile.nickname)}" ${!canChange?"disabled":""}>
@@ -3177,7 +3229,7 @@ async function renderAccount(){
       </div>
 
       <div class="card">
-        <h3>🔔 시험·수행평가 알림</h3>
+        <h3>${ic("bell")} 시험·수행평가 알림</h3>
         <p class="card-desc">${pushDesc}</p>
         <div class="inline-form" style="justify-content:space-between;flex-wrap:wrap">
           <span class="meta">현재 상태: ${pushCard.text}</span>
@@ -3188,7 +3240,7 @@ async function renderAccount(){
 
     <div class="card shop-section">
       <div class="section-head">
-        <h3>🪙 포인트 상점</h3>
+        <h3>${ic("coin")} 포인트 상점</h3>
         <span class="points-badge">보유 ${profile.points||0}P</span>
       </div>
       <p class="card-desc" style="margin-top:6px">출석체크(+${CHECKIN_POINTS}P/일)와 게시판 글 채택(+${FEATURE_POINTS}P)으로 포인트를 모을 수 있어요.</p>
@@ -3205,9 +3257,9 @@ async function renderAccount(){
       <h4>닉네임 색상</h4>
       <div class="shop-grid">
         <div class="shop-item">
-          <div class="icon">${COLOR_ITEM.icon}</div>
+          <div class="icon">${ic(COLOR_ITEM.icon)}</div>
           <div class="name">${COLOR_ITEM.name}</div>
-          <div class="price">🪙 ${COLOR_ITEM.price}P</div>
+          <div class="price">${ic("coin")} ${COLOR_ITEM.price}P</div>
           <input type="color" id="nicknameColorPicker" class="nickname-color-input" value="${profile.equipped_color||"#3268e8"}">
           <button class="outline" onclick="buyNicknameColor()">적용/구매</button>
         </div>
@@ -3265,9 +3317,9 @@ function renderShopItem(item,category){
 
   return `
     <div class="shop-item ${owned?"owned":""}">
-      <div class="icon">${item.icon}</div>
+      <div class="icon">${ic(item.icon)}</div>
       <div class="name">${escapeHTML(item.name)}</div>
-      <div class="price">${item.price===0 ? "무료" : `🪙 ${item.price}P`}</div>
+      <div class="price">${item.price===0 ? "무료" : `${ic("coin")} ${item.price}P`}</div>
       ${buttonHtml}
     </div>
   `;
@@ -3359,7 +3411,7 @@ async function renderAdminSection(){
   }).join("");
 
   return `
-    <h2 class="admin-title">🔒 관리자 기능</h2>
+    <h2 class="admin-title">${ic("shield")} 관리자 기능</h2>
     <div class="stats">
       <div class="stat-card">공지사항<b>${counts.notices}</b></div>
       <div class="stat-card">일정<b>${counts.schedules}</b></div>
@@ -3369,7 +3421,7 @@ async function renderAdminSection(){
     </div>
 
     <div class="admin-box">
-      <strong>🪙 학생 포인트 관리</strong>
+      <strong>${ic("coin")} 학생 포인트 관리</strong>
       <p>+10, -20처럼 입력하고 [적용]을 누르면 그 학생의 포인트가 바뀌어요.</p>
       <div class="table-wrap">
         <table>
@@ -3384,7 +3436,7 @@ async function renderAdminSection(){
     </div>
 
     <div class="admin-box">
-      <strong>🧹 오래된 게시글 정리</strong>
+      <strong>${ic("broom")} 오래된 게시글 정리</strong>
       <p>2개월 이상 지난 공지, 일정, 수행평가, 분실물, 게시판 글을 확인하고 삭제할 수 있어요.</p>
       <button class="outline" onclick="oldPosts()">검토하기</button>
     </div>
@@ -3473,22 +3525,22 @@ function renderProfileModal(targetId,p,messages){
   const borderClass=borderClassFor(p.equipped_border);
 
   return `
-    <h2>👤 프로필</h2>
+    <h2>${ic("user")} 프로필</h2>
     <div class="profile-box ${borderClass}">
       <div class="profile-cover"></div>
       <div class="avatar" title="학번 끝자리(번호)">${escapeHTML(getStudentNumber(p.handle))}</div>
       <div>
         <div class="profile-name">
           <b style="${p.equipped_color?`color:${escapeHTML(p.equipped_color)}`:""}">${escapeHTML(p.nickname)}</b>
-          ${p.equipped_title ? `<span class="badge badge-title">${escapeHTML(p.equipped_title)}</span>` : ""}
+          ${p.equipped_title ? `<span class="badge badge-title">${titleHtml(p.equipped_title)}</span>` : ""}
         </div>
         <div class="meta">학번 ${escapeHTML(p.handle)} · ${roleBadge(p.role)}</div>
-        ${p.status_message ? `<div class="profile-status">💬 ${escapeHTML(p.status_message)}</div>` : ""}
+        ${p.status_message ? `<div class="profile-status">${ic("chat")} ${escapeHTML(p.status_message)}</div>` : ""}
       </div>
     </div>
 
     <div class="modal-section">
-      <h3>📮 메시지 남기기</h3>
+      <h3>${ic("mail")} 메시지 남기기</h3>
       <div class="inline-form" style="margin:10px 0 6px">
         <input class="input" id="profileMsgInput" placeholder="이 친구의 프로필에 메시지를 남겨보세요...">
         <button class="primary" onclick="addProfileMessage('${targetId}')">등록</button>
@@ -3566,7 +3618,7 @@ async function oldPosts(){
   if(error){ msg(error.message); return; }
 
   openModal(`
-    <h2>🧹 오래된 게시글</h2>
+    <h2>${ic("broom")} 오래된 게시글</h2>
     <p class="meta">2개월 이상 지난 게시글 ${data.length}개</p>
     ${data.length ? data.map(n=>`
       <div class="old-post-row">
