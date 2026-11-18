@@ -3630,10 +3630,10 @@ function renderProfileModal(targetId,p,messages){
   `;
 }
 
-// 메시지를 쓴 사람, 프로필 주인, 선생님/관리자만 삭제할 수 있어요
+// 메시지는 쓴 사람 본인만 삭제할 수 있어요 (관리자는 예외)
 function canDeleteProfileMessage(m,targetId){
   if(!currentUser)return false;
-  return m.author_id===currentUser.id || targetId===currentUser.id || isStaff();
+  return m.author_id===currentUser.id || profile?.role==="admin";
 }
 
 async function deleteProfileMessage(id,targetId){
@@ -3738,7 +3738,8 @@ Object.assign(window,{
   toggleShopCategory, applyStudentPoints, addLostComment,
   oldPosts, deleteOldPost,
   toggleSnsLock, playFeedVideo,
-  showUserProfile, addProfileMessage,
+  showUserProfile, addProfileMessage, deleteProfileMessage,
+  toggleEmoPicker, insertEmoticon,
   changeTimetableDate, changeMealDate,
   initExamNotifications, enablePush, disablePush
 });
