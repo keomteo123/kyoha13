@@ -393,12 +393,48 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 
 @media (prefers-reduced-motion:reduce){.profile-box,.profile-box *,.profile-box::before,.profile-box::after{animation:none!important}}
 
+/* ---------- 프로필 레이아웃: 커버 + 가운데 아바타 카드 ---------- */
+.profile-box,.profile-box[class*="border-"]{flex-direction:column;align-items:center;text-align:center;gap:0;padding:0 0 20px}
+.profile-box.border-spire{padding-top:0}
+.profile-cover{align-self:stretch;height:92px;
+  background:var(--cover,linear-gradient(135deg,var(--main),#8fb0ff));}
+.profile-box .avatar,.profile-box[class*="border-"] .avatar{width:80px;height:80px;font-size:26px;margin-top:-40px;
+  box-shadow:0 0 0 5px #fff,0 0 0 7px var(--frame,transparent),0 6px 16px rgba(0,0,0,.12)}
+.profile-box > div:last-child{width:100%;padding:12px 22px 0}
+.profile-name{justify-content:center;font-size:21px}
+.profile-box .meta{margin-top:6px}
+.profile-status{display:inline-block;margin-top:12px;padding:8px 14px;border-radius:14px;position:relative}
+.profile-status::before{content:"";position:absolute;top:-6px;left:50%;margin-left:-6px;border:6px solid transparent;border-top:0;border-bottom-color:rgba(0,0,0,.04)}
+.profile-box[class*="border-"]::after{top:100px}
+.profile-box.border-crown .avatar{margin-top:-40px}
+.profile-box.border-crown .avatar::before{top:-26px;font-size:28px}
+
+/* 테두리별 커버 */
+.border-neon    {--cover:linear-gradient(rgba(0,216,255,.25) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(90deg,rgba(0,216,255,.25) 1px,transparent 1px) 0 0/16px 16px,linear-gradient(135deg,#02121c,#06425a)}
+.border-gold    {--cover:repeating-linear-gradient(45deg,rgba(255,255,255,.18) 0 8px,transparent 8px 16px),linear-gradient(135deg,#f6d678,#d9a529,#b07d10)}
+.border-gradient{--cover:linear-gradient(90deg,#ff8ec7,#7c7bff,#7ef7bf)}
+.border-vine    {--cover:radial-gradient(circle at 20% 120%,#2ea95e 0 40px,transparent 41px),radial-gradient(circle at 70% 130%,#3bb273 0 60px,transparent 61px),linear-gradient(#d1f4d4,#a8e6a8)}
+.border-branch  {--cover:repeating-linear-gradient(95deg,#8c5b34 0 14px,#9d6a40 14px 18px,#7a4b1e 18px 30px)}
+.border-thorn   {--cover:linear-gradient(135deg,#b95fc6 25%,transparent 25%) 0 0/24px 24px,linear-gradient(225deg,#b95fc6 25%,transparent 25%) 0 0/24px 24px,linear-gradient(#f5d0ff,#e3a6ee)}
+.border-spark   {--cover:radial-gradient(circle at 15% 30%,#fff 0 2px,transparent 3px),radial-gradient(circle at 45% 70%,#fff 0 3px,transparent 4px),radial-gradient(circle at 80% 25%,#fff 0 2px,transparent 3px),linear-gradient(135deg,#ffd166,#ffb703)}
+.border-crystal {--cover:linear-gradient(115deg,#a7d8ff 0 30%,#7cc0ff 30% 55%,#5da7ff 55% 75%,#4a8fe6 75%)}
+.border-comet   {--cover:linear-gradient(160deg,transparent 45%,#ffb5b5 46% 50%,transparent 51%),linear-gradient(135deg,#3a0d1a,#8c1f2d)}
+.border-ribbon  {--cover:repeating-linear-gradient(135deg,#d7a8ff 0 12px,#c48bff 12px 24px)}
+.border-lotus   {--cover:radial-gradient(circle at 25% 60%,#ffc1d4 0 22px,transparent 23px),radial-gradient(circle at 75% 40%,#ffd6e3 0 30px,transparent 31px),linear-gradient(135deg,#ffdfe9,#b8f2ea)}
+.border-crown   {--cover:linear-gradient(135deg,#ffe58a,#ffc93d 60%,#e5a800)}
+.border-wing    {--cover:radial-gradient(ellipse 120px 50px at 50% 110%,#fff,transparent),linear-gradient(#9ce9ef,#32c7c8)}
+.border-nova    {--cover:radial-gradient(circle at 20% 30%,#fff 0 1px,transparent 2px),radial-gradient(circle at 70% 60%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 85% 20%,#fff 0 1px,transparent 2px),radial-gradient(circle at 40% 80%,#fff 0 1px,transparent 2px),linear-gradient(135deg,#1a1440,#4b3aa8)}
+.border-spire   {--cover:linear-gradient(#fff 50%,transparent 50%) 0 0/28px 20px repeat-x,linear-gradient(#ffd39a,#ff7a18)}
+.profile-box.border-neon .avatar,.profile-box.border-nova .avatar{color:#fff;box-shadow:0 0 0 5px rgba(255,255,255,.15),0 0 0 7px var(--frame),0 0 18px var(--frame)}
+.profile-box.border-thorn .avatar,.profile-box.border-crystal .avatar{width:88px;height:88px;margin-top:-44px}
+.profile-box.border-gold .avatar,.profile-box.border-branch .avatar,.profile-box.border-spire .avatar{border-radius:18px}
+
 /* 목록에 나오는 작은 아바타 */
 .avatar[class*="border-"]{background:var(--accent);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--frame)}
 
 @media (max-width:480px){
-  .profile-box{padding:16px;gap:12px}
-  .avatar{width:44px;height:44px;font-size:15px}
+  .profile-box .avatar,.profile-box[class*="border-"] .avatar{width:68px;height:68px;font-size:22px;margin-top:-34px}
+  .profile-cover{height:76px}
   .profile-name{font-size:16px}
 }
 
@@ -3071,6 +3107,7 @@ async function renderAccount(){
     <div class="page-title"><h1>계정</h1><p>프로필과 닉네임, 포인트를 관리할 수 있어요.</p></div>
 
     <div class="profile-box ${borderClass}">
+      <div class="profile-cover"></div>
       <div class="avatar" title="학번 끝자리(번호)">${escapeHTML(studentNum)}</div>
       <div>
         <div class="profile-name">
@@ -3401,6 +3438,7 @@ function renderProfileModal(targetId,p,messages){
   return `
     <h2>👤 프로필</h2>
     <div class="profile-box ${borderClass}">
+      <div class="profile-cover"></div>
       <div class="avatar" title="학번 끝자리(번호)">${escapeHTML(getStudentNumber(p.handle))}</div>
       <div>
         <div class="profile-name">
