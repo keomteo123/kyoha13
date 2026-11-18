@@ -292,6 +292,107 @@ textarea{min-height:140px;resize:vertical;line-height:1.6}
 .border-nova    {--frame:#7d63ff;--glow:rgba(125,99,255,.16);--tint:linear-gradient(135deg,#f1eeff,#fff 60%);--accent:#6c52f0;--stripe:linear-gradient(90deg,#b8b3ff,#7d63ff)}
 .border-spire   {--frame:#ff7a18;--glow:rgba(255,122,24,.16);--tint:linear-gradient(135deg,#fff3e8,#fff 60%);--accent:#ec6a0b;--stripe:linear-gradient(90deg,#ffd39a,#ff7a18)}
 
+/* ---------- 테두리별 개성 (장식은 모두 글자 뒤/모서리에만) ---------- */
+.profile-box[class*="border-"]{padding-right:52px}
+.profile-box[class*="border-"]::after{position:absolute;z-index:0;pointer-events:none}
+@keyframes pf-glow{50%{box-shadow:0 0 0 3px rgba(0,216,255,.35),0 0 26px rgba(0,216,255,.55)}}
+@keyframes pf-twinkle{50%{opacity:.25;transform:scale(.8) rotate(20deg)}}
+@keyframes pf-slide{from{background-position:0 0}to{background-position:200% 0}}
+@keyframes pf-comet{from{transform:translateX(-120%) skewX(-20deg)}to{transform:translateX(320%) skewX(-20deg)}}
+@keyframes pf-float{50%{transform:translateY(-4px)}}
+
+/* 네온: 어두운 카드 + 깜빡이는 빛 */
+.profile-box.border-neon{--tint:linear-gradient(135deg,#071a26,#0c2a3a);color:#e6f9ff;animation:pf-glow 2.4s ease-in-out infinite;border-radius:14px}
+.profile-box.border-neon .meta{color:rgba(230,249,255,.7)}
+.profile-box.border-neon .profile-status{background:rgba(0,216,255,.12);color:#bff4ff}
+.profile-box.border-neon .avatar{box-shadow:0 0 0 2px #071a26,0 0 0 4px #00d8ff,0 0 14px #00d8ff}
+.profile-box.border-neon::before{height:2px;top:auto;bottom:0;box-shadow:0 0 10px #00d8ff}
+
+/* 골드: 이중 테두리 + 모서리 장식 */
+.profile-box.border-gold{border:4px double #d9a529;border-radius:6px}
+.profile-box.border-gold::before{display:none}
+.profile-box.border-gold::after{content:"";inset:6px;border:1px solid rgba(217,165,41,.45);border-radius:2px;
+  background:
+   linear-gradient(#d9a529,#d9a529) left top/14px 2px no-repeat,linear-gradient(#d9a529,#d9a529) left top/2px 14px no-repeat,
+   linear-gradient(#d9a529,#d9a529) right top/14px 2px no-repeat,linear-gradient(#d9a529,#d9a529) right top/2px 14px no-repeat,
+   linear-gradient(#d9a529,#d9a529) left bottom/14px 2px no-repeat,linear-gradient(#d9a529,#d9a529) left bottom/2px 14px no-repeat,
+   linear-gradient(#d9a529,#d9a529) right bottom/14px 2px no-repeat,linear-gradient(#d9a529,#d9a529) right bottom/2px 14px no-repeat}
+.profile-box.border-gold .avatar{border-radius:12px;background:linear-gradient(135deg,#f6d678,#c48f12)}
+
+/* 그라데이션: 흐르는 무지개 테두리 */
+.profile-box.border-gradient{border:3px solid transparent;border-radius:20px;
+  background:linear-gradient(135deg,#fbf3ff,#f2f6ff) padding-box,linear-gradient(90deg,#ff8ec7,#7c7bff,#7ef7bf,#ff8ec7) border-box;
+  background-size:100% 100%,200% 100%;animation:pf-slide 4s linear infinite}
+.profile-box.border-gradient::before{display:none}
+.profile-box.border-gradient .avatar{background:linear-gradient(135deg,#ff8ec7,#7c7bff,#7ef7bf)}
+
+/* 덩굴: 점선 + 잎사귀 */
+.profile-box.border-vine{border-style:dashed;border-radius:24px 6px 24px 6px}
+.profile-box.border-vine::before{height:100%;width:6px;background:repeating-linear-gradient(180deg,#2ea95e 0 10px,#a8e6a8 10px 16px)}
+.profile-box.border-vine::after{content:"🌿";right:10px;top:8px;font-size:22px;transform:rotate(25deg)}
+
+/* 나무: 나뭇결 무늬 */
+.profile-box.border-branch{border-radius:8px;border-width:3px}
+.profile-box.border-branch::before{height:100%;background:repeating-linear-gradient(100deg,transparent 0 22px,rgba(140,91,52,.06) 22px 26px);}
+.profile-box.border-branch::after{content:"🪵";right:10px;bottom:6px;font-size:22px}
+.profile-box.border-branch .avatar{border-radius:10px}
+
+/* 가시: 마름모 무늬 띠 */
+.profile-box.border-thorn{border-style:dotted;border-width:3px;border-radius:4px 22px 4px 22px}
+.profile-box.border-thorn::before{height:8px;background:linear-gradient(135deg,#b95fc6 25%,transparent 25%) -6px 0/12px 8px,linear-gradient(225deg,#b95fc6 25%,transparent 25%) -6px 0/12px 8px}
+.profile-box.border-thorn .avatar{border-radius:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);width:58px;height:58px}
+
+/* 스파크: 반짝이 */
+.profile-box.border-spark::after{content:"✨";right:12px;top:10px;font-size:20px;animation:pf-twinkle 1.6s ease-in-out infinite}
+.profile-box.border-spark::before{height:100%;background:radial-gradient(circle at 88% 78%,rgba(255,183,3,.6) 0 2px,transparent 3px),radial-gradient(circle at 70% 20%,rgba(255,183,3,.5) 0 2px,transparent 3px),radial-gradient(circle at 95% 45%,rgba(255,183,3,.5) 0 1.5px,transparent 2.5px)}
+
+/* 크리스탈: 모서리 깎인 보석 (모서리만 살짝) */
+.profile-box.border-crystal{border-radius:0;clip-path:polygon(14px 0,calc(100% - 14px) 0,100% 14px,100% calc(100% - 14px),calc(100% - 14px) 100%,14px 100%,0 calc(100% - 14px),0 14px);box-shadow:none;border-width:3px}
+.profile-box.border-crystal::before{height:100%;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.8) 48%,transparent 56%),linear-gradient(135deg,rgba(93,167,255,.12),transparent 50%)}
+.profile-box.border-crystal::after{content:"💎";right:14px;top:10px;font-size:20px}
+.profile-box.border-crystal .avatar{border-radius:0;clip-path:polygon(50% 0,100% 28%,100% 72%,50% 100%,0 72%,0 28%)}
+
+/* 혜성: 지나가는 빛줄기 */
+.profile-box.border-comet::before{top:0;height:100%;width:30%;background:linear-gradient(90deg,transparent,rgba(255,93,93,.18),transparent);animation:pf-comet 3.5s ease-in-out infinite}
+.profile-box.border-comet::after{content:"☄️";right:12px;top:8px;font-size:20px}
+
+/* 리본: 비대칭 + 리본 */
+.profile-box.border-ribbon{border-radius:28px 8px 28px 8px}
+.profile-box.border-ribbon::before{height:100%;width:auto;left:auto;right:28px;width:14px;background:linear-gradient(#d7a8ff,#b35eff)}
+.profile-box.border-ribbon::after{content:"🎀";right:14px;top:-2px;font-size:26px}
+
+/* 연꽃: 둥근 카드 + 꽃잎 */
+.profile-box.border-lotus{border-radius:32px}
+.profile-box.border-lotus::before{height:100%;background:radial-gradient(circle at 100% 100%,rgba(255,126,166,.18) 0 60px,transparent 61px),radial-gradient(circle at 0 0,rgba(184,242,234,.35) 0 50px,transparent 51px)}
+.profile-box.border-lotus::after{content:"🌸";right:14px;top:10px;font-size:20px;animation:pf-float 3s ease-in-out infinite}
+
+/* 왕관: 아바타 위 왕관 */
+.profile-box.border-crown{border-radius:10px}
+.profile-box.border-crown::before{height:7px;background:linear-gradient(135deg,transparent 50%,#ffc93d 50%) 0 0/14px 7px,linear-gradient(225deg,transparent 50%,#ffc93d 50%) 0 0/14px 7px}
+.profile-box.border-crown .avatar{position:relative;margin-top:8px}
+.profile-box.border-crown .avatar::before{content:"👑";position:absolute;top:-19px;left:50%;transform:translateX(-50%) rotate(-10deg);font-size:20px}
+
+/* 날개: 양쪽 날개 장식 */
+.profile-box.border-wing{border-radius:40px 14px 40px 14px}
+.profile-box.border-wing::before{height:100%;background:radial-gradient(ellipse 60px 30px at 0 50%,rgba(50,199,200,.2),transparent),radial-gradient(ellipse 60px 30px at 100% 50%,rgba(50,199,200,.2),transparent)}
+.profile-box.border-wing::after{content:"🕊️";right:12px;top:8px;font-size:20px;animation:pf-float 2.6s ease-in-out infinite}
+
+/* 노바: 밤하늘 */
+.profile-box.border-nova{--tint:radial-gradient(circle at 85% 20%,#3b2a8a,#1a1440 70%);color:#f1eeff;border-radius:18px}
+.profile-box.border-nova .meta{color:rgba(241,238,255,.7)}
+.profile-box.border-nova .profile-status{background:rgba(255,255,255,.1);color:#e3dcff}
+.profile-box.border-nova::before{height:100%;background:radial-gradient(circle at 20% 20%,#fff 0 1px,transparent 2px),radial-gradient(circle at 60% 80%,#fff 0 1px,transparent 2px),radial-gradient(circle at 80% 40%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 40% 55%,rgba(255,255,255,.7) 0 1px,transparent 2px),radial-gradient(circle at 92% 85%,#fff 0 1px,transparent 2px)}
+.profile-box.border-nova::after{content:"🌙";right:14px;top:10px;font-size:20px}
+.profile-box.border-nova .avatar{box-shadow:0 0 0 2px #1a1440,0 0 0 4px #b8b3ff,0 0 16px #7d63ff}
+
+/* 첨탑: 성벽 모양 윗단 */
+.profile-box.border-spire{border-radius:4px;padding-top:28px}
+.profile-box.border-spire::before{height:12px;background:linear-gradient(90deg,#ff7a18 50%,transparent 50%) 0 0/24px 12px,linear-gradient(#ff7a18,#ff7a18) 0 8px/100% 4px no-repeat}
+.profile-box.border-spire::after{content:"🏰";right:12px;bottom:8px;font-size:20px}
+.profile-box.border-spire .avatar{border-radius:6px}
+
+@media (prefers-reduced-motion:reduce){.profile-box,.profile-box *,.profile-box::before,.profile-box::after{animation:none!important}}
+
 /* 목록에 나오는 작은 아바타 */
 .avatar[class*="border-"]{background:var(--accent);box-shadow:0 0 0 2px #fff,0 0 0 4px var(--frame)}
 
