@@ -936,80 +936,143 @@ const STUDENT_IDS=[
 function idToEmail(studentId){ return `${studentId}@classroom.local`; }
 
 
-// ===== 클린봇: 매우 단순한 1차 필터 (완벽하지 않음, 보조 수단) =====
-const BAD_WORDS = [
-  // --- 기존 목록 ---
-  "개판", "개뿔", "미친", "미친년", "미친놈", "꺼져", "닥쳐", "등신", 
-  "지랄", "옘병", "염병", "쓰레기", "개구라", "호구", "호로", "창녀",
-  "ㅈㄹ", "ㄷㅊ", "ㄲㅈ", "ㅁㅊ", "ㅁㅊㄴ", "ㅁㅊ놈", "ㅆㅂ", "ㅆㅂㄹㅁ", 
-  "개새", "개년", "개놈", "개역겨워", "엠생", "애미", "니애미",
-  "asshole", "bitch", "bastard", "cunt", "dick", "fucker", "idiot", "motherfucker",
+// ===== 클린봇 v2 =====
+// 1) 띄어쓰기·특수문자·숫자를 끼워 넣은 우회(씨.발, 시1발, ㅅ ㅂ)도 잡고
+// 2) 정상 단어 속에 우연히 들어간 경우(새끼손가락, 시바견, 자지 않고, class, hello)는 잡지 않아요.
+// 완벽하지 않은 보조 수단이에요. 놓친 표현이나 잘못 잡힌 표현은 아래 목록에 추가해 주세요.
 
-  // --- 기본 욕설 및 파생형 ---
-  "시발", "씨발", "씨바", "시바", "씨팔", "시팔", "씨벌", "시벌",
-  "개새끼", "개새키", "개새기", "개세끼", "개쉐이", "개족보", "개딸",
-  "병신", "븅신", "빙신", "ㅂㅅ", "호구새끼", "등신새끼", "머저리",
-  "새끼", "새키", "새기", "쉐끼", "섀끼", "색기", "상노인", "쌍놈", "쌍년",
-  "보지", "자지", "자지새끼", "씹", "씹새", "씹년", "씹놈",
+// 한국어: 띄어쓰기/특수문자를 지운 글자에서 찾는 패턴
+const BAD_PATTERNS_KO=[
+  /[씨시쒸씌쓰ㅆ][이ㅣ]*[발빨벌뻘팔펄]/,  /[ㅅㅆ]+[ㅂㅃ]+/,  /[씨시][바빠]/,
+  /[병븅빙]+[신딱]/, /ㅂ+ㅅ/,
+  /좆|좇같|존[나니]|졸[라나]|ㅈ+ㄴ/,
+  /개?[새쌔세쉐섀][끼키]|개새|개세|개쉐|색기/,
+  /지랄|ㅈ+ㄹ|염병|옘병|ㅇㅂ/,
+  /닥[쳐치]|ㄷ+ㅊ/, /꺼[져지]|ㄲ+ㅈ/,
+  /미[친쳤](년|놈|새|것|애|x)|ㅁ+ㅊ/,
+  /[애에]미|[애에]비|느금|니미|니엄마|느그/,
+  /씹[새쌔년놈창할덕]|씹|ㅆ+ㄹ/,
+  /보지|자지/,
+  /[엠앰]생|[엠앰]창/,
+  /뒈[져지]|[디뒤][져지]/,
+  /죽어(라|버려|줘)|자살해|자살하[라세]|현피/,
+  /아가리|아구창|입닥/,
+  /개[소쌉]리|쌉소리|개수작|개구라|개족보|개역겨/,
+  /정신병자|정신병|돌[아대]이|도라이|돌대가리|닭대가리|머저리|등신|쌍[놈년]|창녀|호로[새자]|흑우|뇌에이브|뇌순실|장애인새|애자/,
+  /개[년놈판뿔]|상노인|노답충|급식충|한남충|김치녀|틀딱/,
+  /ㅗ/
+];
 
-  // --- 초성 및 줄임말 은어 (확장) ---
-  "ㅅㅂ", "ㅅㅂㄹㅁ", "ㅆㅂㄹ", "ㅅㅂㄴ", "ㅂㅅ", "ㅈㄴ", "존나", "졸라", 
-  " ㅗ", "ㅗㅗ", "시볼", "시뻘", "꺼지셈", "입닥쳐", "아가리", "아구창", 
-  "족쳐", "뒈져", "디져", "죽어", "자살해", "현피",
+// 정상 표현: 이 부분은 먼저 지우고 검사해요 (띄어쓰기 없이 적기)
+const CLEAN_ALLOW_KO=[
+  "시발점","시발역","씨발라","시바견","시바이누","시바타","시바사키","시바우라","이시바","시바개","시바스","씨바라기",
+  "새끼손가락","새끼발가락","새끼줄","새끼고양이","새끼강아지","새끼곰","새끼새","새끼를","새끼들이태어","새끼낳",
+  "보지마","보지않","보지도","보지못","보지만","보지는","보지말","보지요","보지그","보지않을","보지아니",
+  "자지마","자지러","자지않","자지도","자지못","자지만","자지는","자지말","자지요","자지그",
+  "씹어","씹는","씹고","씹을","씹었","씹히","씹기","씹으","씹다",
+  "꺼져있","꺼져서","꺼져버렸","꺼져요불","불꺼져","꺼져가","꺼지면","꺼지고","꺼지는","꺼지지","꺼진",
+  "뒤져봐","뒤져보","뒤져서","뒤져도","뒤져야","뒤지다","뒤지는","뒤지고","뒤지면","뒤져봤","뒤지기","디지털","디지몬",
+  "개판오분전","개뿔도","지랄탄","미친듯이","미친척",
+  "존나다","존나라","졸라맨",
+  "애미가","에미넴","애비뉴","에비앙","애비씨",
+  "느그적","니미츠",
+  "엠생명","앰생명",
+  "개새로운","개세계","개세상","개세트",
+  "쉐끼리","색기능","색기호","색기술",
+  "정신병원","정신병동","정신병리",
+  "등신대","등신불",
+  "새끼줄","세끼밥","하루세끼","삼시세끼","세끼식사","세끼를","세끼다","세끼먹","세끼씩","세키로","졸라매","졸라맸","뒤지지","뒤진다","에미상","애자일","니미럴x"
+];
 
-  // --- 인신공격 및 정신적 비하 ---
-  "정신병자", "돌아이", "도라이", "돌대가리", "닭대가리", "호빗",
-  "난쟁이", "뚱땡이", "멸치", "해골", "호구새끼", "흑우",
-  "바보", "멍청이", "샌님",  "뇌에이브",  "뇌순실",
+// 영어: 단어 단위로만 검사 (class, hello, assistant 같은 단어는 통과)
+const BAD_WORDS_EN_WHOLE=[
+  "ass","asses","asshat","assclown","asshole","jackass","dumbass","fatass","smartass","badass",
+  "bitch","bitches","bitchy","bastard","cunt","dick","dicks","dickhead","dickweed","cock","cocks","cocksucker",
+  "pussy","twat","whore","slut","sluts","sluttish","skank","hoe","hoes","pimp","prostitute","hooker",
+  "piss","pissed","prick","wanker","douche","douchebag","scumbag","jerktard","loser","idiot","moron",
+  "retard","retarded","spastic","fag","fags","faggot","dyke","damn","damned","goddamn","crap","crappy",
+  "stfu","gtfo","wtf","kys","nigga","nigger","porn"
+];
+// 영어: 다른 단어 안에 있어도 잡는 것 (우회가 많아서)
+const BAD_WORDS_EN_ANY=["fuck","fuk","fck","phuck","shit","bullshit","motherf","bitch","asshole","nigg"];
 
-  // --- 행동 및 저주 관련 ---
-  "뒈져라", "뒤져라", "뒈짐", "죽어버려", "꺼져버려", "꺼져라",
-  "엿먹어", "엿이나", "지랄하네", "지랄탄", "지랄발광", "개소리",
-  "헛소리", "쌉소리", "개수작", "속닥", "이빨까", "약치네",
-
-  // --- 영어 비속어 및 슬랭 확장 ---
-  "shit", "shitty", "shittier", "bullshit", "horseshit", "crap", "crappy",
-  "damn", "damned", "goddamn", "hell", "bloody", "piss", "pissed",
-  "dickhead", "dickweed", "cock", "cocksucker", "pussy", "twat", "whore",
-  "slut", "sluttish", "hooker", "prostitute", "pimp", "skank", "hoe",
-  "ass", "asshat", "assclown", "jackass", "dumbass", "fatass", "smartass",
-  "loser", "scumbag", "douche", "douchebag", "prick", "wanker", "jerktard",
-  "retard", "retarded", "spastic", "gayass", "fag", "faggot", "dyke", "queer",
-
-  // --- 그냥 기분 나쁨 ---
+// 그 밖에 막고 싶은 단어(이름 등): 띄어쓰기 무시하고 포함되면 잡아요
+const BLOCKED_EXTRA=[
   "정진우"
 ];
 
-// 방어코드: BAD_WORDS 선언이 배포 과정에서 누락/손상되어도 앱 전체가
-// 죽지 않도록 안전하게 처리합니다.
+const LEET={"0":"o","1":"i","3":"e","4":"a","5":"s","7":"t","8":"b","@":"a","$":"s","!":"i","|":"i"};
+
+// 글자 사이의 띄어쓰기·특수문자·숫자를 지우고, 원래 글의 위치도 함께 기억해요
+function cleanNormalize(text,{leet=false}={}){
+  const src=String(text||"").normalize("NFC").replace(/[\uFF01-\uFF5E]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0));
+  let out="", map=[];
+  for(let i=0;i<src.length;i++){
+    let c=src[i].toLowerCase();
+    if(leet && LEET[c]) c=LEET[c];
+    if(/[가-힣ㄱ-ㅎㅏ-ㅣa-z]/.test(c)){ out+=c; map.push(i); }
+  }
+  return {src,out,map};
+}
+
+function blankAllowed(out){
+  let s=out;
+  CLEAN_ALLOW_KO.forEach(a=>{ if(a) s=s.split(a).join("\u0000".repeat(a.length)); });
+  return s;
+}
+
+// 원래 글에서 걸린 부분의 위치들을 찾아요 [{start,end}]
+function findBadSpans(text){
+  if(!text) return [];
+  const spans=[];
+  const add=(n,from,to)=>{ if(to>from) spans.push({start:n.map[from],end:n.map[to-1]+1}); };
+
+  // 한국어 + 추가 단어 (띄어쓰기/기호 무시)
+  const n=cleanNormalize(text);
+  const hay=blankAllowed(n.out);
+  BAD_PATTERNS_KO.forEach(re=>{
+    const g=new RegExp(re.source,"g"); let m;
+    while((m=g.exec(hay))){ add(n,m.index,m.index+m[0].length); if(!m[0].length) g.lastIndex++; }
+  });
+  BLOCKED_EXTRA.forEach(w=>{ let i=-1; while((i=n.out.indexOf(w,i+1))>=0) add(n,i,i+w.length); });
+
+  // 영어: 숫자/기호 바꿔치기(sh1t, f@ck)까지 되돌려서 검사
+  const nl=cleanNormalize(text,{leet:true});
+  BAD_WORDS_EN_ANY.forEach(w=>{ let i=-1; while((i=nl.out.indexOf(w,i+1))>=0) add(nl,i,i+w.length); });
+  // 단어 단위: 원래 글을 단어로 나눠서 비교
+  const src=n.src; const wordRe=/[a-zA-Z0-9@$!|]+(?:[.\-_*][a-zA-Z0-9@$!|]+)*/g; let m;
+  while((m=wordRe.exec(src))){
+    const word=m[0].toLowerCase().replace(/[.\-_*]/g,"").replace(/./g,c=>LEET[c]||c);
+    if(BAD_WORDS_EN_WHOLE.includes(word)) spans.push({start:m.index,end:m.index+m[0].length});
+  }
+  return spans;
+}
+
+// 방어코드: 혹시 문제가 생겨도 사이트 전체가 멈추지 않게
 function containsBadWord(text){
-  if(typeof BAD_WORDS==="undefined" || !Array.isArray(BAD_WORDS) || !text) return false;
-  const normalized=String(text).toLowerCase().replace(/\s+/g,"");
-  return BAD_WORDS.some(w=>normalized.includes(w));
+  try{ return findBadSpans(text).length>0; }catch(e){ console.error(e); return false; }
 }
 
 function maskBadWords(text){
-  if(typeof BAD_WORDS==="undefined" || !Array.isArray(BAD_WORDS) || !text) return text;
-  let result=text;
-  BAD_WORDS.forEach(w=>{
-    const re=new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"gi");
-    result=result.replace(re,"*".repeat(w.length));
-  });
-  return result;
+  try{
+    const spans=findBadSpans(text); if(!spans.length) return text;
+    const src=String(text).normalize("NFC").replace(/[\uFF01-\uFF5E]/g,c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0)); const chars=[...src.split("")];
+    spans.forEach(({start,end})=>{ for(let i=start;i<end;i++) if(!/\s/.test(chars[i])) chars[i]="*"; });
+    return chars.join("");
+  }catch(e){ console.error(e); return text; }
 }
 
-// 클린봇을 어디서든 재사용하기 위한 공통 헬퍼:
-// 부적절한 표현이 있으면 확인창을 띄우고, 진행 시 마스킹된 텍스트를 반환.
-// 사용자가 취소하면 null을 반환.
+// 부적절한 표현이 있으면 확인창을 띄우고, 진행하면 가린 글을 돌려줘요. 취소하면 null.
 function cleanBotCheck(...texts){
-  const flagged=texts.some(t=>containsBadWord(t||""));
-  if(flagged){
-    if(!confirm("클린봇이 부적절한 표현을 감지했습니다.\n일부 단어가 자동으로 [***] 처리되어 등록됩니다.")){
+  const count=texts.reduce((n,t)=>n+findBadSpansSafe(t).length,0);
+  if(count>0){
+    if(!confirm(`클린봇이 부적절한 표현 ${count}곳을 감지했습니다.\n해당 부분이 자동으로 *** 처리되어 등록됩니다.\n\n(잘못 감지됐다면 취소 후 표현을 바꿔주세요)`)){
       return null;
     }
   }
   return texts.map(t=>maskBadWords(t||""));
 }
+function findBadSpansSafe(t){ try{ return findBadSpans(t||""); }catch(e){ return []; } }
 
 // ===== 상점 아이템 정의 =====
 const FONT_ITEMS=[
